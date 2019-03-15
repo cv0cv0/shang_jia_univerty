@@ -1,0 +1,160 @@
+package com.rubu.ui.act.mine;
+
+import android.content.Intent;
+import android.util.Log;
+import android.view.View;
+import android.widget.ListView;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.adapter.AlertPunishReminderAdapter;
+import com.rubu.base.BaseActivity;
+import com.rubu.constant.Constant;
+import com.rubu.model.AlertPunishModel;
+import com.rubu.model.Base;
+import com.rubu.net.ApiImp;
+import com.rubu.net.Params;
+import com.rubu.net.ReqJson;
+import com.rubu.util.LoginUtil;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
+import butterknife.BindView;
+import butterknife.OnClick;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/9/13
+ * Vwesion 1.0
+ * Dsscription: 处罚提醒列表
+ */
+
+public class AlertPunishAct extends BaseActivity {
+    @BindView(R.id.title)
+    TextView mTitle;
+    @BindView(R.id.title_left)
+    TextView mTitleLeft;
+    @BindView(R.id.remider_list)
+    ListView mRemiderListView;
+
+    // 处罚提醒的列表
+    private AlertPunishReminderAdapter mAdapter;
+    // 出发列表的数据
+    List<AlertPunishModel.RowsBean> mList;
+
+    @Override
+    protected int getViewId() {
+        return R.layout.act_alert_unusual;
+    }
+
+    @Override
+    protected void initEvent() {
+        mTitle.setText("处罚提醒");
+        mTitleLeft.setText(R.string.back);
+        mList = new ArrayList<>();
+        mAdapter = new AlertPunishReminderAdapter(mContext, mList);
+        mRemiderListView.setAdapter(mAdapter);
+        getPunishRemiderList();
+    }
+
+    @OnClick({R.id.title_left})
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.title_left:
+                finish();
+                break;
+        }
+    }
+
+    /**
+     * 获取处罚提醒列表内容
+     */
+    private void getPunishRemiderList() {
+        showProgressDialog("请稍等...");
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_GET_PUNISH_LIST);
+        reqJson.setS_wk_user_id(LoginUtil.getUserId(mContext));
+        mSubscription = ApiImp.get().getPunishReminderList(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<AlertPunishModel>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        dissmisProgressDialog();
+                        showToast("网络不给力");
+                        Log.i("处罚提醒列表", e.toString());
+                    }
+
+                    @Override
+                    public void onNext(AlertPunishModel model) {
+                        dissmisProgressDialog();
+                        int flag = model.getResult().getOut_Flag();
+                        if (flag == 0) {
+                            mList = model.getRows();
+                            mAdapter.refresh(model.getRows());
+                            mAdapter.setmItemOnclick(new AlertPunishReminderAdapter.ItemOnclick() {
+                                @Override
+                                public void onClick(AlertPunishModel.RowsBean bean) {
+                                    setRedDot(bean);
+                                }
+                            });
+                        } else {
+                            showToast(model.getResult().getOut_nszRtn());
+                        }
+                    }
+                });
+    }
+
+    /**
+     * 设置小红点
+     */
+    private void setRedDot(final AlertPunishModel.RowsBean bean) {
+        showProgressDialog("请稍等...");
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_SET_RED_DOT_PUNISH);
+        reqJson.setPunish_id(bean.getPunish_id());
+        reqJson.setHas_rows("no");
+        mSubscription = ApiImp.get().setRedDot(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Base>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        dissmisProgressDialog();
+                        showToast("网络不给力");
+                        Log.i("处罚提醒列表", e.toString());
+                    }
+
+                    @Override
+                    public void onNext(Base model) {
+                        dissmisProgressDialog();
+                        int flag = model.getResult().getOut_Flag();
+                        if (flag == 0) {
+                            // 跳转处罚提醒详情
+                            Intent intent = new Intent(mContext, PunishOrderDetialAct.class);
+                            intent.putExtra("punishModel", (Serializable) bean);
+                            mContext.startActivity(intent);
+                        } else {
+                            showToast(model.getResult().getOut_nszRtn());
+                        }
+                    }
+                });
+    }
+
+
+}

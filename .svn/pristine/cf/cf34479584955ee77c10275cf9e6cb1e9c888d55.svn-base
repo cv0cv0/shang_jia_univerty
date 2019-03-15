@@ -1,0 +1,59 @@
+package com.rubu.application;
+
+import android.content.Context;
+import android.support.multidex.MultiDex;
+
+import com.alibaba.sdk.android.msf.application.MsfSdk;
+import com.rubu.city.CityUtils;
+import com.tencent.bugly.crashreport.CrashReport;
+import com.umeng.analytics.MobclickAgent;
+
+import cn.jpush.android.api.JPushInterface;
+import io.flutter.app.FlutterApplication;
+
+/**
+ * Created by liuhaizhu on 2017/3/3.
+ */
+
+public class SJApplication extends FlutterApplication {
+
+    private static Context context;
+
+    //返回
+    public static Context getContextObject() {
+        return context;
+    }
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        MultiDex.install(this);
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        context = getApplicationContext();
+        /**
+         * 推送初始化
+         */
+        JPushInterface.setDebugMode(true);
+        JPushInterface.init(this);
+        CityUtils.initCitys(this);
+        /**
+         * 喵师傅初始化
+         */
+        MsfSdk.init(this);
+        CrashReport.initCrashReport(getApplicationContext(), "f17873e0b4", false);
+        /**
+         * 友盟初始化
+         */
+        /**
+         * 禁止默认的页面统计方式(SDK 自动帮助开发者调用了 2  中的方法，并把Activity 类名作为页面名称统计)
+         */
+        MobclickAgent.openActivityDurationTrack(false);
+        // TODO: 2017/4/26 如果是正式版 删除 这个测试调试功能
+        MobclickAgent.setDebugMode(true);
+    }
+}

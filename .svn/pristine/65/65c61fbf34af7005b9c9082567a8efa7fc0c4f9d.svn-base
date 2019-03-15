@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#f7f7f7"
+    android:orientation="vertical">
+
+    <include layout="@layout/toolbar" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@android:color/white"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/loginnumber"
+            android:paddingLeft="16dp"
+            android:textColor="@color/black" />
+
+        <TextView
+            android:id="@+id/phone_number"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:textColor="@color/black" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#adadad" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@android:color/white"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="@string/newpassword"
+            android:paddingLeft="16dp"
+            android:textColor="@color/black" />
+        <EditText
+            android:id="@+id/new_psw"
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:inputType="textPassword"
+            android:hint="@string/setpassword"
+            android:textColorHint="#d1cbca"
+            android:textSize="14sp"
+            android:textStyle="bold"/>
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#adadad" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@android:color/white"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="@string/confirmpassword"
+            android:paddingLeft="16dp"
+            android:textColor="@color/black" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:layout_height="wrap_content">
+        <EditText
+            android:id="@+id/again_psw"
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:inputType="textPassword"
+            android:hint="@string/pleaseinput"
+            android:textColorHint="#d1cbca"
+            android:textSize="14sp"
+            android:textStyle="bold"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_complete"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:layout_marginLeft="@dimen/item_margin"
+        android:layout_marginRight="@dimen/item_margin"
+        android:layout_marginTop="88dp"
+        android:background="@color/colorPrimaryDark"
+        android:text="@string/complete"
+        android:textColor="@android:color/white"
+        android:textSize="@dimen/text_large"/>
+</LinearLayout>

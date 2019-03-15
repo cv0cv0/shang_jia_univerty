@@ -1,0 +1,150 @@
+package com.rubu.ui.act;
+
+import android.content.Intent;
+import android.util.Log;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.base.BaseActivity;
+import com.rubu.constant.Constant;
+import com.rubu.model.Base;
+import com.rubu.model.InfoModel;
+import com.rubu.net.ApiImp;
+import com.rubu.net.Params;
+import com.rubu.net.ReqJson;
+import com.rubu.ui.act.login.LoginAct;
+import com.rubu.util.LoginUtil;
+import com.rubu.util.SPUtils;
+import com.rubu.util.StringUtil;
+
+import butterknife.BindView;
+import butterknife.OnClick;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
+/**
+ * Created by fly on 2017/3/2.
+ */
+
+public class ModifyPasswordAct extends BaseActivity {
+    @BindView(R.id.title_left)
+    TextView titleLeft;
+    @BindView(R.id.title)
+    TextView title;
+    @BindView(R.id.phone_number)
+    TextView mTvPhoneNum;
+    @BindView(R.id.new_psw)
+    EditText mEtNewPsw;
+    @BindView(R.id.again_psw)
+    EditText mEtAgainPsw;
+    private InfoModel.RowsBean rowsBean;
+
+    @Override
+    protected int getViewId() {
+        return R.layout.activity_modify_password;
+    }
+
+    @Override
+    protected void initEvent() {
+        rowsBean = (InfoModel.RowsBean) getIntent().getSerializableExtra("rowsBean");
+        mTvPhoneNum.setText(LoginUtil.getTel(mContext));
+        title.setText("个人信息");
+        titleLeft.setText("返回");
+        titleLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onBackPressed();
+            }
+        });
+    }
+
+    @OnClick({R.id.btn_complete})
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.btn_complete:
+                if (checkData()) {
+                    requestModify();
+                }
+                break;
+        }
+    }
+
+    /**
+     * 判断用户输入密码
+     */
+    private boolean checkData() {
+        String pwd = mEtNewPsw.getText().toString();
+        if (StringUtil.isEmpty(pwd)) {
+            showToast("请输入登录密码");
+            return false;
+        }
+        String pwdAgain = mEtAgainPsw.getText().toString();
+        if (StringUtil.isEmpty(pwdAgain)) {
+            showToast("请重复输入登录密码");
+            return false;
+        }
+        if (!pwd.equals(pwdAgain)) {
+            showToast("两次密码不一致");
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 请求修改密码接口
+     */
+    private void requestModify() {
+        ReqJson json = new ReqJson();
+        json.setPassword(mEtNewPsw.getText().toString());
+        json.setProc(Constant.PROC_APP_WORKER_PASSWORD_EDIT);
+        json.setS_user_id(LoginUtil.getUserId(mContext));
+        json.setHas_rows("no");
+
+        mSubscription = ApiImp.get().modifyPsw(Params.getNetWorkParams(json))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Base>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        showToast("网络不给力");
+                    }
+
+                    @Override
+                    public void onNext(Base base) {
+                        if (base.getResult().getOut_Flag() == 0) {
+                            exit();
+                        }
+                        Log.i("===========", "onNext: " + base.getResult().getOut_nszRtn());
+                        showToast(base.getResult().getOut_nszRtn());
+                    }
+                });
+    }
+
+    /**
+     * 修改密码完成之后清除所有用户数据，退出登陆，跳转到登陆界面
+     */
+    private void exit() {
+        // 清除保存的账号密码的信息
+        SPUtils.clear(mContext);
+        // 清除登录的信息
+        LoginUtil.clearInfo(mContext);
+        finish();
+        Intent intent = new Intent(mContext, LoginAct.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
+    }
+}

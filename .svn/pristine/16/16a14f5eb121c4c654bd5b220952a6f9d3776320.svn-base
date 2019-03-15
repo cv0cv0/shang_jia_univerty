@@ -1,0 +1,132 @@
+package com.rubu.ui.act;
+
+import android.content.Intent;
+import android.support.v7.widget.Toolbar;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.base.BaseActivity;
+import com.rubu.constant.Constant;
+import com.rubu.event.EventCode;
+import com.rubu.event.EventMessage;
+import com.rubu.model.Base;
+import com.rubu.model.Order;
+import com.rubu.net.ApiImp;
+import com.rubu.net.Params;
+import com.rubu.net.ReqJson;
+import com.rubu.util.AppClassManager;
+import com.rubu.util.LoginUtil;
+import com.rubu.util.StringUtil;
+
+import org.greenrobot.eventbus.EventBus;
+
+import butterknife.BindView;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
+/**
+ * Created by liuhaizhu on 2017/3/6.
+ */
+
+public class QuestionEditAct extends BaseActivity {
+    @BindView(R.id.title_left)
+    TextView mTitleLeft;
+    @BindView(R.id.title)
+    TextView mTitle;
+    @BindView(R.id.tv_qustion)
+    TextView tv_qustion;
+    @BindView(R.id.toolbar)
+    Toolbar mToolbar;
+    @BindView(R.id.btn_edit)
+    Button mBtnEdit;
+    @BindView(R.id.edit_question)
+    EditText mEditText;
+    private Order.RowsBean mRowsBean;
+
+    @Override
+    protected int getViewId() {
+        return R.layout.act_question_edit;
+    }
+
+    @Override
+    protected void initEvent() {
+        tv_qustion.setText(getIntent().getStringExtra("question"));
+        mRowsBean = (Order.RowsBean) getIntent().getSerializableExtra("bean");
+        mTitleLeft.setText(R.string.back);
+        mTitleLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+                finish();
+            }
+        });
+        mTitle.setText("遇到问题");
+        mBtnEdit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String q = mEditText.getText().toString();
+                if (StringUtil.isEmpty(q)) {
+                    showToast("请输入问题");
+                    return;
+                }
+                remarkOrder(q);
+            }
+        });
+    }
+
+    //遇到问题
+    private void remarkOrder(String remark) {
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_APP_ORDER_ELSE_EDIT);
+        reqJson.setAccident_status(String.valueOf(mRowsBean.getWorker_status()));
+        reqJson.setOrder_title_id(String.valueOf(mRowsBean.getOrder_title_id()));
+        reqJson.setMarker_description(remark);
+        reqJson.setHas_rows("no");
+        reqJson.setUser_id(LoginUtil.getUserId(mContext));
+        showProgressDialog("请稍等");
+        action(reqJson);
+    }
+
+    private void action(ReqJson reqJson) {
+        mSubscription = ApiImp.get().action(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Base>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        dissmisProgressDialog();
+                        showToast("网络不给力");
+                    }
+
+                    @Override
+                    public void onNext(Base model) {
+                        dissmisProgressDialog();
+                        showToast(model.getResult().getOut_nszRtn());
+                        int flag = model.getResult().getOut_Flag();
+                        if (flag == 0) {
+                            EventMessage eventMessage = new EventMessage(EventCode.EVENT_ORDER_STATUS_CHANGE, "");
+                            EventBus.getDefault().post(eventMessage);
+                            AppClassManager.getAppManager().finishOtherActivity(HomeAct.class);
+                            Intent intent = new Intent(mContext, ActionPickAct.class);
+                            intent.putExtra("id", mRowsBean.getOrder_title_id());
+                            startActivity(intent);
+                            finish();
+                        }
+                    }
+                });
+    }
+
+//    @Override
+//    protected void onDestroy() {
+//        AppClassManager.getAppManager().closeAppClassManager();
+//        super.onDestroy();
+//    }
+}

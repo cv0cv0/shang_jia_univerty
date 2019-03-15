@@ -1,0 +1,191 @@
+package com.rubu.adapter;
+
+import android.Manifest;
+import android.annotation.TargetApi;
+import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.os.Build;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+
+import com.bumptech.glide.Glide;
+import com.rubu.R;
+import com.wq.photo.widget.PickConfig;
+import com.yalantis.ucrop.UCrop;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+
+
+/**
+ * 类描述：
+ * 创建人：lhz
+ * 创建时间：2016/7/5 10:34
+ * 修改时间：2016/7/5 10:34
+ * 修改备注：
+ */
+public class AddQuestionImgAdapter extends BaseAdapter {
+    private Context mContext;
+    private List<String> mList;
+    public static final int PERMISSON_STORGE = 0X13;//读取本地权限
+    private int maxNum = 8;
+    private final String FLAG_ADD = "FLAG_ADD";
+    private ProgressDialog mDialog;
+
+    public AddQuestionImgAdapter(Context context, List<String> list) {
+        this.mContext = context;
+        this.mList = list;
+        if (mList == null || mList.size() == 0) {
+            mList = new ArrayList<>();
+            mList.add(FLAG_ADD);
+        }
+    }
+
+    //    一次添加多张照片
+    public void addAllUpdate(List<String> list) {
+        for (String s : list) {
+            addUpdate(s);
+        }
+        notifyDataSetChanged();
+    }
+
+    public void addUpdate(String paths) {
+        if (mList.size() <= maxNum) {
+            mList.add(mList.size() - 1, paths);
+        }
+    }
+
+    public List<String> getList() {
+        return mList;
+    }
+
+    @Override
+    public int getCount() {
+        if (mList == null || mList.size() == 0) {
+            return 0;
+        } else if (mList.size() > maxNum) {
+            return maxNum;
+        }
+        return mList.size();
+    }
+
+    @Override
+    public Object getItem(int position) {
+        return mList.get(position);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public View getView(final int position, View convertView, ViewGroup parent) {
+        ViewHolder holder;
+        if (convertView == null) {
+            LayoutInflater mInflater = LayoutInflater.from(parent.getContext());
+            convertView = mInflater.inflate(R.layout.item_add_img, null);
+            holder = new ViewHolder();
+            holder.imgViewDel = (ImageView) convertView.findViewById(R.id.grid_img_del);
+            holder.imgViewAdd = (ImageView) convertView.findViewById(R.id.grid_img_add);
+            holder.imgView = (ImageView) convertView.findViewById(R.id.grid_img);
+            holder.mLl = (FrameLayout) convertView.findViewById(R.id.root);
+            convertView.setTag(holder);
+        } else {
+            holder = (ViewHolder) convertView.getTag();
+        }
+        if (mList.get(position).equals(FLAG_ADD)) {
+            holder.imgView.setVisibility(View.VISIBLE);
+            holder.imgViewDel.setVisibility(View.INVISIBLE);
+            holder.imgViewAdd.setVisibility(View.INVISIBLE);
+        } else {
+            holder.imgView.setVisibility(View.INVISIBLE);
+            holder.imgViewDel.setVisibility(View.VISIBLE);
+            holder.imgViewAdd.setVisibility(View.VISIBLE);
+            Glide.with(mContext)
+                    .load( mList.get(position))
+                    .centerCrop()
+                    .into(holder.imgViewAdd);
+        }
+
+        holder.imgViewDel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mList.size()> position) {
+                    mList.remove(position);
+                    notifyDataSetChanged();
+                }
+            }
+        });
+        holder.imgView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mList.get(position).equals(FLAG_ADD)) {
+                    checkPermission();
+                }
+            }
+        });
+        return convertView;
+    }
+
+    class ViewHolder {
+        ImageView imgViewAdd;
+        ImageView imgViewDel;
+        ImageView imgView;
+        FrameLayout mLl;
+    }
+
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    private void checkPermission() {
+        if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED||ContextCompat.checkSelfPermission(mContext, Manifest.permission.CAMERA)!= PackageManager.PERMISSION_GRANTED) {
+            //应用还未获取读取本地文件 的权限，询问是否允许
+            ActivityCompat.requestPermissions((Activity) mContext, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.CAMERA}, PERMISSON_STORGE);
+        } else {
+            selectPhoto();
+        }
+    }
+
+    public void selectPhoto() {
+        int chose_mode = PickConfig.MODE_MULTIP_PICK;
+        UCrop.Options options = new UCrop.Options();
+        options.setCompressionFormat(Bitmap.CompressFormat.JPEG);
+        options.setCompressionQuality(90);
+        new PickConfig.Builder((Activity) mContext)
+                .isneedcrop(false)
+                .actionBarcolor(Color.parseColor("#ff9900"))
+                .statusBarcolor(Color.parseColor("#ff9900"))
+                .isneedcamera(true)
+                .isSqureCrop(true)
+                .setUropOptions(options)
+                .maxPickSize(maxNum-mList.size()+1)
+                .spanCount(3)
+                .pickMode(chose_mode).build();
+    }
+
+    /**
+     * 吧一个路径转化为一个MultipartBody.Part
+     *
+     * @param path
+     * @return
+     */
+    public MultipartBody.Part update(File path) {
+        return MultipartBody.Part
+                .createFormData("photo", path.getName(), MultipartBody.create(MediaType.parse("image/jpg"), path));
+    }
+
+}

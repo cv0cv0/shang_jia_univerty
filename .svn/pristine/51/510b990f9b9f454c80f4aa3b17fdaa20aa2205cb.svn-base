@@ -1,0 +1,430 @@
+package com.rubu.ui.act.register;
+
+import android.Manifest;
+import android.annotation.TargetApi;
+import android.app.Activity;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.os.Build;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
+import com.rubu.R;
+import com.rubu.base.BaseActivity;
+import com.rubu.constant.Constant;
+import com.rubu.model.Base;
+import com.rubu.model.UpLoadModel;
+import com.rubu.net.ApiImp;
+import com.rubu.net.Params;
+import com.rubu.net.ReqJson;
+import com.rubu.ui.act.WokerPhotoHintAct;
+import com.rubu.util.BitMapUtil;
+import com.rubu.util.IdCheckUtil;
+import com.rubu.util.LoginUtil;
+import com.rubu.util.StringUtil;
+import com.rubu.util.TLog;
+import com.umeng.analytics.MobclickAgent;
+import com.wq.photo.util.BitmapUtils;
+import com.wq.photo.widget.PickConfig;
+import com.yalantis.ucrop.UCrop;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import butterknife.BindView;
+import butterknife.OnClick;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/9/25
+ * Vwesion 1.0
+ * Dsscription:  注册基本照片信息
+ */
+
+public class RegisterBasePhotoInfoAct extends BaseActivity {
+    private static final int PERMISSON_STORGE = 0x978;
+    @BindView(R.id.title_left)
+    TextView titleLeft;
+    @BindView(R.id.title)
+    TextView title;
+    @BindView(R.id.photo_hint)
+    TextView photoHint;
+    @BindView(R.id.title_right_toolbar)
+    TextView titleRightToolbar;
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
+    @BindView(R.id.img_add_one)
+    ImageView mImgAddOne;
+    @BindView(R.id.img_add_two)
+    ImageView mImgAddTwo;
+    @BindView(R.id.img_add_three)
+    ImageView mImgAddThree;
+    @BindView(R.id.img_add_four)
+    ImageView mImgAddFour;
+    @BindView(R.id.edit_card)
+    EditText mEditCard;
+    // 从手机中选择的图片路径
+    private String imgOne, imgTwo, imgThree, imgFour;
+    // 添加了水印之后的图片路径,上传到服务器
+    private String imgOneUpLoad, imgTwoUpLoad, imgThreeUpLoad, imgFourUpLoad;
+    // 服务器保存的文件的名字
+    private String uploadOne, uploadTwo, uploadThree, uploadFour;
+    // 照片的状态 分别是四张照片
+    private int photoState = 0;
+    // 身份证号
+    private String mIdCard;
+
+    @Override
+    protected int getViewId() {
+        return R.layout.activity_register_base_photo_info;
+    }
+
+    @Override
+    protected void initEvent() {
+        title.setText("上家服务");
+        titleLeft.setText("返回");
+        titleLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onBackPressed();
+            }
+        });
+        photoHint.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG);
+    }
+
+    // 四个图片位置的点击事件
+    @OnClick({R.id.btn_next, R.id.img_add_one, R.id.img_add_two, R.id.img_add_three, R.id.img_add_four, R.id.photo_hint})
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.btn_next:
+                checkData();
+                break;
+            case R.id.img_add_one:
+                addImg(1);
+                break;
+            case R.id.img_add_two:
+                addImg(2);
+                break;
+            case R.id.img_add_three:
+                addImg(3);
+                break;
+            case R.id.img_add_four:
+                addImg(4);
+                break;
+            case R.id.photo_hint:
+                Intent intent = new Intent(mContext, WokerPhotoHintAct.class);
+                startActivity(intent);
+                break;
+        }
+    }
+
+    // 检查四张图片是否存在
+    private void checkData() {
+        String idCard = mEditCard.getText().toString();
+        mIdCard = idCard;
+        if (StringUtil.isEmpty(idCard)) {
+            showToast("请输入身份证号码");
+            return;
+        }
+        if (!IdCheckUtil.IDCardValidate(idCard)) {
+            showToast("请输入正确的身份证号码");
+            return;
+        }
+        if (StringUtil.isEmpty(imgOneUpLoad)) {
+            showToast("请选择身份证人像面");
+            return;
+        }
+        if (StringUtil.isEmpty(imgTwoUpLoad)) {
+            showToast("请选择身份证国徽面");
+            return;
+        }
+        if (StringUtil.isEmpty(imgThreeUpLoad)) {
+            showToast("请选择手持身份证照");
+            return;
+        }
+        if (StringUtil.isEmpty(imgFourUpLoad)) {
+            showToast("请选择工人登记照");
+            return;
+        }
+        checkUpload();
+    }
+
+    // 上传照片
+    private void uploadImg(final int state) {
+        showProgressDialog("上传身份证图片");
+        File file;
+        String url;
+        switch (state) {
+            case 1:
+                url = BitmapUtils.INSTANCE.compress(imgOneUpLoad);
+                file = new File(url);
+                break;
+            case 2:
+                url = BitmapUtils.INSTANCE.compress(imgTwoUpLoad);
+                file = new File(url);
+                break;
+            case 3:
+                url = BitmapUtils.INSTANCE.compress(imgThreeUpLoad);
+                file = new File(url);
+                break;
+            case 4:
+                url = BitmapUtils.INSTANCE.compress(imgFourUpLoad);
+                file = new File(url);
+                break;
+            default:
+                url = BitmapUtils.INSTANCE.compress(imgOneUpLoad);
+                file = new File(url);
+                break;
+        }
+        RequestBody photoRequestBody = RequestBody.create(MediaType.parse("image/png"), file);
+        MultipartBody.Part photo = MultipartBody.Part.createFormData("idcard", "image.png", photoRequestBody);
+        mSubscription = ApiImp.get().uploadCardImg(photo)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<UpLoadModel>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onNext(UpLoadModel model) {
+                        TLog.i(String.valueOf(model));
+                        switch (state) {
+                            case 1:
+                                uploadOne = model.getFilename();
+                                break;
+                            case 2:
+                                uploadTwo = model.getFilename();
+                                break;
+                            case 3:
+                                uploadThree = model.getFilename();
+                                break;
+                            case 4:
+                                uploadFour = model.getFilename();
+                                break;
+                        }
+//                        if (isZ) {
+//                            uploadOne = model.getFilename();
+//                        } else {
+//                            uploadTwo = model.getFilename();
+//                        }
+                        checkUpload();
+                    }
+                });
+    }
+
+    // 检查照片
+    private void checkUpload() {
+        if (imgOneUpLoad != null && uploadOne == null) {
+            uploadImg(1);
+        } else if (imgTwoUpLoad != null && uploadTwo == null) {
+            uploadImg(2);
+        } else if (imgThreeUpLoad != null && uploadThree == null) {
+            uploadImg(3);
+        } else if (imgFourUpLoad != null && uploadFour == null) {
+            uploadImg(4);
+        } else {
+            register();
+        }
+    }
+
+    private void register() {
+        showProgressDialog("请稍等...");
+        ReqJson mReqJson = new ReqJson();
+        mReqJson.setProc(Constant.PROC_APP_PHOTO_UPDATE);
+        mReqJson.setHas_rows("no");
+        mReqJson.setUser_id(LoginUtil.getUserId(mContext));
+        mReqJson.setS_idcard_no(mEditCard.getText().toString());
+        if (!StringUtil.isEmpty(uploadOne)) {
+            mReqJson.setS_idcard_a(uploadOne);
+            Log.i("uploadOne---", uploadOne);
+        }
+        if (!StringUtil.isEmpty(uploadTwo)) {
+            mReqJson.setS_idcard_b(uploadTwo);
+            Log.i("uploadTwo---", uploadTwo);
+        }
+        if (!StringUtil.isEmpty(uploadThree)) {
+            mReqJson.setWorker_idcard_pic(uploadThree);
+            Log.i("uploadThree---", uploadThree);
+        }
+        if (!StringUtil.isEmpty(uploadFour)) {
+            mReqJson.setWorker_register_pic(uploadFour);
+            Log.i("uploadFour---", uploadFour);
+        }
+        mSubscription = ApiImp.get().login(Params.getNetWorkParams(mReqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Base>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        dissmisProgressDialog();
+                        showToast("网络不给力");
+                        Log.i("注册错误------------", e.toString());
+                    }
+
+                    @Override
+                    public void onNext(Base model) {
+                        dissmisProgressDialog();
+                        int flag = model.getResult().getOut_Flag();
+                        if (flag == 0) {
+                            /**
+                             * 友盟记录新注册的用户次数
+                             */
+                            HashMap<String, String> map = new HashMap<String, String>();
+                            map.put("type", "注册");
+                            MobclickAgent.onEventValue(mContext, "1", map, 1);
+                            showToast("图片上传成功");
+                            Intent intent = new Intent();
+                            intent.putExtra("idCard", mIdCard);
+                            setResult(RESULT_OK, intent);
+                            finish();
+                        } else {
+                            showToast(model.getResult().getOut_nszRtn());
+                        }
+                    }
+                });
+    }
+
+    public void selectPhoto() {
+        int chose_mode = PickConfig.MODE_MULTIP_PICK;
+        UCrop.Options options = new UCrop.Options();
+        options.setCompressionFormat(Bitmap.CompressFormat.JPEG);
+        options.setCompressionQuality(90);
+        new PickConfig.Builder((Activity) mContext)
+                .isneedcrop(false)
+                .actionBarcolor(Color.parseColor("#ff9900"))
+                .statusBarcolor(Color.parseColor("#ff9900"))
+                .isneedcamera(true)
+                .isSqureCrop(true)
+                .setUropOptions(options)
+                .maxPickSize(1)
+                .spanCount(3)
+                .pickMode(chose_mode).build();
+    }
+
+    private void addImg(int state) {
+        this.photoState = state;
+        checkPermission();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK && requestCode == PickConfig.PICK_REQUEST_CODE) {
+            //在data中返回 选择的图片列表
+            ArrayList<String> paths = data.getStringArrayListExtra("data");
+            switch (photoState) {
+                case 1: // 正面
+                    imgOne = paths.get(0);
+                    Bitmap imgYi = BitmapFactory.decodeFile(imgOne);
+                    try {
+                        imgOneUpLoad = BitMapUtil.saveBitMap(mContext, imgYi, imgOne);
+                        Glide.with(mContext)
+                                .load(imgOneUpLoad)
+                                .centerCrop()
+                                .into(mImgAddOne);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+                case 2:  // 反面
+                    imgTwo = paths.get(0);
+                    Bitmap imgEr = BitmapFactory.decodeFile(imgTwo);
+                    try {
+                        imgTwoUpLoad = BitMapUtil.saveBitMap(mContext, imgEr, imgTwo);
+                        Glide.with(mContext)
+                                .load(imgTwoUpLoad)
+                                .centerCrop()
+                                .into(mImgAddTwo);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+                case 3:  // 手持正面
+                    imgThree = paths.get(0);
+                    Bitmap imgSan = BitmapFactory.decodeFile(imgThree);
+                    try {
+                        imgThreeUpLoad = BitMapUtil.saveBitMap(mContext, imgSan, imgThree);
+                        Glide.with(mContext)
+                                .load(imgThreeUpLoad)
+                                .centerCrop()
+                                .into(mImgAddThree);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+                case 4:  // 手持反面
+                    imgFour = paths.get(0);
+                    Bitmap imgSi = BitmapFactory.decodeFile(imgFour);
+                    try {
+                        imgFourUpLoad = BitMapUtil.saveBitMap(mContext, imgSi, imgFour);
+                        Glide.with(mContext)
+                                .load(imgFourUpLoad)
+                                .centerCrop()
+                                .into(mImgAddFour);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+            }
+        }
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
+    }
+
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    private void checkPermission() {
+        if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(mContext, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            //应用还未获取读取本地文件 的权限，询问是否允许
+            ActivityCompat.requestPermissions((Activity) mContext, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA}, PERMISSON_STORGE);
+        } else {
+            selectPhoto();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSON_STORGE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                selectPhoto();
+            } else {
+                showToast("权限被禁止");
+            }
+        }
+    }
+}

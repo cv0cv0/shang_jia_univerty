@@ -1,0 +1,283 @@
+package com.rubu.ui.act;
+
+import android.app.DownloadManager;
+import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Environment;
+import android.text.TextUtils;
+import android.util.DisplayMetrics;
+import android.util.Log;
+import android.view.View;
+import android.webkit.CookieManager;
+import android.webkit.DownloadListener;
+import android.webkit.URLUtil;
+import android.webkit.WebChromeClient;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.Toast;
+
+import com.rubu.R;
+import com.rubu.base.BaseActivity;
+import com.rubu.constant.Constant;
+import com.rubu.model.Base;
+import com.rubu.net.ApiImp;
+import com.rubu.net.Params;
+import com.rubu.net.ReqJson;
+import com.rubu.pop.dialog.MyAlertDialog;
+import com.rubu.util.LoginUtil;
+
+import butterknife.BindView;
+import rx.Observer;
+import rx.Scheduler;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/7/27
+ * Vwesion 1.0
+ * Dsscription: 考试培训页面
+ */
+
+public class ExamAct extends BaseActivity {
+    @BindView(R.id.wenView_exam)
+    WebView mWebView;
+    // 验证信息(网页中用于验证已经登录的账号的个人验证)
+    private String cookieStr;
+
+    public static final String TAG = "ExamActivity";
+
+    @Override
+    protected int getViewId() {
+        return R.layout.act_exam;
+    }
+
+    @Override
+    protected void initEvent() {
+        // 获取考试培训网址
+        loadExamUrl();
+    }
+
+    // 加载页面
+    private void loading(final String mUrl) {
+        WebSettings mWebSettings = mWebView.getSettings();
+
+        // 允许调用js
+        mWebSettings.setJavaScriptEnabled(true);
+        // 允许通过js开启新的页面
+        mWebSettings.setJavaScriptCanOpenWindowsAutomatically(true);
+
+        // 允许访问文件
+        mWebSettings.setAllowFileAccess(true);
+        // 缓存方式
+        mWebSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
+        mWebSettings.setAppCacheEnabled(true);
+        mWebSettings.setDomStorageEnabled(true);
+        // 做webView 适配屏幕大小
+        mWebSettings.setLoadWithOverviewMode(true);
+        mWebSettings.setUseWideViewPort(true);
+        // 设置缩放
+        mWebSettings.setDisplayZoomControls(false);
+        mWebSettings.setBuiltInZoomControls(true); // 设置显示缩放按钮
+        mWebSettings.setSupportZoom(true); // 支持缩放
+        // 设置一个window 对象
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        int mDensity = metrics.densityDpi;
+        if (mDensity == 240) {
+            mWebSettings.setDefaultZoom(WebSettings.ZoomDensity.FAR);
+        } else if (mDensity == 160) {
+            mWebSettings.setDefaultZoom(WebSettings.ZoomDensity.MEDIUM);
+        } else if (mDensity == 120) {
+            mWebSettings.setDefaultZoom(WebSettings.ZoomDensity.CLOSE);
+        } else if (mDensity == DisplayMetrics.DENSITY_XHIGH) {
+            mWebSettings.setDefaultZoom(WebSettings.ZoomDensity.FAR);
+        } else if (mDensity == DisplayMetrics.DENSITY_TV) {
+            mWebSettings.setDefaultZoom(WebSettings.ZoomDensity.FAR);
+        } else {
+            mWebSettings.setDefaultZoom(WebSettings.ZoomDensity.MEDIUM);
+        }
+
+        /**
+         * 用WebView显示图片，可使用这个参数 设置网页布局类型： 1、LayoutAlgorithm.NARROW_COLUMNS ：
+         * 适应内容大小 2、LayoutAlgorithm.SINGLE_COLUMN:适应屏幕，内容将自动缩放
+         */
+        mWebSettings.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.SINGLE_COLUMN);
+
+        mWebView.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public void onProgressChanged(WebView view, int newProgress) {
+                super.onProgressChanged(view, newProgress);
+            }
+        });
+
+        mWebView.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+
+                return true;
+            }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                CookieManager cookieManager = CookieManager.getInstance();
+                cookieStr = cookieManager.getCookie(url); // 获取到cookie字符串值
+            }
+
+        });
+        /**
+         * 在加载页面之前清楚缓存
+         */
+        mWebView.clearCache(true); // 清除资源缓存。请注意，缓存是每个应用程序的，所以这将清除所有使用的WebViews的缓存。false的话，只会清除RAM上的缓存。
+        mWebView.clearHistory(); // 清除历史记录
+        mWebView.clearFormData(); // //从当前关注的表单字段中移除自动填充弹出窗口
+        mWebView.clearSslPreferences(); // 清除存储的SSL首选项表
+        mWebView.loadUrl(mUrl);
+        mWebView.setDownloadListener(new DownloadListener() {
+
+            @Override
+            public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimetype, long contentLength) {
+                DownloadManager downloadManager = (DownloadManager) mContext.getSystemService(Context.DOWNLOAD_SERVICE);
+                if (isDownloading(downloadManager, url)) {
+                    showToast("正在下载中");
+                    return;
+                }
+                download(url, contentDisposition, mimetype);
+            }
+        });
+
+    }
+
+    /**
+     * 下载文件
+     */
+    private void download(final String url, final String contentDisposition, final String mimeType) {
+        final MyAlertDialog myAlertDialog = new MyAlertDialog.Builder(mContext, R.style.MyDialogStyleBottom)
+                .setContentView(R.layout.pop_download_file)
+                .setText(R.id.tv_dialog_title, "确认下载?")
+                .setFullWith()
+                .setBottomAnimation(true)
+                .setCancelable(true)
+                .show();
+        myAlertDialog.setClick(R.id.btn_confirm, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i(TAG, url);
+                downloadBySystem(url, contentDisposition, mimeType);
+                myAlertDialog.dismiss();
+            }
+        });
+        myAlertDialog.setClick(R.id.btn_cancel, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                myAlertDialog.dismiss();
+            }
+        });
+    }
+
+    /**
+     * 下载管理器
+     *
+     * @param url                下载地址
+     * @param contentDisposition 文字描述
+     * @param mimeType           事件类型
+     */
+    private void downloadBySystem(String url, String contentDisposition, String mimeType) {
+        Log.i(TAG, url);
+        final DownloadManager downloadManager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+        // 指定下载地址
+        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
+        // 允许媒体扫描，根据下载的文件类型被加入相册、音乐等媒体库
+        request.allowScanningByMediaScanner();
+        // 设置通知的显示类型，下载进行时和完成后显示通知
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        // 添加验证
+        request.addRequestHeader("Cookie", cookieStr);
+        // 设置通知栏的标题，如果不设置，默认使用文件名
+//        request.setTitle("This is title");
+        // 设置通知栏的描述
+//        request.setDescription("This is description");
+        // 允许在计费流量下下载
+//        request.setAllowedOverMetered(false);
+        // 允许该记录在下载管理界面可见
+        request.setVisibleInDownloadsUi(false);
+        // 允许漫游时下载
+        request.setAllowedOverRoaming(true);
+        // 允许下载的网路类型
+        request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI
+                | DownloadManager.Request.NETWORK_MOBILE);
+        // 设置下载文件保存的路径和文件名
+        String fileName = URLUtil.guessFileName(url, contentDisposition, mimeType);
+        Log.i(TAG + "fileName:{}", fileName);
+        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
+//        另外可选一下方法，自定义下载路径
+//        request.setDestinationUri()
+//        request.setDestinationInExternalFilesDir()
+
+        // 添加一个下载任务
+        long downloadId = downloadManager.enqueue(request);
+        Log.i(TAG + "download{}", downloadId + "");
+
+//        DownloadCompleteReceiver receiver = new DownloadCompleteReceiver();
+//        IntentFilter intentFilter = new IntentFilter();
+//        intentFilter.addAction(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
+//        registerReceiver(receiver, intentFilter);
+    }
+
+    /**
+     * 是否正在下载
+     *
+     * @return
+     */
+    public static boolean isDownloading(DownloadManager downloadManager, String url) {
+        DownloadManager.Query query = new DownloadManager.Query();
+        query.setFilterByStatus(DownloadManager.STATUS_RUNNING | DownloadManager.STATUS_PAUSED);
+        Cursor cursor = downloadManager.query(query);
+        while (cursor.moveToNext()) {
+            String localUrl = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_URI));
+            if (TextUtils.equals(localUrl, url)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 获取考试地址的内容
+     */
+    private void loadExamUrl() {
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_APP_WORKER_EXAM);
+        reqJson.setUser_id(LoginUtil.getUserId(mContext));
+        reqJson.setS_bind_tel(LoginUtil.getTel(mContext));
+        reqJson.setHas_rows("no");
+        ApiImp.get().getExamUrl(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Base>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        dissmisProgressDialog();
+                        showToast("网络不给力");
+                    }
+
+                    @Override
+                    public void onNext(Base base) {
+                        if (base.getResult().getOut_Flag() == 0) {
+                            String url = base.getResult().getOut_nszRtn();
+                            Log.i(TAG,url);
+                            loading(url);
+                        }
+                    }
+                });
+    }
+}

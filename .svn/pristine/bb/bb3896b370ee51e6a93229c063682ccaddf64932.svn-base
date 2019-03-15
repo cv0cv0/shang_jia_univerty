@@ -1,0 +1,80 @@
+package com.rubu.ui.act.mine.view;
+
+import android.support.annotation.NonNull;
+import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.ui.act.mine.model.MsgOrderCancelModel;
+import com.rubu.ui.act.mine.model.MsgOrderReassignMentModel;
+
+import me.drakeet.multitype.ItemViewBinder;
+
+/**
+ * Created by 72732 on 2018/5/10.
+ * 服务调整，工单取消的itemView
+ */
+
+public class MsgOrderReassignItemView extends ItemViewBinder<MsgOrderReassignMentModel, MsgOrderReassignItemView.ViewHolder> {
+    private OnMsgOrderReassignItemViewListenner listenner;
+
+    @NonNull
+    @Override
+    protected ViewHolder onCreateViewHolder(@NonNull LayoutInflater inflater, @NonNull ViewGroup parent) {
+        View view = inflater.inflate(R.layout.item_msg_address_amend, parent, false);
+        return new ViewHolder(view);
+    }
+
+    @Override
+    protected void onBindViewHolder(@NonNull ViewHolder holder, @NonNull final MsgOrderReassignMentModel item) {
+        // 标题
+        holder.tv_title.setText(item.getTitle_app());
+        // 是否已读 0==未读 1==已读
+        if (item.getApp_is_read() == 0) {
+            holder.red_dot.setVisibility(View.VISIBLE);
+        }else {
+            holder.red_dot.setVisibility(View.INVISIBLE);
+        }
+        // 创建时间
+        holder.tv_time.setText(item.getCreate_time());
+        // 内容
+        holder.tv_content.setText(item.getContent_app());
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (listenner != null) {
+                    listenner.onClick(item);
+                }
+            }
+        });
+    }
+
+    public interface OnMsgOrderReassignItemViewListenner {
+        void onClick(MsgOrderReassignMentModel item);
+    }
+
+    public void setOnMsgAddressAmendItemViewListenner(OnMsgOrderReassignItemViewListenner listenner) {
+        this.listenner = listenner;
+    }
+
+
+    static class ViewHolder extends RecyclerView.ViewHolder {
+        TextView tv_title;
+        TextView red_dot;
+        TextView tv_time;
+        TextView tv_content;
+        TextView tv_real_address;
+
+        public ViewHolder(View itemView) {
+            super(itemView);
+            tv_title = (TextView) itemView.findViewById(R.id.tv_title);
+            red_dot = (TextView) itemView.findViewById(R.id.red_dot);
+            tv_time = (TextView) itemView.findViewById(R.id.tv_time);
+            tv_content = (TextView) itemView.findViewById(R.id.tv_content);
+            tv_real_address = (TextView) itemView.findViewById(R.id.tv_real_address);
+        }
+    }
+}

@@ -1,0 +1,78 @@
+package com.rubu.model;
+
+import java.util.List;
+
+/**
+ * Created by 72732
+ * on 2018/5/28.
+ * 设置服务能力和覆盖能力的返回结果
+ */
+
+public class RegisterPersonalModel {
+
+    /**
+     * result : {"out_nszRtn":"修改成功！","out_flag":0}
+     * rows : [{"re_select_service_region":4}]
+     */
+
+    private ResultBean result;
+    private List<RowsBean> rows;
+
+    public ResultBean getResult() {
+        return result;
+    }
+
+    public void setResult(ResultBean result) {
+        this.result = result;
+    }
+
+    public List<RowsBean> getRows() {
+        return rows;
+    }
+
+    public void setRows(List<RowsBean> rows) {
+        this.rows = rows;
+    }
+
+    public static class ResultBean {
+        /**
+         * out_nszRtn : 修改成功！
+         * out_flag : 0
+         */
+
+        private String out_nszRtn;
+        private int out_flag;
+
+        public String getOut_nszRtn() {
+            return out_nszRtn;
+        }
+
+        public void setOut_nszRtn(String out_nszRtn) {
+            this.out_nszRtn = out_nszRtn;
+        }
+
+        public int getOut_flag() {
+            return out_flag;
+        }
+
+        public void setOut_flag(int out_flag) {
+            this.out_flag = out_flag;
+        }
+    }
+
+    public static class RowsBean {
+        /**
+         * re_select_service_region : 4
+         */
+
+        private int re_select_service_region;
+
+        public int getRe_select_service_region() {
+            return re_select_service_region;
+        }
+
+        public void setRe_select_service_region(int re_select_service_region) {
+            this.re_select_service_region = re_select_service_region;
+        }
+    }
+}

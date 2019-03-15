@@ -1,0 +1,57 @@
+package com.rubu.city;
+
+import android.content.Context;
+
+import com.bigkoo.pickerview.OptionsPickerView;
+
+import java.util.ArrayList;
+
+/**
+ *
+ */
+public class ChooseCityUtil {
+    public static OptionsPickerView initPickView(Context context, ArrayList<AreaBean> options1Items, ArrayList<ArrayList<AreaBean>> options2Items, ArrayList<ArrayList<ArrayList<AreaBean>>> options3Items) {
+        //选项选择器
+        OptionsPickerView pvOptions = new OptionsPickerView(context);
+
+        pvOptions.setCancelable(true);
+        //三级联动效果
+        pvOptions.setPicker(options1Items, options2Items, options3Items, true);
+
+        //设置选择的三级单位
+//        pwOptions.setLabels("省", "市", "区");
+        pvOptions.setTitle("选择城市");
+        pvOptions.setCyclic(false, false, false);
+        //设置默认选中的三级项目
+        //监听确定选择按钮
+        pvOptions.setSelectOptions(0, 0, 0);
+
+        return pvOptions;
+    }
+
+    public static OptionsPickerView initPickViewWork(Context context, ArrayList<AreaBean> options1Items, ArrayList<ArrayList<AreaBean>> options2Items, ArrayList<ArrayList<ArrayList<AreaBean>>> options3Items) {
+        //选项选择器
+        OptionsPickerView pvOptions = new OptionsPickerView(context);
+
+        if (!options1Items.get(0).getName().equals("无")) {
+            ArrayList<AreaBean> list1 = new ArrayList<>();
+            list1.add(new AreaBean("-100", "无"));
+            ArrayList<ArrayList<AreaBean>> list2 = new ArrayList<>();
+            options1Items.add(0, new AreaBean("-100", "无"));
+
+            options2Items.add(0, list1);
+            options3Items.add(0, options2Items);
+        }
+        //三级联动效果
+        pvOptions.setPicker(options1Items, options2Items, options3Items, true);
+        //设置选择的三级单位
+//        pwOptions.setLabels("省", "市", "区");
+        pvOptions.setTitle("选择城市");
+        pvOptions.setCyclic(false, false, false);
+        //设置默认选中的三级项目
+        //监听确定选择按钮
+        pvOptions.setSelectOptions(0, 0, 0);
+
+        return pvOptions;
+    }
+}

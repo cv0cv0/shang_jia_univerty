@@ -1,0 +1,35 @@
+package com.rubu.constant;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/12/18
+ * Vwesion 1.0
+ * Dsscription: sharePerence的Kye的管理类
+ */
+
+public class SharePerenceCode {
+
+    /**
+     * 技师身份审核状态(is_examineNum == 1 审核通过,is_examineNum == 2 审核未通过)
+     * 本地存储状态来标识,mine 页面是否需要拉取数据库的数据
+     * 如果审核不通过就不拉取数据
+     * false : 审核未通过,不拉取数据
+     * true ： 审核通过,拉取数据
+     */
+    public static final String SP_USER_EXAM_STATUE = "user_exam_statue";
+
+    /**
+     * 技师覆盖能力和服务能力是否重新完善过
+     */
+    public static final String SP_USER_PERSONAL_ABILITY_STATUE = "user_personal_ability_statue";
+    /**
+     * 上线是否超过7天
+     */
+    public static final String SP_USER_PERSONAL_ABILITY_DAY_STATUE = "user_personal_ability_day_statue";
+    /**
+     * 急速安装活动是否需要提醒
+     */
+    public static final String SP_USER_IS_ACTIVITY_STATUE = "user_personal_is_activity_statue";
+
+
+}

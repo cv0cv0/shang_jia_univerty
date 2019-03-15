@@ -1,0 +1,97 @@
+package com.rubu.constant;
+
+import com.rubu.R;
+
+/**
+ * Created by liuhaizhu on 2017/3/6.
+ */
+
+public class WorkerStatus {
+
+    //    0:待接单
+//    1:待预约
+//    2:待签到
+//    3:待完工
+//    4:待结算
+//    5:已结算
+    private final static String WORKER_STATUS[] = {"接单", "预约", "签到", "完工", "结算中", "已结算",};
+    private final static String WORKER_STATUS_LAST[] = {"收到工单", "您已接单", "您已预约", "您已签到", "结算", "已结算",};
+    private final static String WORKER_STATUS_TITLE[] = {"接单操作", "预约操作", "签到操作", "完工操作", "结算操作", "已结算"};
+    private final static int WORKER_STATUS_COLOS_ID[] = {R.color.blue, R.color.green, R.color.orange, R.color.red_dark, R.color.purple, R.color.blue};
+
+    public static String getWorkerStatus(int ws) {
+        return WORKER_STATUS[getRealState(ws)];
+    }
+
+    //前一个动作
+    public static String getWorkerStatusLast(int ws) {
+        return WORKER_STATUS_LAST[getRealState(ws)];
+    }
+
+    public static String getWorkerStatusTitle(int ws) {
+        return WORKER_STATUS_TITLE[getRealState(ws)];
+    }
+
+    public static int getWorkerStatusColorId(int ws) {
+        return WORKER_STATUS_COLOS_ID[getRealState(ws)];
+    }
+
+    public final static int STATU_J = 0;
+    public final static int STATU_Y = 1;
+    public final static int STATU_Q = 2;
+    public final static int STATU_W = 3;
+    public final static int STATU_j_N0 = 4;
+    public final static int STATU_j_YES = 5;
+
+    public final static int R_ALL = 0;
+    public final static int R_J = 44;//    44:待接单
+    public final static int R_Y = 55;//    55:待预约
+    public final static int R_Q = 56;//     56:待签到
+    public final static int R_W = 57;//    57:待完工
+    public final static int R_J_NO = 68;//  91:待结算
+    public final static int R_J_YES = 69;// 92:已结算
+
+
+    //    工单查询,flag=0,,按上面的数字查询相应工单
+    public static int getRealState(int state) {
+        switch (state) {
+            case 44:
+                return STATU_J;
+            case 55:
+                return STATU_Y;
+            case 56:
+                return STATU_Q;
+            case 57:
+                return STATU_W;
+            case 68:
+                return STATU_j_N0;
+            case 69:
+                return STATU_j_YES;
+        }
+        return STATU_J;
+    }
+
+    /**
+     * 根据问题状态返回Flag
+     *
+     * @param describe
+     * @return
+     */
+    public static int getQuestionFlag(String describe) {
+        switch (describe) {
+            // 待取证
+            case "已记录":
+                return 4;
+            // 待处理
+            case "已取证":
+                return 8;
+            // 已处理
+            case "已处理":
+                return 9;
+            // 已处理
+            default:
+                return 9;
+
+        }
+    }
+}

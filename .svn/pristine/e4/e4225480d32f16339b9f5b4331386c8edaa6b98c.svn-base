@@ -1,0 +1,94 @@
+package com.rubu.ui.act.mine.view;
+
+import android.support.annotation.NonNull;
+import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.ui.act.mine.model.CheckOrderIsCheckBean;
+
+import me.drakeet.multitype.ItemViewBinder;
+
+/**
+ * Created by 72732 on 2018/4/18.
+ */
+
+public class CheckIsCheckItemView extends ItemViewBinder<CheckOrderIsCheckBean, CheckIsCheckItemView.ViewHolder> {
+
+    private ItemViewClickListenner listenner;
+
+    @NonNull
+    @Override
+    protected ViewHolder onCreateViewHolder(@NonNull LayoutInflater inflater, @NonNull ViewGroup parent) {
+        View view = inflater.inflate(R.layout.item_check_order_is_check, parent, false);
+        return new ViewHolder(view);
+    }
+
+    @Override
+    protected void onBindViewHolder(@NonNull ViewHolder holder, @NonNull final CheckOrderIsCheckBean item) {
+        // 审核状态
+        int status = item.getIsCheckStatus();
+        switch (status) {
+            case 0:    // 代表全部，不进行过滤 app 列表显示不需要这个状态
+                holder.iv_check_statue.setImageResource(R.mipmap.check_ing);
+                holder.tv_check_statue.setTextColor(holder.itemView.getResources().getColor(R.color.c_9c));
+                holder.tv_check_statue.setText(item.getOperateTime() + "  审核中");
+                break;
+            case 1:    // 代表正常的单据, 没有发起审核的单子,app不需要使用
+                break;
+            case 2:   //  代表调整审核(审核ing)的单据
+                holder.iv_check_statue.setImageResource(R.mipmap.check_ing);
+                holder.tv_check_statue.setTextColor(holder.itemView.getResources().getColor(R.color.c_9c));
+                holder.tv_check_statue.setText(item.getOperateTime() + "  审核中");
+                break;
+            case 3:   //  代表审核驳回的单据
+                holder.iv_check_statue.setImageResource(R.mipmap.check_fail);
+                holder.tv_check_statue.setTextColor(holder.itemView.getResources().getColor(R.color.c_e60012));
+                holder.tv_check_statue.setText(item.getOperateTime() + "  审核驳回");
+                break;
+            case 4:   //  代表审核通过的单据
+                holder.iv_check_statue.setImageResource(R.mipmap.check_success);
+                holder.tv_check_statue.setTextColor(holder.itemView.getResources().getColor(R.color.c_22ac38));
+                holder.tv_check_statue.setText(item.getOperateTime() + "  审核通过");
+                break;
+            default:  //  默认审核ing
+                holder.iv_check_statue.setImageResource(R.mipmap.check_ing);
+                holder.tv_check_statue.setTextColor(holder.itemView.getResources().getColor(R.color.c_9c));
+                holder.tv_check_statue.setText(item.getOperateTime() + "  审核中");
+                break;
+        }
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (listenner != null) {
+                    listenner.onClick(item);
+                }
+            }
+        });
+    }
+
+    static class ViewHolder extends RecyclerView.ViewHolder {
+
+        ImageView iv_check_statue;
+        TextView tv_check_statue;
+
+        public ViewHolder(View itemView) {
+            super(itemView);
+            iv_check_statue = (ImageView) itemView.findViewById(R.id.iv_check_statue);
+            tv_check_statue = (TextView) itemView.findViewById(R.id.tv_check_statue);
+        }
+    }
+
+    public void setOnItemViewClickListenner(ItemViewClickListenner listenner) {
+        this.listenner = listenner;
+    }
+
+    public interface ItemViewClickListenner {
+        void onClick(CheckOrderIsCheckBean bean);
+    }
+}

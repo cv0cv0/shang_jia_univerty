@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tl="http://schemas.android.com/apk/res-auto"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:gravity="center_horizontal"
+              android:background="@android:color/white"
+              android:orientation="vertical">
+
+    <include layout="@layout/toolbar"/>
+    <TextView
+        android:id="@+id/tv_time"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="6dp"
+        android:layout_width="match_parent"
+        android:gravity="right"
+        android:layout_height="wrap_content"
+        android:textColor="@color/gray" />
+
+    <EditText
+        android:id="@+id/edit_remark"
+        android:background="@drawable/bg_login_edit_shape"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:padding="8dp"
+        android:gravity="top"
+        android:hint="请输入备注内容"
+        android:layout_margin="16dp"
+        android:textSize="@dimen/text_medium"
+        android:textColor="@color/black" />
+    <Button
+        android:id="@+id/btn_edit"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="16dp"
+        android:textColor="@android:color/white"
+        android:textStyle="bold"
+        android:text="@string/save"
+        android:background="@drawable/bg_login_btn_shape"/>
+</LinearLayout>

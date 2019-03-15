@@ -1,0 +1,98 @@
+package com.rubu.ui.act.mine.model;
+
+/**
+ * Created by 72732 on 2018/5/10.
+ */
+
+public class MsgOrderCancelModel extends MsgOrderReminderListModel {
+    /**
+     * reminder_message_id : 30
+     * order_title_id : 927339
+     * b_group_id : 99
+     * message_type : 6
+     * lauch_source : 2
+     * title_pc : 工单取消审核结果
+     * title_app : 工单改派
+     * content_app : 工单BD17228693126940已被改派其他技师,请知晓
+     * content_pc : 工单BD17228693126940中普通坐便器*1         服务已取消,请知晓
+     * oper_desc_pc : 取消原因:客户退款
+     * oper_desc_app : 取消原因:客户退款  审核原因:--
+     * oper_name : admin
+     * create_time : 2018-05-09 12:05:23
+     * s_user_name : 陈红亮
+     * s_org_short : 朝阳上家D
+     */
+
+    private int message_type;
+    private int lauch_source;
+    private String title_app;
+    private String content_app;
+    private String oper_desc_app;
+    private String oper_name;
+    private int app_is_read;
+    private String create_time;
+
+    public int getApp_is_read() {
+        return app_is_read;
+    }
+
+    public void setApp_is_read(int app_is_read) {
+        this.app_is_read = app_is_read;
+    }
+
+    public int getMessage_type() {
+        return message_type;
+    }
+
+    public void setMessage_type(int message_type) {
+        this.message_type = message_type;
+    }
+
+    public int getLauch_source() {
+        return lauch_source;
+    }
+
+    public void setLauch_source(int lauch_source) {
+        this.lauch_source = lauch_source;
+    }
+
+    public String getTitle_app() {
+        return title_app;
+    }
+
+    public void setTitle_app(String title_app) {
+        this.title_app = title_app;
+    }
+
+    public String getContent_app() {
+        return content_app;
+    }
+
+    public void setContent_app(String content_app) {
+        this.content_app = content_app;
+    }
+
+    public String getOper_desc_app() {
+        return oper_desc_app;
+    }
+
+    public void setOper_desc_app(String oper_desc_app) {
+        this.oper_desc_app = oper_desc_app;
+    }
+
+    public String getOper_name() {
+        return oper_name;
+    }
+
+    public void setOper_name(String oper_name) {
+        this.oper_name = oper_name;
+    }
+
+    public String getCreate_time() {
+        return create_time;
+    }
+
+    public void setCreate_time(String create_time) {
+        this.create_time = create_time;
+    }
+}

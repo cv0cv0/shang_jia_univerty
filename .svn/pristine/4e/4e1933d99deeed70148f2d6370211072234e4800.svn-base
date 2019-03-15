@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/view_service_time"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:orientation="vertical"
+    android:paddingLeft="@dimen/item_margin"
+    android:paddingRight="@dimen/item_margin"
+    android:visibility="gone">
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/div_height"
+        android:layout_marginTop="8dp"
+        android:background="@color/gray_light" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/tv_action"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="服务时间："
+            android:textColor="@color/black"
+            android:textSize="@dimen/text_medium" />
+
+        <TextView
+            android:id="@+id/tv_service_today_time"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="right"
+            android:textColor="@color/gray"
+            android:textSize="@dimen/text_medium" />
+
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_select_day"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:background="@drawable/bg_login_edit_shape"
+        android:gravity="center"
+        android:text="@string/pls_select_time"
+        android:textSize="@dimen/text_medium" />
+
+    <com.rubu.view.AutoGridView
+        android:id="@+id/grid_select_service_time"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="8dp"
+        android:horizontalSpacing="24dp"
+        android:numColumns="3" />
+
+    <TextView
+        android:id="@+id/tv_statement_times"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:gravity="center"
+        android:text="@string/statement_times"
+        android:textColor="@color/red_dark"
+        android:textSize="@dimen/text_medium" />
+</LinearLayout>

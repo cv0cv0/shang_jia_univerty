@@ -1,0 +1,50 @@
+package com.rubu.ui.act.mine.model;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/11/6
+ * Vwesion 1.0
+ * Dsscription: 完工界面的标题对象
+ */
+
+public class FinishOrderTitleBean {
+    // 标题
+    private String order_title_name;
+    // 客户名称
+    private String mCouserName;
+    // order_title_id
+    private String order_title_id;
+    private String finished_time;
+
+    public String getOrder_title_name() {
+        return order_title_name;
+    }
+
+    public void setOrder_title_name(String order_title_name) {
+        this.order_title_name = order_title_name;
+    }
+
+    public String getmCouserName() {
+        return mCouserName;
+    }
+
+    public void setmCouserName(String mCouserName) {
+        this.mCouserName = mCouserName;
+    }
+
+    public String getOrder_title_id() {
+        return order_title_id;
+    }
+
+    public void setOrder_title_id(String order_title_id) {
+        this.order_title_id = order_title_id;
+    }
+
+    public String getFinished_time() {
+        return finished_time;
+    }
+
+    public void setFinished_time(String finished_time) {
+        this.finished_time = finished_time;
+    }
+}

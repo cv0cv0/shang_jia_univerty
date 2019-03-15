@@ -1,0 +1,52 @@
+package com.rubu.model;
+
+import com.google.gson.annotations.SerializedName;
+
+import java.util.List;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/12/18
+ * Vwesion 1.0
+ * Dsscription: 审核确认的接口
+ */
+
+public class ExamModel {
+
+    @SerializedName("rows")
+    private List<RowsBean> rowsX;
+
+    public List<RowsBean> getRowsX() {
+        return rowsX;
+    }
+
+    public void setRowsX(List<RowsBean> rowsX) {
+        this.rowsX = rowsX;
+    }
+
+    public static class RowsBean {
+        /**
+         * is_examine : 1
+         * examine_sums : null
+         */
+
+        private int is_examine;
+        private int examine_sums;
+
+        public int getIs_examine() {
+            return is_examine;
+        }
+
+        public void setIs_examine(int is_examine) {
+            this.is_examine = is_examine;
+        }
+
+        public int getExamine_sums() {
+            return examine_sums;
+        }
+
+        public void setExamine_sums(int examine_sums) {
+            this.examine_sums = examine_sums;
+        }
+    }
+}

@@ -1,0 +1,15 @@
+package com.rubu.event;
+
+/**
+ * Created by liuhaizhu on 2017/3/10.
+ */
+
+public class EventCode {
+    public static final int EVENT_ORDER_CHANGE=123;//工单内容变化
+    public static final int EVENT_ORDER_NUM_CHANGE=124;//工单管理工单数量变化
+    public static final int EVENT_ABNORMAL_ORDER_NUM_CHANGE=125;//异常工单管理工单数量变化
+    public static final int EVENT_ACCOUNTING_ORDER_NUM_CHANGE=126;//结算工单管理工单数量变化
+    public static final int EVENT_START_MSF=127;//同步喵师傅
+    public static final int EVENT_ORDER_SET_FAIL=128;//预约失败
+    public static final int EVENT_ORDER_STATUS_CHANGE=129;//订单的状态变化，通知列表页数据变化
+}

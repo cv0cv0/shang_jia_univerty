@@ -1,0 +1,91 @@
+package com.rubu.service;
+
+import android.app.Service;
+import android.content.Intent;
+import android.os.IBinder;
+import android.support.annotation.Nullable;
+import android.support.v4.content.LocalBroadcastManager;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
+import android.util.Log;
+
+import com.rubu.util.TimeUtil;
+
+/**
+ * Created by 72732 on 2018/5/18.
+ * 监控拨打电话的服务
+ */
+
+public class TelService extends Service {
+
+    private TelephonyManager tm;
+    private MyPhoneListenner mPhoneListenner;
+    private boolean isCall;
+    private long mCallTime;
+    private long mFirstCallTime;
+
+    private LocalBroadcastManager mLBM;
+    public final static String BROADCAST_TEL_CALL_TIME = "broadcast_tel_call_time";
+
+    private static final String TAG = "ActionPickAct";
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        isCall = false;
+        tm = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
+        mPhoneListenner = new MyPhoneListenner();
+        // 监听电话
+        tm.listen(mPhoneListenner, PhoneStateListener.LISTEN_CALL_STATE);
+        mLBM = LocalBroadcastManager.getInstance(this);
+        Log.d(TAG, "onCreate: 开启服务");
+    }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        //取消电话监听
+        tm.listen(mPhoneListenner, PhoneStateListener.LISTEN_NONE);
+        Log.d(TAG, "onDestroy: 关闭监听");
+    }
+
+    class MyPhoneListenner extends PhoneStateListener {
+        @Override
+        public void onCallStateChanged(int state, String incomingNumber) {
+            super.onCallStateChanged(state, incomingNumber);
+            switch (state) {
+                case TelephonyManager.CALL_STATE_IDLE: // 正常状态
+                    if (isCall) {
+                        mCallTime = System.currentTimeMillis() - mFirstCallTime;
+                        if ((mCallTime / 1000) < 1) {
+                            break;
+                        }
+                        Log.d(TAG, "onReceive: 通话时间mCallTime : " + mCallTime);
+                        String firstTime = TimeUtil.getTime(mFirstCallTime);
+                        String callTime = TimeUtil.getTimeHMS(mCallTime);
+                        Intent intent = new Intent(BROADCAST_TEL_CALL_TIME);
+                        intent.putExtra("firstCallTime", firstTime);
+                        intent.putExtra("callTime", callTime);
+                        intent.putExtra("incomingNumber", incomingNumber);
+                        mLBM.sendBroadcast(intent);
+                        isCall = false;
+                    }
+                    break;
+                case TelephonyManager.CALL_STATE_OFFHOOK: // 通话状态
+                    isCall = true;
+                    mFirstCallTime = System.currentTimeMillis();
+                    Log.d(TAG, "onReceive: 通话开始时间mStartCallTime : " + mFirstCallTime);
+                    Log.d(TAG, "onReceive: 通话手机号incomingNumber : " + incomingNumber);
+                    break;
+                case TelephonyManager.CALL_STATE_RINGING: // 响铃状态
+                    break;
+            }
+        }
+    }
+}

@@ -1,0 +1,66 @@
+package com.rubu.ui.act.register;
+
+import android.view.View;
+import android.widget.ListView;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.ui.act.register.adapter.RegisterServiceAbilityChildsAdapter;
+import com.rubu.base.BaseActivity;
+import com.rubu.model.ServiceModel;
+
+import java.util.ArrayList;
+
+import butterknife.BindView;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/9/27
+ * Vwesion 1.0
+ * Dsscription: 注册的服务子能力查看
+ */
+
+public class RegisterServiceChildAbilityAct extends BaseActivity {
+    @BindView(R.id.title)
+    TextView mTitle;
+    @BindView(R.id.title_left)
+    TextView mTitleLeft;
+    @BindView(R.id.tv_service_name)
+    TextView mTVServiceName;
+    @BindView(R.id.lv_service_ability)
+    ListView mLVServiceAbility;
+
+    // 子能力的适配器
+    private RegisterServiceAbilityChildsAdapter mAdapter;
+    private String mServiceParentName;
+    private ArrayList<ServiceModel.ChildModel> mList = new ArrayList<>();
+
+    @Override
+
+    protected int getViewId() {
+        return R.layout.activity_register_service_child_ability;
+    }
+
+    @Override
+    protected void initEvent() {
+        mTitle.setText(R.string.service_ability);
+        mTitleLeft.setText(R.string.back);
+        mTitleLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+        mServiceParentName = getIntent().getStringExtra("serviceParentName");
+        mList = (ArrayList<ServiceModel.ChildModel>) getIntent().getSerializableExtra("serviceChildAbilitys");
+        mTVServiceName.setText(mServiceParentName);
+        mAdapter = new RegisterServiceAbilityChildsAdapter(mContext, mList);
+        mLVServiceAbility.setAdapter(mAdapter);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
+    }
+}

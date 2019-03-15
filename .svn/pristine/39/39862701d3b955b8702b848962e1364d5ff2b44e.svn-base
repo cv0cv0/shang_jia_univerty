@@ -1,0 +1,387 @@
+package com.rubu.ui.act.mine;
+
+import android.content.Intent;
+import android.util.Log;
+import android.view.View;
+import android.widget.GridView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.adapter.FinishImgAdapter;
+import com.rubu.adapter.QuestionImgAdapter;
+import com.rubu.base.BaseActivity;
+import com.rubu.constant.Constant;
+import com.rubu.model.QuestionDetialModel;
+import com.rubu.net.ApiImp;
+import com.rubu.net.Params;
+import com.rubu.net.ReqJson;
+import com.rubu.ui.act.ActionPickAct;
+import com.rubu.util.StringUtil;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import butterknife.BindView;
+import butterknife.OnClick;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/9/8
+ * Vwesion 1.0
+ * Dsscription: 问题工单内容
+ */
+
+public class QuestionOrderDetialAct extends BaseActivity {
+    @BindView(R.id.title)
+    TextView mTitle;
+    @BindView(R.id.title_left)
+    TextView mTitleLeft;
+    // 工单类型
+    @BindView(R.id.tv_order_type)
+    TextView mTVOrderType;
+    // 工单数量
+    @BindView(R.id.tv_service_num)
+    TextView mTVServiceNum;
+    // 主工单号
+    @BindView(R.id.order_Title_Id)
+    TextView mTVOrderTitleId;
+    // 客户名字
+    @BindView(R.id.name)
+    TextView mTVName;
+    // 客户电话
+    @BindView(R.id.tel)
+    TextView mTVTel;
+    // 地址省市区
+    @BindView(R.id.sheng_shi_qu)
+    TextView mTVAdressSheng;
+    // 地址详情
+    @BindView(R.id.adress)
+    TextView mTVAdress;
+    // 问题记录布局 -----------------------
+    @BindView(R.id.ll_question_record)
+    LinearLayout mLLQuestionRecord;
+    // 发起人
+    @BindView(R.id.woker_name)
+    TextView mTVWokerName;
+    // 发起人手机号
+    @BindView(R.id.woker_prhone)
+    TextView mTVWokerPhone;
+    // 问题分类
+    @BindView(R.id.problem_type)
+    TextView mTVProblemType;
+    // 问题描述
+    @BindView(R.id.problem_decribe)
+    TextView mTVProblemDecribe;
+    // 问题图片附件
+    @BindView(R.id.question_picture_1)
+    GridView mGDPicture_1;
+    // 问题描述
+    @BindView(R.id.operate_time)
+    TextView mTVOperateTime;
+    // 取证记录布局 -----------------------
+    @BindView(R.id.ll_evidence_record)
+    LinearLayout mLLEvidenceRecord;
+    // 问题分类一
+    @BindView(R.id.problem_type_1)
+    TextView mTVProblemType_1;
+    // 取证内容
+    @BindView(R.id.evidence_content)
+    TextView MTVEvidenceContent;
+    // 取证图片附件
+    @BindView(R.id.question_picture_2)
+    GridView mGDPicture_2;
+    // 受理客服的名字
+    @BindView(R.id.service_name_1)
+    TextView MTVServiceName_1;
+    // 取证时间
+    @BindView(R.id.operate_time_1)
+    TextView MTVOperateTime_1;
+    // 处理记录布局 -----------------------
+    @BindView(R.id.ll_handle_record)
+    LinearLayout mLLHandleRecord;
+    // 处理问题描述
+    @BindView(R.id.problem_decribe_2)
+    TextView mTVProblemDecribe_2;
+    // 处理图片附件
+    @BindView(R.id.question_picture_3)
+    GridView mGDPicture_3;
+    // 处理客服的名字
+    @BindView(R.id.service_name_2)
+    TextView MTVServiceName_2;
+    // 处理时间
+    @BindView(R.id.operate_time_2)
+    TextView MTVOperateTime_2;
+
+    //  客服工单号
+    private int mQuestionTitleId;
+    // 主工单号
+    private Long mOrderTitleId;
+    private int mFlag = 4;
+    private QuestionDetialModel mData;
+    // 问题记录的图片路径集合
+    private List<String> mPicture1List = new ArrayList<>();
+    // 取证记录的图片路径集合
+    private List<String> mPicture2List = new ArrayList<>();
+    // 处理记录的图片路径集合
+    private List<String> mPicture3List = new ArrayList<>();
+    // 问题图片加载的适配器
+    private QuestionImgAdapter mFinishImgAdapter_1;
+    // 取证图片加载的适配器
+    private QuestionImgAdapter mFinishImgAdapter_2;
+    // 处理图片加载的适配器
+    private QuestionImgAdapter mFinishImgAdapter_3;
+
+
+    @Override
+    protected int getViewId() {
+        return R.layout.act_question_detial;
+    }
+
+    @Override
+    protected void initEvent() {
+        // 设置视图flag
+        this.mFlag = getIntent().getIntExtra("flag", 9);
+        // 客服工单ID
+        this.mQuestionTitleId = getIntent().getIntExtra("TitleId", 0);
+        mTitle.setText("异常工单");
+        mTitleLeft.setText(R.string.back);
+        mTitleLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+        getQuestionData();
+    }
+
+    @OnClick({R.id.confirm})
+    public void onClick() {
+        Intent intent = new Intent(mContext, ActionPickAct.class);
+        this.mOrderTitleId = Long.valueOf(mData.getRows().get(0).getOrder_title_id());
+        Log.i("主工单号:", "发送工单号:" + this.mOrderTitleId);
+        intent.putExtra("id", this.mOrderTitleId);
+        mContext.startActivity(intent);
+        finish();
+    }
+
+    /**
+     * 问题内容的数据
+     */
+    private void getQuestionData() {
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_APP_SCS_ORDER_TITLE_LOAD);
+        reqJson.setTitle_else_id(this.mQuestionTitleId);
+        mSubscription = ApiImp.get().getQuestionDetial(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<QuestionDetialModel>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        showToast("网络不给力");
+                        e.printStackTrace();
+                        Log.i("获取问题处理流程内容", e.toString());
+                    }
+
+                    @Override
+                    public void onNext(QuestionDetialModel model) {
+                        mData = model;
+                        if (model.getResult().getOut_Flag() == 0) {
+                            // 1.基础信息
+                            setBaseInfo(model);
+                            switch (mFlag) {
+                                // 问题记录 = 设置问题记录 + 隐藏取证记录 + 隐藏处理记录
+                                case 4:
+                                    setQuestionRecord(model);
+                                    mLLEvidenceRecord.setVisibility(View.GONE);
+                                    mLLHandleRecord.setVisibility(View.GONE);
+                                    break;
+                                // 取证记录 = 设置问题记录 + 设置取证记录 + 隐藏处理记录
+                                case 8:
+                                    setQuestionRecord(model);
+                                    setEvidenceRecord(model);
+                                    mLLHandleRecord.setVisibility(View.GONE);
+                                    break;
+                                // 处理记录 = 设置问题记录 + 设置取证记录 + 设置处理记录
+                                case 9:
+                                    setQuestionRecord(model);
+                                    setEvidenceRecord(model);
+                                    setHandleRecord(model);
+                                    break;
+                            }
+                        } else {
+                            showToast(model.getResult().getOut_nszRtn());
+                        }
+                    }
+                });
+    }
+
+    /**
+     * 设置基础信息
+     */
+    private void setBaseInfo(QuestionDetialModel questionModel) {
+        if (questionModel.getRows() != null) {
+            // 工单类型
+            if (!StringUtil.isEmpty(questionModel.getRows().get(0).getParent_wk_order_type())) {
+                mTVOrderType.setText(questionModel.getRows().get(0).getParent_wk_order_type());
+            } else {
+                mTVOrderType.setText("暂无主工单号");
+            }
+            // 工单数量
+            mTVServiceNum.setText("X" + questionModel.getRows().get(0).getOrder_sub_count());
+            // 主工单号
+            if (!StringUtil.isEmpty(String.valueOf(questionModel.getRows().get(0).getParent_wk_order_id()))) {
+                String orderId = StringUtil.addPlace(questionModel.getRows().get(0).getParent_wk_order_id());
+                mTVOrderTitleId.setText(orderId);
+            } else {
+                mTVOrderTitleId.setText("暂无主工单号");
+            }
+            // 客户电话
+            if (!StringUtil.isEmpty(questionModel.getRows().get(0).getBuyer_name())) {
+                mTVName.setText(questionModel.getRows().get(0).getBuyer_name());
+            } else {
+                mTVName.setText("暂无客户姓名");
+            }
+            // 客户手机号
+            if (!StringUtil.isEmpty(questionModel.getRows().get(0).getBuyer_mobile())) {
+                mTVTel.setText(questionModel.getRows().get(0).getBuyer_mobile());
+            } else {
+                mTVTel.setText("暂无客户手机号");
+            }
+            // 地址省市区/详细地址
+            if (!StringUtil.isEmpty(questionModel.getRows().get(0).getBuyer_address())) {
+                String adresses = questionModel.getRows().get(0).getBuyer_address();
+                String[] adress = adresses.split(" ");
+                StringBuffer sb = new StringBuffer();
+                for (int i = 0; i < adress.length - 1; i++) {
+                    sb.append(adress[i]).append(" ");
+                }
+                if (sb.length() > 1) {
+                    sb.deleteCharAt(sb.length() - 1);
+                }
+                mTVAdressSheng.setText(sb);
+                mTVAdress.setText(adress[adress.length - 1]);
+            } else {
+                mTVAdressSheng.setText("暂无省市区地址");
+                mTVAdress.setText("暂无详细地址");
+            }
+        }
+    }
+
+    /**
+     * 设置问题记录内容
+     */
+    private void setQuestionRecord(QuestionDetialModel questionModel) {
+        // 发起人名字
+        if (!StringUtil.isEmpty(questionModel.getRows1().get(0).getElse_initiator())) {
+            mTVWokerName.setText(questionModel.getRows1().get(0).getElse_initiator());
+        } else {
+            mTVWokerName.setText("暂无发起人名字信息");
+        }
+        // 联系方式
+        if (!StringUtil.isEmpty(questionModel.getRows1().get(0).getElse_marker_tel())) {
+            mTVWokerPhone.setText(questionModel.getRows1().get(0).getElse_marker_tel());
+        } else {
+            mTVWokerPhone.setText("暂无发起人电话信息");
+        }
+        // 问题分类
+        if (!StringUtil.isEmpty(questionModel.getRows1().get(0).getProblem_bigclass())) {
+            mTVProblemType.setText(questionModel.getRows1().get(0).getProblem_bigclass() + "/" + questionModel.getRows1().get(0).getProblem_category());
+        } else {
+            mTVProblemType.setText("暂无问题分类信息");
+        }
+        // 问题描述
+        if (!StringUtil.isEmpty(questionModel.getRows1().get(0).getMarker_description())) {
+            mTVProblemDecribe.setText(questionModel.getRows1().get(0).getMarker_description());
+        } else {
+            mTVProblemDecribe.setText("暂无问题描述星系");
+        }
+        // 附件图片
+        if (!StringUtil.isEmpty(questionModel.getRows1().get(0).getUpimg_url_else())) {
+            String urls = questionModel.getRows1().get(0).getUpimg_url_else();
+            mFinishImgAdapter_1 = new QuestionImgAdapter(mContext, urls);
+            mGDPicture_1.setAdapter(mFinishImgAdapter_1);
+        }
+        // 操作时间
+        if (!StringUtil.isEmpty(questionModel.getRows1().get(0).getMarker_date())) {
+            mTVOperateTime.setText(questionModel.getRows1().get(0).getMarker_date());
+        } else {
+            mTVOperateTime.setText("暂无问题操作时间信息");
+        }
+    }
+
+    /**
+     * 设置取证记录内容
+     */
+    private void setEvidenceRecord(QuestionDetialModel questionModel) {
+        // 取证问题类型
+        if (!StringUtil.isEmpty(questionModel.getRows2().get(0).getSubstation_description())) {
+            mTVProblemType_1.setText(questionModel.getRows2().get(0).getSubstation_description() + "/" + questionModel.getRows2().get(0).getBusiness_description());
+        } else {
+            mTVProblemType_1.setText("暂无问题分类信息");
+        }
+        // 取证内容
+        if (!StringUtil.isEmpty(questionModel.getRows2().get(0).getEmployee_description())) {
+            MTVEvidenceContent.setText(questionModel.getRows2().get(0).getEmployee_description());
+        } else {
+            MTVEvidenceContent.setText("暂无取证内容信息");
+        }
+        // 取证图片
+        if (!StringUtil.isEmpty(questionModel.getRows2().get(0).getUpimg_url_else_description())) {
+            String urls = questionModel.getRows2().get(0).getUpimg_url_else_description();
+            mFinishImgAdapter_2 = new QuestionImgAdapter(mContext, urls);
+            mGDPicture_2.setAdapter(mFinishImgAdapter_2);
+        }
+        // 取证受理客服
+        if (!StringUtil.isEmpty(questionModel.getRows2().get(0).getElse_identifier())) {
+            MTVServiceName_1.setText(questionModel.getRows2().get(0).getElse_identifier());
+        } else {
+            MTVServiceName_1.setText("暂无取证客服信息");
+        }
+        // 取证时间
+        if (!StringUtil.isEmpty(questionModel.getRows2().get(0).getIdentifier_date())) {
+            MTVOperateTime_1.setText(questionModel.getRows2().get(0).getIdentifier_date());
+        } else {
+            MTVOperateTime_1.setText("暂无取证时间信息");
+        }
+    }
+
+    /**
+     * 设置处理记录内容
+     */
+    private void setHandleRecord(QuestionDetialModel questionModel) {
+        // 处理描述
+        if (!StringUtil.isEmpty(questionModel.getRows3().get(0).getHandler_description())) {
+            mTVProblemDecribe_2.setText(questionModel.getRows3().get(0).getHandler_description());
+        } else {
+            mTVProblemDecribe_2.setText("暂无处理描述信息");
+        }
+        // 处理图片的附件
+        if (!StringUtil.isEmpty(questionModel.getRows3().get(0).getClient_description())) {
+            String urls = questionModel.getRows3().get(0).getClient_description();
+            mFinishImgAdapter_3 = new QuestionImgAdapter(mContext, urls);
+            mGDPicture_3.setAdapter(mFinishImgAdapter_3);
+        }
+        // 处理的客服名字
+        if (!StringUtil.isEmpty(questionModel.getRows3().get(0).getElse_handler())) {
+            MTVServiceName_2.setText(questionModel.getRows3().get(0).getElse_handler());
+        } else {
+            MTVServiceName_2.setText("暂无处理客服信息");
+        }
+        // 处理时间
+        if (!StringUtil.isEmpty(questionModel.getRows3().get(0).getHandler_date())) {
+            MTVOperateTime_2.setText(questionModel.getRows3().get(0).getHandler_date());
+        } else {
+            MTVOperateTime_2.setText("暂无处理客服信息");
+        }
+    }
+}

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/grey"
+    android:orientation="vertical">
+
+    <include layout="@layout/toolbar" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/choose_question"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="8dp"
+            android:background="@color/white"
+            android:orientation="horizontal"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="遇到问题"
+                android:textColor="@color/c_333333"
+                android:textSize="@dimen/sp_16" />
+
+            <TextView
+                android:id="@+id/question_descirbe"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:paddingLeft="15dp"
+                android:text=""
+                android:textColor="@color/colorBlack"
+                android:textSize="@dimen/sp_14" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=">"
+                android:textColor="@color/c_333333"
+                android:textSize="@dimen/sp_16" />
+
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:gravity="center_vertical"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp"
+            android:text="描述"
+            android:textColor="@color/c_333333"
+            android:textSize="@dimen/sp_18" />
+
+        <EditText
+            android:id="@+id/question_content"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:background="@color/white"
+            android:gravity="left|top"
+            android:hint="请详细描述具体问题"
+            android:maxLines="5"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp"
+            android:paddingTop="10dp"
+            android:textColor="@color/gray_dark"
+            android:textSize="@dimen/sp_15" />
+
+        <include layout="@layout/include_question_add_imgs" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/commint"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@color/colorAccent"
+        android:gravity="center"
+        android:text="提交"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_18" />
+
+
+</LinearLayout>

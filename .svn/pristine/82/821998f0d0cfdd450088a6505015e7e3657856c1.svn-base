@@ -1,0 +1,86 @@
+package com.rubu.adapter;
+
+import android.content.Context;
+import android.graphics.Color;
+import android.support.v4.content.ContextCompat;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.TextView;
+
+import com.rubu.R;
+
+/**
+ * Created by liuhaizhu on 2017/3/2.
+ */
+
+public class SelectTimeAdapter extends BaseAdapter {
+    public SelectTimeAdapter(Context context) {
+        mContext = context;
+    }
+    private OnSelectTimeListener mOnSelectTimeListener;
+
+    public void setOnSelectTimeListener(OnSelectTimeListener onSelectTimeListener) {
+        mOnSelectTimeListener = onSelectTimeListener;
+    }
+
+    private Context mContext;
+    private final String TIMES[] = {"上午", "下午", "晚上"};
+    private int selectIndex = -1;
+
+    @Override
+    public int getCount() {
+        return TIMES.length;
+    }
+
+    @Override
+    public Object getItem(int position) {
+        return TIMES[position];
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public View getView(final int position, View convertView, ViewGroup parent) {
+        ViewHolder holder;
+        if (convertView == null) {
+            LayoutInflater mInflater = LayoutInflater.from(parent.getContext());
+            convertView = mInflater.inflate(R.layout.item_select_time, null);
+            holder = new ViewHolder();
+            holder.tvAction = (TextView) convertView.findViewById(R.id.tv_time);
+            convertView.setTag(holder);
+        } else {
+            holder = (ViewHolder) convertView.getTag();
+        }
+        holder.tvAction.setText(TIMES[position]);
+        if (selectIndex != position) {
+            holder.tvAction.setBackgroundResource(R.drawable.bg_login_edit_shape);
+            holder.tvAction.setTextColor(ContextCompat.getColor(mContext,R.color.black));
+        }else {
+            holder.tvAction.setBackgroundColor(ContextCompat.getColor(mContext,R.color.colorAccent));
+            holder.tvAction.setTextColor(Color.WHITE);
+        }
+        holder.tvAction.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                selectIndex=position;
+                notifyDataSetChanged();
+                if(mOnSelectTimeListener!=null){
+                    mOnSelectTimeListener.onSelectTime(selectIndex,TIMES[position]);
+                }
+            }
+        });
+        return convertView;
+    }
+
+    class ViewHolder {
+        TextView tvAction;
+    }
+    public interface OnSelectTimeListener{
+        void onSelectTime(int p,String text);
+    }
+}

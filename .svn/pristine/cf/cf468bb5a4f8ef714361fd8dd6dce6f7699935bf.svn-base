@@ -1,0 +1,149 @@
+package com.rubu.util;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
+/**
+ * Created by liuhaizhu on 2016/12/17.
+ */
+
+public class CountDownUtil {
+    private final static String TIME_UNIT_01 = "HH:mm:ss";
+    public static final SimpleDateFormat DEFAULT_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private final static String FLAG = ":";
+
+    private final static long SS = 1000;
+    private final static long MM = SS * 60;
+    private final static long HH = MM * 60;
+    private final static long DD = HH * 24;
+
+    public static long[] getM(long mm) {
+        long[] strs = new long[3];
+        long h = mm / (HH);
+        mm -= h * HH;
+        long m = mm / MM;
+        mm -= MM * m;
+        long s = mm / 1000;
+        strs[0] = h;
+        strs[1] = m;
+        return strs;
+    }
+
+    public static String[] getHMS(long mm) {
+        String[] strs = new String[3];
+        long h = mm / (HH);
+        mm -= h * HH;
+        long m = mm / MM;
+        mm -= MM * m;
+        long s = mm / 1000;
+        strs[0] = (h < 10 ? ("0" + h) : String.valueOf(h));
+        strs[1] = (m < 10 ? ("0" + m) : String.valueOf(m));
+        strs[2] = (s < 10 ? ("0" + s) : String.valueOf(s));
+        return strs;
+    }
+
+    public static String getCountDownSTR(long mm) {
+        String[] strs = new String[3];
+        long h = mm / (HH);
+        mm -= h * HH;
+        long m = mm / MM;
+        mm -= MM * m;
+        long s = mm / 1000;
+        strs[0] = (h < 10 ? ("0" + h) : String.valueOf(h));
+        strs[1] = (m < 10 ? ("0" + m) : String.valueOf(m));
+        strs[2] = (s < 10 ? ("0" + s) : String.valueOf(s));
+        return strs[0] + ":" + strs[1] + ":" + strs[2];
+    }
+
+    public static String getCountDownSTR2(long mm) {
+        String[] strs = new String[3];
+        long h = mm / (HH);
+        mm -= h * HH;
+        long m = mm / MM;
+        mm -= MM * m;
+        long s = mm / 1000;
+        strs[0] = (h < 10 ? ("0" + h) : String.valueOf(h));
+        strs[1] = (m < 10 ? ("0" + m) : String.valueOf(m));
+        strs[2] = (s < 10 ? ("0" + s) : String.valueOf(s));
+        return strs[1] + ":" + strs[2];
+    }
+
+    public static String[] getDHMS(long mm) {
+        String[] strs = new String[4];
+        long d = mm / (DD);
+        mm = mm - d * DD;
+        long h = mm / (HH);
+        mm = mm - h * HH;
+        long m = mm / MM;
+        mm = mm - MM * m;
+        long s = mm / 1000;
+        strs[0] = (d < 10 ? ("0" + d) : String.valueOf(d));
+        strs[1] = (h < 10 ? ("0" + h) : String.valueOf(h));
+        strs[2] = (m < 10 ? ("0" + m) : String.valueOf(m));
+        strs[3] = (s < 10 ? ("0" + s) : String.valueOf(s));
+        return strs;
+    }
+
+    public static long getCompartTime(String startTime, String endTime) {
+        return getTimeLong(endTime) - getTimeLong(startTime);
+    }
+
+    public static boolean isAfterCurrent(String now, String time) {
+        return getCurrentTimeLong(now) - getTimeLong(time) > 0;
+    }
+
+    public static long getTimeLong(String time) {
+        Date date = new Date();
+        try {
+            date = DEFAULT_DATE_FORMAT.parse(time);
+        } catch (ParseException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return date.getTime();
+    }
+
+    public static long getCurrentTimeLong(String time) {
+        Date date = new Date();
+        try {
+            date = DEFAULT_DATE_FORMAT.parse(time);
+        } catch (ParseException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return date.getTime();
+    }
+
+    public static long getTimeLongs(String time) {
+        Date date = new Date();
+        try {
+            date = DEFAULT_DATE_FORMAT.parse(time);
+        } catch (ParseException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return (date.getTime());
+    }
+
+    //获得当天12或者24点时间
+    public static long getTimesnight(int hours) {
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.HOUR_OF_DAY, hours);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        return (long) (cal.getTimeInMillis());
+    }
+
+    //获得当天12或者24点时间
+    public static long getTimesTomorrow(int hours) {
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.HOUR_OF_DAY, hours);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        return (cal.getTimeInMillis() + 86400000);
+    }
+}

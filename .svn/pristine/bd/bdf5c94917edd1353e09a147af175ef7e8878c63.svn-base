@@ -1,0 +1,382 @@
+package com.rubu.model;
+
+import java.util.List;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/9/11
+ * Vwesion 1.0
+ * Dsscription: 问题详情的内容
+ */
+
+public class QuestionDetialModel {
+
+    /**
+     * rows3 : [{"handler_date":"2017-08-09 16:50:32","handler_description":null,"client_description":"真的大破","else_handler":null}]
+     * result : {"out_nszRtn":"","out_Flag":0}
+     * rows1 : [{"else_initiator":"路远","marker_date":"2017-08-09 16:47:21","problem_bigclass":"技师问题","upimg_url_else":"","problem_subclass":"例子","marker_description":"大神","problem_category":"技师打破货物","else_marker_tel":"15158182891"}]
+     * rows2 : [{"transport_description":"","substation_description":"","employee_description":"","else_identifier":null,"business_description":"","upimg_url_else_description":"","identifier_date":"2017-08-09 16:50:32"}]
+     * rows : [{"buyer_mobile":"","buyer_address":"浙江 杭州 滨江 长河街道富阳东箭","parent_wk_order_id":"BD17190681154703","order_title_id":10112,"buyer_name":"","parent_wk_order_type":"安装","order_sub_count":1}]
+     */
+
+    //返回数据判断
+    private ResultBean result;
+    // 处理记录的内容
+    private List<Rows3Bean> rows3;
+    // 问题记录
+    private List<Rows1Bean> rows1;
+    // 取证记录
+    private List<Rows2Bean> rows2;
+    // 基础信息对象
+    private List<RowsBean> rows;
+
+    public ResultBean getResult() {
+        return result;
+    }
+
+    public void setResult(ResultBean result) {
+        this.result = result;
+    }
+
+    public List<Rows3Bean> getRows3() {
+        return rows3;
+    }
+
+    public void setRows3(List<Rows3Bean> rows3) {
+        this.rows3 = rows3;
+    }
+
+    public List<Rows1Bean> getRows1() {
+        return rows1;
+    }
+
+    public void setRows1(List<Rows1Bean> rows1) {
+        this.rows1 = rows1;
+    }
+
+    public List<Rows2Bean> getRows2() {
+        return rows2;
+    }
+
+    public void setRows2(List<Rows2Bean> rows2) {
+        this.rows2 = rows2;
+    }
+
+    public List<RowsBean> getRows() {
+        return rows;
+    }
+
+    public void setRows(List<RowsBean> rows) {
+        this.rows = rows;
+    }
+
+    public static class ResultBean {
+        /**
+         * out_nszRtn :
+         * out_Flag : 0
+         */
+
+        private String out_nszRtn;
+        private int out_Flag;
+
+        public String getOut_nszRtn() {
+            return out_nszRtn;
+        }
+
+        public void setOut_nszRtn(String out_nszRtn) {
+            this.out_nszRtn = out_nszRtn;
+        }
+
+        public int getOut_Flag() {
+            return out_Flag;
+        }
+
+        public void setOut_Flag(int out_Flag) {
+            this.out_Flag = out_Flag;
+        }
+    }
+
+    public static class Rows3Bean {
+        /**
+         * handler_date : 2017-08-09 16:50:32
+         * handler_description : null
+         * client_description : 真的大破
+         * else_handler : null
+         */
+
+        private String handler_date;
+        private String handler_description;
+        private String client_description;
+        private String else_handler;
+
+        public String getHandler_date() {
+            return handler_date;
+        }
+
+        public void setHandler_date(String handler_date) {
+            this.handler_date = handler_date;
+        }
+
+        public String getHandler_description() {
+            return handler_description;
+        }
+
+        public void setHandler_description(String handler_description) {
+            this.handler_description = handler_description;
+        }
+
+        public String getClient_description() {
+            return client_description;
+        }
+
+        public void setClient_description(String client_description) {
+            this.client_description = client_description;
+        }
+
+        public String getElse_handler() {
+            return else_handler;
+        }
+
+        public void setElse_handler(String else_handler) {
+            this.else_handler = else_handler;
+        }
+    }
+
+    public static class Rows1Bean {
+        /**
+         * else_initiator : 路远
+         * marker_date : 2017-08-09 16:47:21
+         * problem_bigclass : 技师问题
+         * upimg_url_else :
+         * problem_subclass : 例子
+         * marker_description : 大神
+         * problem_category : 技师打破货物
+         * else_marker_tel : 15158182891
+         */
+
+        private String else_initiator;
+        private String marker_date;
+        private String problem_bigclass;
+        private String upimg_url_else;
+        private String problem_subclass;
+        private String marker_description;
+        private String problem_category;
+        private String else_marker_tel;
+
+        public String getElse_initiator() {
+            return else_initiator;
+        }
+
+        public void setElse_initiator(String else_initiator) {
+            this.else_initiator = else_initiator;
+        }
+
+        public String getMarker_date() {
+            return marker_date;
+        }
+
+        public void setMarker_date(String marker_date) {
+            this.marker_date = marker_date;
+        }
+
+        public String getProblem_bigclass() {
+            return problem_bigclass;
+        }
+
+        public void setProblem_bigclass(String problem_bigclass) {
+            this.problem_bigclass = problem_bigclass;
+        }
+
+        public String getUpimg_url_else() {
+            return upimg_url_else;
+        }
+
+        public void setUpimg_url_else(String upimg_url_else) {
+            this.upimg_url_else = upimg_url_else;
+        }
+
+        public String getProblem_subclass() {
+            return problem_subclass;
+        }
+
+        public void setProblem_subclass(String problem_subclass) {
+            this.problem_subclass = problem_subclass;
+        }
+
+        public String getMarker_description() {
+            return marker_description;
+        }
+
+        public void setMarker_description(String marker_description) {
+            this.marker_description = marker_description;
+        }
+
+        public String getProblem_category() {
+            return problem_category;
+        }
+
+        public void setProblem_category(String problem_category) {
+            this.problem_category = problem_category;
+        }
+
+        public String getElse_marker_tel() {
+            return else_marker_tel;
+        }
+
+        public void setElse_marker_tel(String else_marker_tel) {
+            this.else_marker_tel = else_marker_tel;
+        }
+    }
+
+    public static class Rows2Bean {
+        /**
+         * transport_description :
+         * substation_description :
+         * employee_description :
+         * else_identifier : null
+         * business_description :
+         * upimg_url_else_description :
+         * identifier_date : 2017-08-09 16:50:32
+         */
+
+        private String transport_description;
+        private String substation_description;
+        private String employee_description;
+        private String else_identifier;
+        private String business_description;
+        private String upimg_url_else_description;
+        private String identifier_date;
+
+        public String getTransport_description() {
+            return transport_description;
+        }
+
+        public void setTransport_description(String transport_description) {
+            this.transport_description = transport_description;
+        }
+
+        public String getSubstation_description() {
+            return substation_description;
+        }
+
+        public void setSubstation_description(String substation_description) {
+            this.substation_description = substation_description;
+        }
+
+        public String getEmployee_description() {
+            return employee_description;
+        }
+
+        public void setEmployee_description(String employee_description) {
+            this.employee_description = employee_description;
+        }
+
+        public String getElse_identifier() {
+            return else_identifier;
+        }
+
+        public void setElse_identifier(String else_identifier) {
+            this.else_identifier = else_identifier;
+        }
+
+        public String getBusiness_description() {
+            return business_description;
+        }
+
+        public void setBusiness_description(String business_description) {
+            this.business_description = business_description;
+        }
+
+        public String getUpimg_url_else_description() {
+            return upimg_url_else_description;
+        }
+
+        public void setUpimg_url_else_description(String upimg_url_else_description) {
+            this.upimg_url_else_description = upimg_url_else_description;
+        }
+
+        public String getIdentifier_date() {
+            return identifier_date;
+        }
+
+        public void setIdentifier_date(String identifier_date) {
+            this.identifier_date = identifier_date;
+        }
+    }
+
+    public static class RowsBean {
+        /**
+         * buyer_mobile :
+         * buyer_address : 浙江 杭州 滨江 长河街道富阳东箭
+         * parent_wk_order_id : BD17190681154703
+         * order_title_id : 10112
+         * buyer_name :
+         * parent_wk_order_type : 安装
+         * order_sub_count : 1
+         */
+
+        private String buyer_mobile;
+        private String buyer_address;
+        private String parent_wk_order_id;
+        private int order_title_id;
+        private String buyer_name;
+        private String parent_wk_order_type;
+        private int order_sub_count;
+
+        public String getBuyer_mobile() {
+            return buyer_mobile;
+        }
+
+        public void setBuyer_mobile(String buyer_mobile) {
+            this.buyer_mobile = buyer_mobile;
+        }
+
+        public String getBuyer_address() {
+            return buyer_address;
+        }
+
+        public void setBuyer_address(String buyer_address) {
+            this.buyer_address = buyer_address;
+        }
+
+        public String getParent_wk_order_id() {
+            return parent_wk_order_id;
+        }
+
+        public void setParent_wk_order_id(String parent_wk_order_id) {
+            this.parent_wk_order_id = parent_wk_order_id;
+        }
+
+        public int getOrder_title_id() {
+            return order_title_id;
+        }
+
+        public void setOrder_title_id(int order_title_id) {
+            this.order_title_id = order_title_id;
+        }
+
+        public String getBuyer_name() {
+            return buyer_name;
+        }
+
+        public void setBuyer_name(String buyer_name) {
+            this.buyer_name = buyer_name;
+        }
+
+        public String getParent_wk_order_type() {
+            return parent_wk_order_type;
+        }
+
+        public void setParent_wk_order_type(String parent_wk_order_type) {
+            this.parent_wk_order_type = parent_wk_order_type;
+        }
+
+        public int getOrder_sub_count() {
+            return order_sub_count;
+        }
+
+        public void setOrder_sub_count(int order_sub_count) {
+            this.order_sub_count = order_sub_count;
+        }
+    }
+}

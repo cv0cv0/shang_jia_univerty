@@ -1,0 +1,239 @@
+package com.rubu.base;
+
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.rubu.event.EventMessage;
+import com.rubu.util.SoftPanUtil;
+import com.rubu.view.varyhelperview.VaryViewHelperController;
+import com.umeng.analytics.MobclickAgent;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
+import butterknife.ButterKnife;
+import rx.Subscription;
+
+
+/**
+ * Fragment基类
+ */
+public abstract class BaseFragment extends Fragment {
+    private String mTag;
+    protected ProgressDialog mDialog;
+    public Context mContext;
+    protected Subscription mSubscription;
+    /**
+     * 用于显示加载动画 和 内容为空 或请求出错的提示界面
+     */
+    private VaryViewHelperController mVaryViewHelperController = null;
+    /**
+     * 显示标题的 TextView
+     */
+    protected TextView mToobar;
+    /**
+     * Title 左侧的返回键，默认隐藏LoadingFooter
+     * EndlessRecyclerOnScrollListener
+     * ExStaggeredGridLayoutManager
+     * HeaderAndFooterRecyclerViewAdapter
+     * HeaderSpanSizeLookup
+     * OnListLoadNextPageListener
+     * RecyclerViewUtils
+     */
+    protected ImageView mTitleBack;
+    /**
+     * Title 右侧的返回主页的按键，默认隐藏
+     */
+    protected ImageView mTitleHome;
+
+    protected abstract int getViewId();
+
+    protected abstract void init();
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        mContext = getActivity();
+        View view;
+        if (getViewId() != 0) {
+            view = inflater.inflate(getViewId(), null);
+            SoftPanUtil.setOnTouchOutsideHideSoftPan(getActivity(), view);
+        } else {
+            view = super.onCreateView(inflater, container, savedInstanceState);
+        }
+        ButterKnife.bind(this, view);
+        EventBus.getDefault().register(this);
+        init();
+        return view;
+    }
+
+    public void onResume() {
+        super.onResume();
+        MobclickAgent.onPageStart("MainScreen"); //统计页面，"MainScreen"为页面名称，可自定义
+    }
+    public void onPause() {
+        super.onPause();
+        MobclickAgent.onPageEnd("MainScreen");
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+    }
+
+    @Override
+    public void startActivity(Intent intent) {
+        super.startActivity(intent);
+    }
+
+    /**
+     * 为mVaryViewHelperController赋值
+     *
+     * @param view :基于哪个view显示
+     */
+    public void initViewController(View view) {
+        if (null != view) {
+            mVaryViewHelperController = new VaryViewHelperController(view);
+        }
+    }
+
+    public void setFragmentTag(@NonNull String tag) {
+        mTag = tag;
+    }
+
+    public String getFragmentTag() {
+        return mTag;
+    }
+
+    /**
+     * toggle show loading
+     *
+     * @param toggle
+     */
+    protected void showLoading(boolean toggle, String msg) {
+        if (null == mVaryViewHelperController) {
+            throw new IllegalArgumentException("You must return a right target com.shangjia.view for loading");
+        }
+
+        if (toggle) {
+            mVaryViewHelperController.showLoading(msg);
+        } else {
+            mVaryViewHelperController.restore();
+        }
+    }
+
+    /**
+     * toggle show empty
+     *
+     * @param toggle
+     */
+    protected void showEmpty(boolean toggle, String msg, View.OnClickListener onClickListener) {
+        if (null == mVaryViewHelperController) {
+            throw new IllegalArgumentException("You must return a right target com.shangjia.view for loading");
+        }
+
+        if (toggle) {
+            mVaryViewHelperController.showEmpty(msg, onClickListener);
+        } else {
+            mVaryViewHelperController.restore();
+        }
+    }
+
+    /**
+     * toggle show error
+     *
+     * @param toggle
+     */
+    protected void showError(boolean toggle, String msg, View.OnClickListener onClickListener) {
+        if (null == mVaryViewHelperController) {
+            throw new IllegalArgumentException("You must return a right target com.shangjia.view for loading");
+        }
+
+        if (toggle) {
+            mVaryViewHelperController.showError(msg, onClickListener);
+        } else {
+            mVaryViewHelperController.restore();
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        EventBus.getDefault().unregister(this);
+        if (mSubscription != null) {
+            mSubscription.unsubscribe();
+        }
+    }
+
+    /**
+     * 显示动画弹窗
+     *
+     * @param text
+     */
+    protected void showDialog(@NonNull String text) {
+        if (null == mDialog) {
+            mDialog = new ProgressDialog(getActivity());
+        }
+        mDialog.setMessage(text);
+        if (!mDialog.isShowing()) {
+            mDialog.show();
+        }
+    }
+
+    /**
+     * 去动画弹窗
+     */
+    protected void dissmissDialog() {
+        if (null != mDialog && mDialog.isShowing()) {
+            mDialog.dismiss();
+        }
+    }
+
+    /**
+     * 打开一个新的activity
+     *
+     * @param cla
+     */
+    protected void startActivity(Class<?> cla) {
+        Intent intent = new Intent(getActivity(), cla);
+        startActivity(intent);
+    }
+
+    /**
+     * 去动画弹窗
+     */
+    protected void showToast(String text) {
+        Toast.makeText(mContext, text, Toast.LENGTH_SHORT).show();
+    }
+    /**
+     * 在主线程运行
+     *
+     * @param event
+     */
+    public void onEventMainThread(EventMessage event) {
+    }
+
+    @Subscribe
+    public void onEvent(EventMessage event) {
+        onEventMainThread(event);
+    }
+
+
+
+}

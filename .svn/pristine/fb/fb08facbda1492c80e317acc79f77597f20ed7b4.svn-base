@@ -1,0 +1,314 @@
+package com.rubu.ui.act.mine;
+
+import android.content.Intent;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.rubu.R;
+import com.rubu.base.BaseActivity;
+import com.rubu.constant.Constant;
+import com.rubu.model.AuditOrderModel;
+import com.rubu.net.ApiImp;
+import com.rubu.net.Params;
+import com.rubu.net.ReqJson;
+import com.rubu.ui.act.ActionPickAct;
+import com.rubu.ui.act.mine.model.CheckOrderContentBean;
+import com.rubu.ui.act.mine.model.CheckOrderIsCheckBean;
+import com.rubu.ui.act.mine.model.CheckOrderTitleBean;
+import com.rubu.ui.act.mine.view.CheckContentItemView;
+import com.rubu.ui.act.mine.view.CheckIsCheckItemView;
+import com.rubu.ui.act.mine.view.CheckTitleItemView;
+import com.rubu.util.LoginUtil;
+import com.rubu.util.TimeUtil;
+
+import java.util.List;
+
+import butterknife.BindView;
+import butterknife.OnClick;
+import me.drakeet.multitype.Items;
+import me.drakeet.multitype.MultiTypeAdapter;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
+public class CheckOrderAct extends BaseActivity {
+    @BindView(R.id.title_left)
+    TextView titleLeft;
+    @BindView(R.id.title)
+    TextView title;
+    @BindView(R.id.recycle_order_list)
+    RecyclerView mRecycleView;
+    @BindView(R.id.tv_appointment_cancel)
+    TextView mTVAppointmentCancel;
+    @BindView(R.id.tv_service_adjust)
+    TextView mTVServiceAdjust;
+
+    private Items items = new Items();
+    private MultiTypeAdapter mMultiTypeAdapter;
+    private int flag; // flag = 0 预约取消审核记录；flag = 1 服务调整审核记录;
+    private int status; // 0,1,2,3,4  ==  全部,未发起审核(app不使用该状态),审核中,审核驳回,审核通过
+
+    public static final int REQUEST_SELECT_SIZER = 1;
+    public static final String REQUEST_SELECT_SIZER_KEY = "select_item";
+
+    @Override
+    protected int getViewId() {
+        return R.layout.activity_check_order;
+    }
+
+    @Override
+    protected void initEvent() {
+        title.setText(R.string.check_record);
+        titleLeft.setText(R.string.back);
+        titleLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+        mTVAppointmentCancel.setTextColor(getResources().getColor(R.color.colorAccent));
+        flag = 0;
+        status = 0;
+        initRecycleView();
+        loadData();
+    }
+
+    private void initRecycleView() {
+        mRecycleView.setLayoutManager(new LinearLayoutManager(mContext));
+        mMultiTypeAdapter = new MultiTypeAdapter(items);
+        CheckTitleItemView checkTitleItemView = new CheckTitleItemView();
+        // 设置checkOrder的标题
+        mMultiTypeAdapter.register(CheckOrderTitleBean.class, checkTitleItemView);
+        checkTitleItemView.setOnItemViewClickListenner(new CheckTitleItemView.ItemViewClickListenner() {
+            @Override
+            public void onClick(CheckOrderTitleBean bean) {
+                Intent intent = new Intent(mContext, ActionPickAct.class);
+                Log.i("工单号", bean.getOrder_title_id() + "");
+                intent.putExtra("id", Long.valueOf(bean.getOrder_title_id()));
+                startActivity(intent);
+            }
+        });
+        CheckContentItemView checkContentItemView = new CheckContentItemView();
+        // 设置CheckOrder的内容
+        mMultiTypeAdapter.register(CheckOrderContentBean.class, checkContentItemView);
+        checkContentItemView.setOnItemViewClickListenner(new CheckContentItemView.ItemViewClickListenner() {
+            @Override
+            public void onClick(CheckOrderContentBean bean) {
+                Intent intent = new Intent(mContext, ActionPickAct.class);
+                Log.i("工单号", bean.getOrder_title_id() + "");
+                intent.putExtra("id", Long.valueOf(bean.getOrder_title_id()));
+                startActivity(intent);
+            }
+        });
+        // 设置CheckOrder的状态
+        CheckIsCheckItemView checkIsCheckItemView = new CheckIsCheckItemView();
+        mMultiTypeAdapter.register(CheckOrderIsCheckBean.class, checkIsCheckItemView);
+        checkIsCheckItemView.setOnItemViewClickListenner(new CheckIsCheckItemView.ItemViewClickListenner() {
+            @Override
+            public void onClick(CheckOrderIsCheckBean bean) {
+                Intent intent = new Intent(mContext, ActionPickAct.class);
+                Log.i("工单号", bean.getOrder_title_id() + "");
+                intent.putExtra("id", Long.valueOf(bean.getOrder_title_id()));
+                startActivity(intent);
+            }
+        });
+        mRecycleView.setAdapter(mMultiTypeAdapter);
+    }
+
+    @OnClick({R.id.tv_appointment_cancel, R.id.tv_service_adjust, R.id.rl_sizer})
+    public void OnClick(View view) {
+        switch (view.getId()) {
+            // 预约取消
+            case R.id.tv_appointment_cancel:
+                mTVAppointmentCancel.setTextColor(getResources().getColor(R.color.colorAccent));
+                mTVServiceAdjust.setTextColor(getResources().getColor(R.color.black));
+                flag = 0;
+                loadData();
+                break;
+            // 服务调整
+            case R.id.tv_service_adjust:
+                mTVServiceAdjust.setTextColor(getResources().getColor(R.color.colorAccent));
+                mTVAppointmentCancel.setTextColor(getResources().getColor(R.color.black));
+                flag = 1;
+                loadData();
+                break;
+            // 筛选
+            case R.id.rl_sizer:
+                startActivityForResult(new Intent(mContext, CheckOrderSizerAct.class), REQUEST_SELECT_SIZER);
+                break;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQUEST_SELECT_SIZER) {
+                // 全部,审核通过,审核驳回,审核中
+                String name = data.getStringExtra(REQUEST_SELECT_SIZER_KEY);
+                switch (name) {
+                    case "全部":
+                        status = 0;
+                        break;
+                    case "审核通过":
+                        status = 4;
+                        break;
+                    case "审核驳回":
+                        status = 3;
+                        break;
+                    case "审核中":
+                        status = 2;
+                        break;
+                    default:
+                        status = 0;
+                        break;
+                }
+                loadData();
+            }
+        }
+    }
+
+    private void loadData() {
+        showProgressDialog("请稍等");
+        ReqJson reqJson = new ReqJson();
+        reqJson.setS_worker_id(LoginUtil.getUserId(mContext));
+        reqJson.setAudit_flag(flag);
+        reqJson.setAudit_status(status);
+        reqJson.setProc(Constant.PROC_GET_AUDIT_ORDER_LIST);
+        mSubscription = ApiImp.get().getAuditOrderList(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<AuditOrderModel>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        showToast("网络不给力");
+                        Toast.makeText(mContext, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onNext(AuditOrderModel model) {
+                        dissmisProgressDialog();
+                        items.clear();
+                        if (model.getResult().getOut_Flag() == 0) {
+                            if (model.getRows() != null) {
+                                List<AuditOrderModel.RowsBean> list = model.getRows();
+                                modelTransformJson(list);
+                                mMultiTypeAdapter.notifyDataSetChanged();
+                            }
+                        } else {
+                            Toast.makeText(mContext, model.getResult().getOut_nszRtn(), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+    }
+
+    /**
+     * 将返回来的json字符串转换成adapter的数据
+     *
+     * @param list
+     */
+    private void modelTransformJson(List<AuditOrderModel.RowsBean> list) {
+        String oldOrderId = "", newOrderId = "";
+        for (int i = 0; i < list.size(); i++) {
+            AuditOrderModel.RowsBean bean = list.get(i);
+            if (list.size() == 1) {
+                items.add(transformOrderTitle(bean));
+                items.add(transformOrderContent(bean));
+                items.add(transformOrderAdjustStatus(bean));
+            }
+            if (flag == 1) {                                        // 如果是服务调整的，则每一单单独显示,后面的为预约服务的内容的填充
+                items.add(transformOrderTitle(bean));
+                items.add(transformOrderContent(bean));
+                items.add(transformOrderAdjustStatus(bean));
+                continue;
+            }
+            // 首次添加数据
+            if (i == 0) {
+                oldOrderId = bean.getParent_wk_order_id();
+                items.add(transformOrderTitle(bean));             //添加第一条的title
+                items.add(transformOrderContent(bean));           //添加第一条的content
+            } else {
+                AuditOrderModel.RowsBean olderBean = list.get(i - 1); // 获取上一个数据详情
+                newOrderId = bean.getParent_wk_order_id();        //拿到当前工单大的数据
+                if (oldOrderId.equals(newOrderId)) {
+                    if (i == list.size() - 1) {
+                        items.add(transformOrderContent(bean));       //添加工单content
+                        items.add(transformOrderAdjustStatus(bean));  //添加工单的status
+                    } else {
+                        items.add(transformOrderContent(bean));       //添加工单content
+                    }
+                } else {
+                    if (i == list.size() - 1) {
+                        items.add(transformOrderAdjustStatus(olderBean));  //添加审核状态
+                        items.add(transformOrderTitle(bean));       // 添加新的工单title
+                        items.add(transformOrderContent(bean));           //添加第一条的content
+                        items.add(transformOrderAdjustStatus(bean));  //添加审核状态
+                    } else {
+                        items.add(transformOrderAdjustStatus(olderBean));  //添加审核状态
+                        items.add(transformOrderTitle(bean));       // 添加新的工单title
+                        items.add(transformOrderContent(bean));           //添加第一条的content
+                    }
+                    oldOrderId = newOrderId;  // 将新的工单id重新记录一下
+                }
+            }
+        }
+    }
+
+    /**
+     * 转换生成工单title
+     *
+     * @param bean
+     */
+    private CheckOrderTitleBean transformOrderTitle(AuditOrderModel.RowsBean bean) {
+        CheckOrderTitleBean titleBean = new CheckOrderTitleBean();
+        titleBean.setOrder_title_name(bean.getParent_wk_order_id());
+        titleBean.setmCouserName(bean.getBuyer_name());
+        titleBean.setmCouserName(bean.getBuyer_name());
+        titleBean.setOrder_title_id(bean.getOrder_title_id());
+        return titleBean;
+    }
+
+    /**
+     * 装换生成工单content
+     *
+     * @param bean
+     */
+    private CheckOrderContentBean transformOrderContent(AuditOrderModel.RowsBean bean) {
+        CheckOrderContentBean contentBean = new CheckOrderContentBean();
+        contentBean.setOrder_name(bean.getParent_wk_order_type() + "  " + bean.getService_parent() + "  " + bean.getAuction_sku_properties());
+        contentBean.setOrder_count(bean.getService_count());
+        contentBean.setOrder_title_id(bean.getOrder_title_id());
+        return contentBean;
+    }
+
+    /**
+     * 装换生成工单content
+     *
+     * @param bean
+     */
+    private CheckOrderIsCheckBean transformOrderAdjustStatus(AuditOrderModel.RowsBean bean) {
+        CheckOrderIsCheckBean isCheckBean = new CheckOrderIsCheckBean();
+        // flag是预约取消状态查询
+        if (flag == 0) {
+            isCheckBean.setIsCheckStatus(bean.getReserve_cancel_audit_status());
+            long times = TimeUtil.TimeToLong(bean.getSub_order_cancel_starter_time());
+            isCheckBean.setOperateTime(TimeUtil.getDay(times));
+            isCheckBean.setOrder_title_id(bean.getOrder_title_id());
+            // flag是服务调整状态查询
+        } else {
+            isCheckBean.setIsCheckStatus(bean.getService_adjust_audit_status());
+            long times = TimeUtil.TimeToLong(bean.getOrder_cancel_starter_time());
+            isCheckBean.setOperateTime(TimeUtil.getDay(times));
+            isCheckBean.setOrder_title_id(bean.getOrder_title_id());
+        }
+        return isCheckBean;
+    }
+
+}

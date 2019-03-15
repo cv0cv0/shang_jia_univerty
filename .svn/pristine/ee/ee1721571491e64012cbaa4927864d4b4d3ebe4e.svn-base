@@ -1,0 +1,49 @@
+package com.rubu.adapter;
+
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.base.BaseListAdapter;
+import com.rubu.model.Order;
+
+import java.util.List;
+
+/**
+ * Created by liuhaizhu on 2017/3/2.
+ * 服务调整的弹窗商品的适配器
+ */
+
+public class popupAdditionalservicesGoodsListAdapter extends BaseListAdapter<Order.Rows1Bean> {
+
+    public popupAdditionalservicesGoodsListAdapter(Context context, List<Order.Rows1Bean> list) {
+        super(context, list);
+    }
+
+    @Override
+    public View initView(Order.Rows1Bean s, View convertView, ViewGroup parent) {
+        final ViewHolder holder;
+        if (convertView == null) {
+            LayoutInflater mInflater = LayoutInflater.from(parent.getContext());
+            convertView = mInflater.inflate(R.layout.item_popup_additional_services_list, null);
+            holder = new ViewHolder();
+            holder.mTvTitle = (TextView) convertView.findViewById(R.id.title);
+            convertView.setTag(holder);
+        } else {
+            holder = (ViewHolder) convertView.getTag();
+        }
+        String goodType = "";
+        if (1.00 != s.getMetering()) {
+            goodType = " * " + s.getMetering();
+        }
+        holder.mTvTitle.setText(s.getAuction_sku_properties() + "×" + (int) (s.getService_count()) + goodType);
+        return convertView;
+    }
+
+    class ViewHolder {
+        TextView mTvTitle;
+    }
+}

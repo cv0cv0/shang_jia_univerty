@@ -1,0 +1,132 @@
+package com.rubu.model;
+
+import java.io.Serializable;
+import java.util.List;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/10/6
+ * Vwesion 1.0
+ * Dsscription: 覆盖能力列表封装对象
+ */
+
+public class AreaAbilityAppModel implements Serializable {
+
+    // 区域的名字
+    private String area;
+    // 区域的Id
+    private String regionCode;
+    // 区域的总街道数量
+    private int allStreetCounts;
+    // 选择的街道数量
+    private int slectStreetCounts;
+    // 是否展开
+    private boolean isGroup;
+    // 是否选择
+    private boolean isSelect;
+    public List<StreetBean> streetBeanList;
+
+    public AreaAbilityAppModel(String area, String regionCode, int allStreetCounts, int slectStreetCounts, boolean isSelect, List<StreetBean> streetBeanList) {
+        this.area = area;
+        this.regionCode = regionCode;
+        this.allStreetCounts = allStreetCounts;
+        this.slectStreetCounts = slectStreetCounts;
+        this.isSelect = isSelect;
+        this.streetBeanList = streetBeanList;
+    }
+
+    public String getArea() {
+        return area;
+    }
+
+    public void setArea(String area) {
+        this.area = area;
+    }
+
+    public String getRegionCode() {
+        return regionCode;
+    }
+
+    public void setRegionCode(String regionCode) {
+        this.regionCode = regionCode;
+    }
+
+    public int getAllStreetCounts() {
+        return allStreetCounts;
+    }
+
+    public void setAllStreetCounts(int allStreetCounts) {
+        this.allStreetCounts = allStreetCounts;
+    }
+
+    public int getSlectStreetCounts() {
+        return slectStreetCounts;
+    }
+
+    public void setSlectStreetCounts(int slectStreetCounts) {
+        this.slectStreetCounts = slectStreetCounts;
+    }
+
+    public boolean isGroup() {
+        return isGroup;
+    }
+
+    public void setGroup(boolean group) {
+        isGroup = group;
+    }
+
+    public boolean isSelect() {
+        return isSelect;
+    }
+
+    public void setSelect(boolean select) {
+        isSelect = select;
+    }
+
+    public List<StreetBean> getStreetBeanList() {
+        return streetBeanList;
+    }
+
+    public void setStreetBeanList(List<StreetBean> streetBeanList) {
+        this.streetBeanList = streetBeanList;
+    }
+
+    public static class StreetBean implements Serializable{
+        // 街道的Id
+        private String street_id;
+        // 街道的名字
+        private String street_name;
+        // 是否选择
+        private boolean isSelect;
+
+        public StreetBean(String street_id, String street_name, boolean isSelect) {
+            this.street_id = street_id;
+            this.street_name = street_name;
+            this.isSelect = isSelect;
+        }
+
+        public String getStreet_id() {
+            return street_id;
+        }
+
+        public void setStreet_id(String street_id) {
+            this.street_id = street_id;
+        }
+
+        public String getStreet_name() {
+            return street_name;
+        }
+
+        public void setStreet_name(String street_name) {
+            this.street_name = street_name;
+        }
+
+        public boolean isSelect() {
+            return isSelect;
+        }
+
+        public void setSelect(boolean select) {
+            isSelect = select;
+        }
+    }
+}

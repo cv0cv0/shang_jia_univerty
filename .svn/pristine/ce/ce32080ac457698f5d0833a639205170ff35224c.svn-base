@@ -1,0 +1,78 @@
+package com.rubu.ui.act.mine.view;
+
+import android.support.annotation.NonNull;
+import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.ui.act.mine.model.FinishOrderContentBean;
+
+import me.drakeet.multitype.ItemViewBinder;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/11/6
+ * Vwesion 1.0
+ * Dsscription: 完工子单的内容
+ */
+
+public class FinishContentItemView extends ItemViewBinder<FinishOrderContentBean, FinishContentItemView.ViewHolder> {
+    private OnItemClickListenner mOnclick;
+
+    @NonNull
+    @Override
+    protected ViewHolder onCreateViewHolder(@NonNull LayoutInflater inflater, @NonNull ViewGroup parent) {
+        View view = inflater.inflate(R.layout.item_finish_order_content, parent, false);
+        return new ViewHolder(view);
+    }
+
+    @Override
+    protected void onBindViewHolder(@NonNull ViewHolder holder, @NonNull final FinishOrderContentBean item) {
+        // 设置子单内容
+        holder.id_order_name.setText(item.getOrder_name() + " X " + item.getOrder_count());
+        // 设置状态
+//        if (!StringUtil.isEmpty(item.getOrder_statue())) {
+//            if (item.getOrder_statue().equals("完工")) {
+//                holder.id_statu.setText(item.getOrder_statue());
+//                holder.id_statu.setTextColor(holder.itemView.getContext().getResources().getColor(R.color.colorAccent));
+//            } else {
+//                holder.id_statu.setText(item.getOrder_statue());
+//                holder.id_statu.setTextColor(holder.itemView.getContext().getResources().getColor(R.color.gray));
+//            }
+//        }
+        // title点击事件
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mOnclick != null) {
+                    mOnclick.onItemClick(item);
+                }
+            }
+        });
+    }
+
+    public void setOnItemClickListenner(OnItemClickListenner onclickListenner) {
+        this.mOnclick = onclickListenner;
+    }
+
+    public interface OnItemClickListenner {
+        void onItemClick(FinishOrderContentBean bean);
+    }
+
+    static class ViewHolder extends RecyclerView.ViewHolder {
+        // 工单Id
+        TextView id_order_name;
+        // 客户名称
+        TextView id_statu;
+
+
+        ViewHolder(View itemView) {
+            super(itemView);
+            id_order_name = (TextView) itemView.findViewById(R.id.id_order_name);
+            id_statu = (TextView) itemView.findViewById(R.id.id_statu);
+        }
+    }
+}

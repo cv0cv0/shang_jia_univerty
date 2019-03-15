@@ -1,0 +1,286 @@
+package com.rubu.net;
+
+import com.rubu.model.AdvertisementModel;
+import com.rubu.model.AlertPunishModel;
+import com.rubu.model.AlertReminderModel;
+import com.rubu.model.AreaAbilityModel;
+import com.rubu.model.AuditOrderModel;
+import com.rubu.model.Base;
+import com.rubu.model.ExamModel;
+import com.rubu.model.FenModel;
+import com.rubu.model.FinishOrderModel;
+import com.rubu.model.InfoModel;
+import com.rubu.model.MsgDetailModel;
+import com.rubu.model.RegisterPersonalModel;
+import com.rubu.ui.act.mine.model.MsgModel;
+import com.rubu.model.Order;
+import com.rubu.model.OrderList;
+import com.rubu.model.OrderNumModel;
+import com.rubu.model.QuestionDetialModel;
+import com.rubu.model.QuestionListModel;
+import com.rubu.model.QuestionOrderCountModel;
+import com.rubu.model.RegisterModel;
+import com.rubu.model.ReminderDetailModel;
+import com.rubu.model.ServiceAbilityModel;
+import com.rubu.model.SiteNameModel;
+import com.rubu.model.StreetInfoModel;
+import com.rubu.model.UnusualModel;
+import com.rubu.model.UpLoadModel;
+import com.rubu.model.VersionModel;
+import com.rubu.model.YCModel;
+import com.rubu.ui.act.mine.model.DetialAccountModel;
+import com.rubu.ui.act.mine.model.MsgOrderReminderModel;
+
+import java.util.Map;
+
+import okhttp3.MultipartBody;
+import retrofit2.http.FieldMap;
+import retrofit2.http.FormUrlEncoded;
+import retrofit2.http.Multipart;
+import retrofit2.http.POST;
+import retrofit2.http.Part;
+import rx.Observable;
+
+
+/**
+ * 类描述： 网络接口api
+ * 创建人：admin
+ * 创建时间：2016/5/27 10:31
+ * 修改人：admin
+ * 修改时间：2016/5/27 10:31
+ * 修改备注：
+ * http://www.uphome.cn:9090/router/upload_idcard
+ * http://www.uphome.cn:9090/router/upload_workimg
+ */
+public interface Api {
+
+    /**
+     * 用户登录
+     *
+     * @return
+     */
+    @FormUrlEncoded
+    @POST("router/rest")
+    rx.Observable<Base> login(@FieldMap Map<String, Object> params);
+
+    /**
+     * 修改密码
+     */
+    @FormUrlEncoded
+    @POST("router/rest")
+    rx.Observable<Base> modifyPsw(@FieldMap Map<String, Object> params);
+
+    /**
+     * 注册（设置密码）
+     */
+    @FormUrlEncoded
+    @POST("router/rest")
+    rx.Observable<RegisterModel> register(@FieldMap Map<String, Object> params);
+
+    /**
+     * 注册（获取天猫服务能力）
+     *
+     * @param params
+     * @return
+     */
+    @FormUrlEncoded
+    @POST("router/rest")
+    Observable<SiteNameModel> getSiteInfo(@FieldMap Map<String, Object> params);
+
+    /**
+     * .
+     * 注册（设置天猫服务能力）
+     */
+    @FormUrlEncoded
+    @POST("router/rest")
+    rx.Observable<Base> registerSetServiceAbility(@FieldMap Map<String, Object> params);
+
+    /**
+     * .
+     * 注册（设置个人基本信息）
+     */
+    @FormUrlEncoded
+    @POST("router/rest")
+    rx.Observable<Base> registerSetBaseInfoAbility(@FieldMap Map<String, Object> params);
+
+    /**
+     * .
+     * 注册（获取APP个人能力的服务能力）
+     */
+    @FormUrlEncoded
+    @POST("router/rest")
+    rx.Observable<ServiceAbilityModel> getRegisterServiceAbility(@FieldMap Map<String, Object> params);
+
+    /**
+     * .
+     * 注册（设置APP个人能力中的服务能力）
+     */
+    @FormUrlEncoded
+    @POST("router/rest")
+    rx.Observable<RegisterPersonalModel> setRegisterServiceAbility(@FieldMap Map<String, Object> params);
+
+    /**
+     * .
+     * 注册（获取APP个人能力的覆盖能力）
+     */
+    @FormUrlEncoded
+    @POST("router/rest")
+    rx.Observable<AreaAbilityModel> getRegisterAreaAbility(@FieldMap Map<String, Object> params);
+
+    /**
+     * .
+     * 注册（设置APP个人能力的覆盖能力）
+     */
+    @FormUrlEncoded
+    @POST("router/rest")
+    rx.Observable<RegisterPersonalModel> setRegisterAreaAbility(@FieldMap Map<String, Object> params);
+
+    /**
+     * .
+     * 个人（修改省市区街道地址）
+     */
+    @FormUrlEncoded
+    @POST("router/rest")
+    rx.Observable<Base> modifyAddress(@FieldMap Map<String, Object> params);
+
+    /**
+     * .
+     * 个人（拉取我的清单列表）
+     */
+    @FormUrlEncoded
+    @POST("router/rest")
+    rx.Observable<DetialAccountModel> getDetialAccount(@FieldMap Map<String, Object> params);
+
+    /**
+     * .
+     * 个人（拉取完工清单列表）
+     */
+    @FormUrlEncoded
+    @POST("router/rest")
+    rx.Observable<FinishOrderModel> getFinishOrder(@FieldMap Map<String, Object> params);
+
+    /**
+     * .
+     * 个人（提醒列表点击查看）
+     */
+    @FormUrlEncoded
+    @POST("router/rest")
+    rx.Observable<Base> setRedDot(@FieldMap Map<String, Object> params);
+
+    /**
+     * .
+     * 个人（审核结果列表点击查看）
+     */
+    @FormUrlEncoded
+    @POST("router/rest")
+    rx.Observable<AuditOrderModel> getAuditOrderList(@FieldMap Map<String, Object> params);
+
+    @FormUrlEncoded
+    @POST("router/rest")
+    rx.Observable<OrderList> getOrderList(@FieldMap Map<String, Object> params);
+
+    @FormUrlEncoded
+    @POST("router/rest")
+    rx.Observable<Order> getDetail(@FieldMap Map<String, Object> params);
+
+    @FormUrlEncoded
+    @POST("router/rest")
+    rx.Observable<Base> action(@FieldMap Map<String, Object> params);
+
+    @Multipart
+    @POST("router/upload_idcard")
+    rx.Observable<UpLoadModel> uploadCardImg(@Part MultipartBody.Part photo);
+
+    @Multipart
+    @POST("router/upload_workimg")
+    rx.Observable<UpLoadModel> uploadWorkImg(@Part MultipartBody.Part photo);
+
+    @Multipart
+    @POST("router/upload_workimg")
+    rx.Observable<UpLoadModel> uploadQuestion(@Part MultipartBody.Part photo);
+
+    @FormUrlEncoded
+    @POST("router/rest")
+    rx.Observable<InfoModel> info(@FieldMap Map<String, Object> params);
+
+    @FormUrlEncoded
+    @POST("router/rest")
+    rx.Observable<QuestionListModel> getQuestionTitle(@FieldMap Map<String, Object> params);
+
+    @FormUrlEncoded
+    @POST("router/rest")
+    rx.Observable<QuestionDetialModel> getQuestionDetial(@FieldMap Map<String, Object> params);
+
+    @FormUrlEncoded
+    @POST("router/rest")
+    rx.Observable<MsgModel> getMsg(@FieldMap Map<String, Object> params);
+
+    @FormUrlEncoded
+    @POST("router/rest")
+    rx.Observable<MsgOrderReminderModel> getMsgOrderReminder(@FieldMap Map<String, Object> params);
+
+    @FormUrlEncoded
+    @POST("router/rest")
+    rx.Observable<MsgDetailModel> getMsgDetail(@FieldMap Map<String, Object> params);
+
+    @FormUrlEncoded
+    @POST("router/rest")
+    rx.Observable<OrderNumModel> getOrderNum(@FieldMap Map<String, Object> params);
+
+    @FormUrlEncoded
+    @POST("router/rest")
+    rx.Observable<QuestionOrderCountModel> getQuestionOrderNum(@FieldMap Map<String, Object> params);
+
+    @FormUrlEncoded
+    @POST("router/rest")
+    rx.Observable<YCModel> getYiChangeResult(@FieldMap Map<String, Object> params);
+
+    @FormUrlEncoded
+    @POST("router/rest")
+    Observable<VersionModel> getVersion(@FieldMap Map<String, Object> params);
+
+    @FormUrlEncoded
+    @POST("router/rest")
+    Observable<ExamModel> checkUserInfo(@FieldMap Map<String, Object> params);
+
+    @FormUrlEncoded
+    @POST("router/rest")
+    Observable<AdvertisementModel> getAdvertisement(@FieldMap Map<String, Object> params);
+
+    @FormUrlEncoded
+    @POST("router/rest")
+    Observable<FenModel> getFen(@FieldMap Map<String, Object> params);
+
+    @FormUrlEncoded
+    @POST("router/rest")
+    Observable<StreetInfoModel> getStreetInfo(@FieldMap Map<String, Object> params);
+
+    @FormUrlEncoded
+    @POST("router/rest")
+    Observable<Base> setBankCode(@FieldMap Map<String, Object> params);
+
+    @FormUrlEncoded
+    @POST("router/rest")
+    Observable<Base> getExamUrl(@FieldMap Map<String, Object> params);
+
+    @FormUrlEncoded
+    @POST("router/rest")
+    Observable<UnusualModel> getUnusualList(@FieldMap Map<String, Object> params);
+
+    @FormUrlEncoded
+    @POST("router/rest")
+    Observable<AlertReminderModel> getReminderList(@FieldMap Map<String, Object> params);
+
+    @FormUrlEncoded
+    @POST("router/rest")
+    Observable<AlertPunishModel> getPunishReminderList(@FieldMap Map<String, Object> params);
+
+    @FormUrlEncoded
+    @POST("router/rest")
+    Observable<ReminderDetailModel> getReminderDetial(@FieldMap Map<String, Object> params);
+
+    @FormUrlEncoded
+    @POST("router/rest")
+    Observable<StreetInfoModel> setTelMsg(@FieldMap Map<String, Object> params);
+
+}

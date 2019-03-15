@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:background="@android:color/white"
+              android:orientation="vertical"
+    >
+
+    <include layout="@layout/toolbar"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingLeft="@dimen/item_margin"
+            android:paddingRight="@dimen/item_margin">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/div_height"
+                android:layout_marginTop="8dp"
+                android:background="@color/gray_light"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:gravity="center_vertical"
+                >
+
+                <TextView
+                    android:id="@+id/tv_action"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="指定日期："
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/text_medium"/>
+
+                <TextView
+                    android:id="@+id/tv_service_today_time"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="right"
+                    android:textColor="@color/gray"
+                    android:textSize="@dimen/text_medium"/>
+
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tv_select_day"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:background="@drawable/bg_login_edit_shape"
+                android:gravity="center"
+                android:text="@string/pls_select_time"
+                android:textSize="@dimen/text_medium"/>
+
+            <com.rubu.view.AutoGridView
+                android:id="@+id/grid_select_service_time"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginTop="8dp"
+                android:horizontalSpacing="24dp"
+                android:numColumns="3"/>
+
+
+            <Button
+                android:id="@+id/btn_confirm"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="16dp"
+                android:textColor="@android:color/white"
+                android:text="@string/confirm"
+                android:background="@drawable/bg_login_btn_shape"/>
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

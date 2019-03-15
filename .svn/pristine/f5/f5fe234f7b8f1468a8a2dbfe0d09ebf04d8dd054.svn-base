@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:id="@+id/view_add_imgs"
+              android:visibility="gone"
+              android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tv_action"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/item_margin"
+        android:layout_marginRight="@dimen/item_margin"
+        android:text="服务效果图(至少上传一张)"
+        android:textColor="@color/black"
+        android:textSize="@dimen/text_medium"/>
+
+    <com.rubu.view.AutoGridView
+        android:id="@+id/grid_add"
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:layout_marginLeft="@dimen/item_margin"
+        android:layout_marginRight="@dimen/item_margin"
+        android:horizontalSpacing="4dp"
+        android:numColumns="4"/>
+</LinearLayout>

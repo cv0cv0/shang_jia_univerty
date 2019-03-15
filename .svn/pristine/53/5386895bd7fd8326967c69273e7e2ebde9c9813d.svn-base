@@ -1,0 +1,73 @@
+package com.rubu.ui.act.register.model;
+
+import java.io.Serializable;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/10/9
+ * Vwesion 1.0
+ * Dsscription:
+ */
+
+public class AreaParentModel implements Serializable {
+    // 区域的名字
+    private String area;
+    // 区域的Id
+    private String regionCode;
+    // 区域的总街道数量
+    private int allStreetCounts;
+    // 选择的街道数量
+    private int slectStreetCounts;
+    // 是否选择
+    private boolean isSelect;
+    // 是否展开
+    private boolean isShowGroup;
+
+    public String getArea() {
+        return area;
+    }
+
+    public void setArea(String area) {
+        this.area = area;
+    }
+
+    public String getRegionCode() {
+        return regionCode;
+    }
+
+    public void setRegionCode(String regionCode) {
+        this.regionCode = regionCode;
+    }
+
+    public int getAllStreetCounts() {
+        return allStreetCounts;
+    }
+
+    public void setAllStreetCounts(int allStreetCounts) {
+        this.allStreetCounts = allStreetCounts;
+    }
+
+    public int getSlectStreetCounts() {
+        return slectStreetCounts;
+    }
+
+    public void setSlectStreetCounts(int slectStreetCounts) {
+        this.slectStreetCounts = slectStreetCounts;
+    }
+
+    public boolean isSelect() {
+        return isSelect;
+    }
+
+    public void setSelect(boolean select) {
+        isSelect = select;
+    }
+
+    public boolean isShowGroup() {
+        return isShowGroup;
+    }
+
+    public void setShowGroup(boolean showGroup) {
+        isShowGroup = showGroup;
+    }
+}

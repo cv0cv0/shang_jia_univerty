@@ -1,0 +1,99 @@
+package com.rubu.model;
+
+import java.util.List;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/9/6
+ * Vwesion 1.0
+ * Dsscription: 异常工单的列表数量内容
+ */
+
+public class QuestionOrderCountModel {
+
+    /**
+     * result : {"out_flag":0}
+     * rows : [{"order_pending":0,"order_evidence":12,"order_record":15,"order_Processed":3}]
+     */
+
+    private ResultBean result;
+    private List<RowsBean> rows;
+
+    public ResultBean getResult() {
+        return result;
+    }
+
+    public void setResult(ResultBean result) {
+        this.result = result;
+    }
+
+    public List<RowsBean> getRows() {
+        return rows;
+    }
+
+    public void setRows(List<RowsBean> rows) {
+        this.rows = rows;
+    }
+
+    public static class ResultBean {
+        /**
+         * out_flag : 0
+         */
+
+        private int out_flag;
+
+        public int getOut_flag() {
+            return out_flag;
+        }
+
+        public void setOut_flag(int out_flag) {
+            this.out_flag = out_flag;
+        }
+    }
+
+    public static class RowsBean {
+        /**
+         * order_pending : 0
+         * order_evidence : 12
+         * order_record : 15
+         * order_Processed : 3
+         */
+
+        private int order_pending;
+        private int order_evidence;
+        private int order_record;
+        private int order_Processed;
+
+        public int getOrder_pending() {
+            return order_pending;
+        }
+
+        public void setOrder_pending(int order_pending) {
+            this.order_pending = order_pending;
+        }
+
+        public int getOrder_evidence() {
+            return order_evidence;
+        }
+
+        public void setOrder_evidence(int order_evidence) {
+            this.order_evidence = order_evidence;
+        }
+
+        public int getOrder_record() {
+            return order_record;
+        }
+
+        public void setOrder_record(int order_record) {
+            this.order_record = order_record;
+        }
+
+        public int getOrder_Processed() {
+            return order_Processed;
+        }
+
+        public void setOrder_Processed(int order_Processed) {
+            this.order_Processed = order_Processed;
+        }
+    }
+}

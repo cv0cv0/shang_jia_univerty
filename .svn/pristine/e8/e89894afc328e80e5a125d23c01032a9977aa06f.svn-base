@@ -1,0 +1,47 @@
+package com.rubu.model;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/9/21
+ * Vwesion 1.0
+ * Dsscription:
+ */
+
+public class RemarkerModel {
+    String mTitle;
+    String mContent;
+    String mOperater;
+    String mOperateTime;
+
+    public String getmTitle() {
+        return mTitle;
+    }
+
+    public void setmTitle(String mTitle) {
+        this.mTitle = mTitle;
+    }
+
+    public String getmContent() {
+        return mContent;
+    }
+
+    public void setmContent(String mContent) {
+        this.mContent = mContent;
+    }
+
+    public String getmOperater() {
+        return mOperater;
+    }
+
+    public void setmOperater(String mOperater) {
+        this.mOperater = mOperater;
+    }
+
+    public String getmOperateTime() {
+        return mOperateTime;
+    }
+
+    public void setmOperateTime(String mOperateTime) {
+        this.mOperateTime = mOperateTime;
+    }
+}

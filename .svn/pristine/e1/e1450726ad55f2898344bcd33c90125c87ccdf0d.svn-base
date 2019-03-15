@@ -1,0 +1,148 @@
+package com.rubu.ui.act.mine.model;
+
+import java.util.List;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/10/17
+ * Vwesion 1.0
+ * Dsscription:
+ */
+
+public class DetialAccountModel  {
+
+    /**
+     * result : {"out_nszRtn":"查询成功！","out_Flag":0}
+     * rows : [{"operation_name":"安装  电视机","create_time":"2017-10-10 16:17:45","total_fee":5300,"s_status":3,"order_sub_id":190318,"operation_fee":0,"s_org_show_status":null},{"operation_name":"安装  索尼3D电视","create_time":"2017-10-10 16:17:45","total_fee":5300,"s_status":3,"order_sub_id":190319,"operation_fee":0,"s_org_show_status":null},{"operation_name":"安装  索尼3D电视","create_time":"2017-10-10 16:22:07","total_fee":5300,"s_status":3,"order_sub_id":190322,"operation_fee":500,"s_org_show_status":null},{"operation_name":"安装  电视机","create_time":"2017-10-10 16:22:07","total_fee":5300,"s_status":3,"order_sub_id":190323,"operation_fee":500,"s_org_show_status":null},{"operation_name":"安装  索尼3D电视","create_time":"2017-10-10 16:35:45","total_fee":5300,"s_status":1,"order_sub_id":190322,"operation_fee":500,"s_org_show_status":null},{"operation_name":"安装  电视机","create_time":"2017-10-10 16:35:45","total_fee":5300,"s_status":1,"order_sub_id":190323,"operation_fee":500,"s_org_show_status":null},{"operation_name":"安装  索尼3D电视","create_time":"2017-10-10 16:35:53","total_fee":5300,"s_status":1,"order_sub_id":190322,"operation_fee":500,"s_org_show_status":null},{"operation_name":"安装  电视机","create_time":"2017-10-10 16:35:53","total_fee":5300,"s_status":1,"order_sub_id":190323,"operation_fee":500,"s_org_show_status":null},{"operation_name":"安装  索尼3D电视","create_time":"2017-10-10 16:36:20","total_fee":5300,"s_status":1,"order_sub_id":190322,"operation_fee":500,"s_org_show_status":null},{"operation_name":"安装  电视机","create_time":"2017-10-10 16:36:20","total_fee":5300,"s_status":1,"order_sub_id":190323,"operation_fee":500,"s_org_show_status":null},{"operation_name":"安装  索尼3D电视","create_time":"2017-10-10 16:36:40","total_fee":5300,"s_status":1,"order_sub_id":190322,"operation_fee":500,"s_org_show_status":null},{"operation_name":"安装  电视机","create_time":"2017-10-10 16:36:40","total_fee":5300,"s_status":1,"order_sub_id":190323,"operation_fee":500,"s_org_show_status":null},{"operation_name":"提现申请","create_time":"2017-10-10 16:49:55","total_fee":5300,"s_status":1,"order_sub_id":0,"operation_fee":-1000,"s_org_show_status":null},{"operation_name":"安装  电视机","create_time":"2017-10-11 09:37:41","total_fee":5300,"s_status":1,"order_sub_id":190326,"operation_fee":500,"s_org_show_status":"Y"},{"operation_name":"安装  索尼3D电视","create_time":"2017-10-11 09:37:41","total_fee":5300,"s_status":1,"order_sub_id":190327,"operation_fee":500,"s_org_show_status":"Y"},{"operation_name":"提现申请","create_time":"2017-10-11 10:58:05","total_fee":5300,"s_status":1,"order_sub_id":0,"operation_fee":-100,"s_org_show_status":null},{"operation_name":"提现申请","create_time":"2017-10-11 10:58:10","total_fee":5300,"s_status":1,"order_sub_id":0,"operation_fee":-100,"s_org_show_status":null},{"operation_name":"提现申请","create_time":"2017-10-11 10:58:15","total_fee":5300,"s_status":1,"order_sub_id":0,"operation_fee":-100,"s_org_show_status":null},{"operation_name":"提现申请","create_time":"2017-10-11 10:58:20","total_fee":5300,"s_status":1,"order_sub_id":0,"operation_fee":-100,"s_org_show_status":null},{"operation_name":"提现申请","create_time":"2017-10-11 10:58:25","total_fee":5300,"s_status":1,"order_sub_id":0,"operation_fee":-100,"s_org_show_status":null},{"operation_name":"提现申请","create_time":"2017-10-11 10:58:31","total_fee":5300,"s_status":1,"order_sub_id":0,"operation_fee":-100,"s_org_show_status":null}]
+     */
+
+    private ResultBean result;
+    private List<RowsBean> rows;
+
+    public ResultBean getResult() {
+        return result;
+    }
+
+    public void setResult(ResultBean result) {
+        this.result = result;
+    }
+
+    public List<RowsBean> getRows() {
+        return rows;
+    }
+
+    public void setRows(List<RowsBean> rows) {
+        this.rows = rows;
+    }
+
+    public static class ResultBean {
+        /**
+         * out_nszRtn : 查询成功！
+         * out_Flag : 0
+         */
+
+        private String out_nszRtn;
+        private int out_Flag;
+
+        public String getOut_nszRtn() {
+            return out_nszRtn;
+        }
+
+        public void setOut_nszRtn(String out_nszRtn) {
+            this.out_nszRtn = out_nszRtn;
+        }
+
+        public int getOut_Flag() {
+            return out_Flag;
+        }
+
+        public void setOut_Flag(int out_Flag) {
+            this.out_Flag = out_Flag;
+        }
+    }
+
+    public static class RowsBean {
+        /**
+         * operation_name : 安装  电视机
+         * create_time : 2017-10-10 16:17:45
+         * total_fee : 5300.0
+         * s_status : 3
+         * order_sub_id : 190318
+         * operation_fee : 0.0
+         * s_org_show_status : null
+         */
+
+        private String operation_name;
+        private String create_time;
+        private int order_title_id;
+        private double total_fee;
+        private int s_status;
+        private int order_sub_id;
+        private double operation_fee;
+        private Object s_org_show_status;
+
+        public String getOperation_name() {
+            return operation_name;
+        }
+
+        public void setOperation_name(String operation_name) {
+            this.operation_name = operation_name;
+        }
+
+        public String getCreate_time() {
+            return create_time;
+        }
+
+        public void setCreate_time(String create_time) {
+            this.create_time = create_time;
+        }
+
+        public double getTotal_fee() {
+            return total_fee;
+        }
+
+        public void setTotal_fee(double total_fee) {
+            this.total_fee = total_fee;
+        }
+
+        public int getS_status() {
+            return s_status;
+        }
+
+        public void setS_status(int s_status) {
+            this.s_status = s_status;
+        }
+
+        public int getOrder_sub_id() {
+            return order_sub_id;
+        }
+
+        public void setOrder_sub_id(int order_sub_id) {
+            this.order_sub_id = order_sub_id;
+        }
+
+        public double getOperation_fee() {
+            return operation_fee;
+        }
+
+        public void setOperation_fee(double operation_fee) {
+            this.operation_fee = operation_fee;
+        }
+
+        public Object getS_org_show_status() {
+            return s_org_show_status;
+        }
+
+        public void setS_org_show_status(Object s_org_show_status) {
+            this.s_org_show_status = s_org_show_status;
+        }
+
+        public int getOrder_title_id() {
+            return order_title_id;
+        }
+
+        public void setOrder_title_id(int order_title_id) {
+            this.order_title_id = order_title_id;
+        }
+    }
+}

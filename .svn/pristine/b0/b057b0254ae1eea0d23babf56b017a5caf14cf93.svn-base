@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/additional_services_ll"
+    android:visibility="gone"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:gravity="center_vertical"
+        >
+
+        <TextView
+            android:id="@+id/additional_services_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_weight="1"
+            android:text="附加服务"
+            android:textColor="@color/black"
+            android:textSize="@dimen/text_large" />
+
+    </LinearLayout>
+
+    <com.rubu.view.AutoListView
+        android:id="@+id/additional_services_listview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:divider="@android:color/white"
+        android:dividerHeight="0dp" />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/div_height"
+        android:layout_marginTop="8dp"
+        android:background="@color/gray_light"/>
+</LinearLayout>

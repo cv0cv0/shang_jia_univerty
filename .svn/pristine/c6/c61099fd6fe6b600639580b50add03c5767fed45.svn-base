@@ -1,0 +1,52 @@
+package com.rubu.city;
+
+/**
+ *
+ */
+public class AreaBean {
+    private String code;
+    private String name;
+    private String mainId;
+
+    public AreaBean() {
+    }
+
+    public AreaBean(String code, String name) {
+        this.code = code;
+        this.name = name;
+    }
+
+    public AreaBean(String code, String name, String mainId) {
+        this.code = code;
+        this.name = name;
+        this.mainId = mainId;
+    }
+
+    public String getMainId() {
+        return mainId;
+    }
+
+    public void setMainId(String mainId) {
+        this.mainId = mainId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public String getPickerViewText() {
+        return name;
+    }
+}

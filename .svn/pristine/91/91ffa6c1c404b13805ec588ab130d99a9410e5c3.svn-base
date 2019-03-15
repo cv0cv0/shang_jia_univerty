@@ -1,0 +1,617 @@
+package com.rubu.ui.act.mine;
+
+import android.app.Dialog;
+import android.content.Intent;
+import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.bigkoo.pickerview.adapter.ArrayWheelAdapter;
+import com.google.gson.Gson;
+import com.rubu.R;
+import com.rubu.base.BaseActivity;
+import com.rubu.city.AreaModel;
+import com.rubu.constant.Constant;
+import com.rubu.model.InfoModel;
+import com.rubu.model.StreetInfoModel;
+import com.rubu.net.ApiImp;
+import com.rubu.net.Params;
+import com.rubu.net.ReqJson;
+import com.rubu.pop.PopDialog;
+import com.rubu.ui.act.ModifyPasswordAct;
+import com.rubu.ui.act.login.LoginAct;
+import com.rubu.ui.act.login.model.UserInfoModel;
+import com.rubu.ui.act.register.RegisterBasePhotoInfoAct;
+import com.rubu.util.DialogUtil;
+import com.rubu.util.LoginUtil;
+import com.rubu.util.SPUtils;
+import com.rubu.util.StringUtil;
+import com.rubu.util.TxtUtil;
+import com.rubu.util.UserInfoUtil;
+import com.rubu.view.OnItemSelectedListener;
+import com.rubu.view.WheelView;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import butterknife.BindView;
+import butterknife.OnClick;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/9/25
+ * Vwesion 1.0
+ * Dsscription:  注册基本信息
+ */
+
+public class MineBaseInfotAct extends BaseActivity {
+    @BindView(R.id.title_left)
+    TextView titleLeft;
+    @BindView(R.id.title)
+    TextView title;
+    @BindView(R.id.title_right_toolbar)
+    TextView titleRightToolbar;
+    // 手机号 （获取）
+    @BindView(R.id.tv_phone)
+    TextView mTvPhone;
+    // 名字   （获取）
+    @BindView(R.id.tv_username)
+    TextView mTVUserName;
+    // 身份证   （获取）
+    @BindView(R.id.tv_user_in_card)
+    TextView mTVUserIdCard;
+    // 身份证提示   （获取）
+    @BindView(R.id.tvjt_info)
+    TextView mTVInfo;
+    // 城市区域 （选择）
+    @BindView(R.id.tv_address_result)
+    TextView mTvAddressResult;
+    // 所在街道 （选择）
+    @BindView(R.id.tv_street_result)
+    TextView mTVStreetResult;
+    // 详细地址 （跳转）
+    @BindView(R.id.tv_address)
+    TextView mTVAddress;
+    // 推荐分站 （获取）
+    @BindView(R.id.tv_user_org_name)
+    TextView mTVSiteName;
+    // 工行名字 （获取）
+    @BindView(R.id.tv_bank_name)
+    TextView mTVBankName;
+    // 工行ID  （获取）
+    @BindView(R.id.tv_card_number)
+    TextView mTVCordNumber;
+    // 工行ID  （获取）
+    @BindView(R.id.ibtn_stop)
+    ImageView mIVStop;
+
+    private String shengShiQu, street, mIDCard; // 选择的省市区 ,街道
+
+    private static final int REQUEST_CODE_MODIFY_ADDRESS = 1;
+
+    // 1 == 接单状态 2代表停止接单状态
+    private int mIsTAKE = 0;
+
+    @Override
+    protected int getViewId() {
+        return R.layout.activity_mine_base_info;
+    }
+
+    @Override
+    protected void initEvent() {
+        Log.i("新信息", UserInfoUtil.getAdress(mContext));
+        title.setText("基础信息");
+        titleLeft.setText("返回");
+        titleLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onBackPressed();
+            }
+        });
+        UserInfoModel model = UserInfoUtil.getInfo(mContext);
+        mTvPhone.setText(model.getS_bind_tel());
+        mTVUserName.setText(model.getS_user_name());
+        if (!StringUtil.isEmpty(model.getS_org_name())) {
+            mTVSiteName.setText(model.getS_org_name());
+        }
+        mIDCard = model.getS_idcard_no();
+        mTVUserIdCard.setText(mIDCard);
+        // 添加箭头
+        if (StringUtil.isEmpty(mIDCard)) {
+            mTVInfo.setVisibility(View.VISIBLE);
+        }
+        shengShiQu = model.getS_region_tag();
+        mTvAddressResult.setText(shengShiQu);
+        street = model.getS_Street();
+        mTVStreetResult.setText(street);
+        mTVAddress.setText(model.getS_address());
+        mTVBankName.setText(model.getS_bank_account());
+        mTVCordNumber.setText(model.getS_user_account());
+        mIsTAKE = model.getS_is_taking();
+        // 设置是否接单
+        setIsPick();
+    }
+
+    @OnClick({R.id.rel_address, R.id.rel_street, R.id.ll_next, R.id.ibtn_stop, R.id.modify_password, R.id.ll_exit_app, R.id.tv_user_in_card, R.id.tvjt_info})
+    public void onClick(View view) {
+        String region = mTvAddressResult.getText().toString();
+        switch (view.getId()) {
+            case R.id.rel_address:  // 区域选择
+                if (null == placeDialog) {
+                    chooseCity(TxtUtil.getSSX(mContext));
+                } else {
+                    placeDialog.show();
+                }
+                mTVStreetResult.setText("");
+                mTVAddress.setText("");
+                break;
+            case R.id.rel_street: // 街道
+                if (isRegion(region))
+                    break;
+                setStreetInfo();
+                break;
+            case R.id.ll_next: // 详细地址下一步
+                // 没有选择街道
+                street = mTVStreetResult.getText().toString();
+                if (StringUtil.isEmpty(street)) {
+                    showToast("请先选择街道");
+                    break;
+                }
+                modifyAdress();
+                break;
+            // 停止接单
+            case R.id.ibtn_stop:
+                // 接单
+                if (mIsTAKE == 2) {
+                    setPick(2);
+                } else {
+                    setPick(1);
+                }
+                break;
+            // 修改密码
+            case R.id.modify_password:
+                Intent modifyIntent = new Intent(mContext, ModifyPasswordAct.class);
+                startActivity(modifyIntent);
+                break;
+            // 退出app
+            case R.id.ll_exit_app:
+                exitDialog();
+                break;
+            // 身份证修改
+            case R.id.tv_user_in_card:
+                if (StringUtil.isEmpty(mIDCard)) {
+                    gotoNewAty(RegisterBasePhotoInfoAct.class);
+                }
+                break;
+        }
+    }
+
+    private void modifyAdress() {
+        Intent intent = new Intent(mContext, MineModifyAdressAct.class);
+        intent.putExtra("shengshiqu", shengShiQu);
+        intent.putExtra("street", street);
+        startActivityForResult(intent, REQUEST_CODE_MODIFY_ADDRESS);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+            switch (requestCode) {
+                // 修改地址
+                case REQUEST_CODE_MODIFY_ADDRESS:
+                    String sheng = data.getStringExtra("shengshiqu");
+                    String street = data.getStringExtra("street");
+                    String adress = data.getStringExtra("address");
+                    mTvAddressResult.setText(sheng);
+                    mTVStreetResult.setText(street);
+                    mTVAddress.setText(adress);
+                    break;
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void setIsPick() {
+        // 2代表停止接单
+        if (mIsTAKE == 2) {
+            mIVStop.setImageResource(R.mipmap.ic_handle_select);
+//            Log.d("获取到的消息", "mIsTAKE状态为: " + mIsTAKE);
+        } else {
+            mIVStop.setImageResource(R.mipmap.ic_handle_default);
+//            Log.d("获取到的消息", "mIsTAKE状态为: " + mIsTAKE);
+        }
+    }
+
+    /**
+     * 设置是否接单
+     *
+     * @param status
+     */
+    private void setPick(final int status) {
+        showProgressDialog("设置中");
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_APP_S_USER_STATUS_EDIT);
+        reqJson.setUser_id(LoginUtil.getUserId(mContext));
+        reqJson.setHas_rows("no");
+        reqJson.setS_is_taking(String.valueOf(status));
+        mSubscription = ApiImp.get().info(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<InfoModel>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        dissmisProgressDialog();
+                        showToast("网络不给力");
+                    }
+
+                    @Override
+                    public void onNext(InfoModel model) {
+                        dissmisProgressDialog();
+                        if (model.getResult().getOut_Flag() == 0) {
+                            getInfo();
+                            showToast(model.getResult().getOut_nszRtn());
+                        } else {
+                            showToast(model.getResult().getOut_nszRtn());
+                        }
+                    }
+                });
+    }
+
+    private void getInfo() {
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_APP_S_USER_LOAD);
+        reqJson.setUser_id(LoginUtil.getUserId(mContext));
+        reqJson.setHas_rows("yes");
+        mSubscription = ApiImp.get().info(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<InfoModel>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onNext(InfoModel model) {
+                        if (model.getResult().getOut_Flag() == 0) {
+                            UserInfoUtil.clearInfo(mContext);
+                            UserInfoModel userInfoModel = new UserInfoModel();
+                            userInfoModel.setS_user_id(model.getRows().get(0).getS_user_id());
+                            userInfoModel.setS_user_name(model.getRows().get(0).getS_user_name());
+                            userInfoModel.setS_bind_tel(model.getRows().get(0).getS_bind_tel());
+                            userInfoModel.setS_idcard_no(model.getRows().get(0).getS_idcard_no());
+                            userInfoModel.setS_region_tag(model.getRows().get(0).getS_region_tag());
+                            userInfoModel.setS_address(model.getRows().get(0).getS_address());
+                            userInfoModel.setS_org_name(model.getRows().get(0).getS_org_name());
+                            userInfoModel.setS_bank_account(model.getRows().get(0).getS_bank_account());
+                            userInfoModel.setS_user_account(model.getRows().get(0).getS_user_account());
+                            userInfoModel.setS_is_taking(model.getRows().get(0).getS_is_taking());
+                            Log.d("获取到的消息", "model状态为: " + model.getRows().get(0).getS_is_taking());
+                            // 更新动态按钮
+                            mIsTAKE = userInfoModel.getS_is_taking();
+                            Log.d("获取到的消息", "mIsTAKE状态为: " + mIsTAKE);
+                            userInfoModel.setService_ability_name(model.getRows1().get(0).getService_ability_name());
+                            UserInfoUtil.saveInfo(mContext, userInfoModel);
+                        }
+                        setIsPick();
+                    }
+                });
+    }
+
+    // 区域是否为空---------------
+    private boolean isRegion(String region) {
+        if (StringUtil.isEmpty(region)) {
+            showToast("请选择所在区域");
+            return true;
+        }
+        return false;
+    }
+
+    private String shen, shi, qu;
+
+    private void chooseCity(String area) {
+        List<AreaModel.ListBeanXX> list = new Gson().fromJson(area, AreaModel.class).getList();
+        province_list.clear();
+        province_list.addAll(list);
+
+        List<AreaModel.ListBeanXX.ListBeanX> aaa = province_list.get(0).getList();
+        city_list.addAll(aaa);
+
+        List<AreaModel.ListBeanXX.ListBeanX.ListBean> aaaa = city_list.get(0).getList();
+        more_list.addAll(aaaa);
+
+        getProvinceItem();
+        showPlaceDialog();
+    }
+
+
+    public int currentItemp = 0;
+    public int currentItemc = 0;
+    public int currentItem = 0;
+    List<AreaModel.ListBeanXX> province_list = new ArrayList<>();
+    List<AreaModel.ListBeanXX.ListBeanX> city_list = new ArrayList<>();
+    List<AreaModel.ListBeanXX.ListBeanX.ListBean> more_list = new ArrayList<>();
+    private Dialog placeDialog;
+    private WheelView wv, wv_province, wv_city;
+
+    /**
+     * 显示地区的三级联动
+     */
+    private void showPlaceDialog() {
+        if (null == placeDialog) {
+            View view = LayoutInflater.from(this).inflate(R.layout.dia_picker_time, null);
+            placeDialog = DialogUtil.getDialog(this, view, Gravity.BOTTOM, false);
+            wv_province = (WheelView) view.findViewById(R.id.wv_year);
+            wv_city = (WheelView) view.findViewById(R.id.wv_month);
+            wv = (WheelView) view.findViewById(R.id.wv_day);
+            TextView btnCancel = (TextView) view.findViewById(R.id.btnCancel);
+            btnCancel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    placeDialog.dismiss();
+                }
+            });
+            final TextView btnSubmit = (TextView) view.findViewById(R.id.btnSubmit);
+            btnSubmit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (wv_province.isEnabled() && wv_city.isEnabled() && wv.isEnabled()) {
+                        // 是否可以下一步
+                        currentItemp = wv_province.getCurrentItem();
+                        currentItemc = wv_city.getCurrentItem();
+                        currentItem = wv.getCurrentItem();
+                        String place = "";
+                        if (province_list.size() > 0) {
+                            place = place + province_list.get(wv_province.getCurrentItem()).getName();
+                        }
+                        ;
+                        if (city_list.size() > 0) {
+                            place = place + " " +
+                                    city_list.get(wv_city.getCurrentItem()).getName();
+                        }
+                        if (more_list.size() > 0) {
+                            place = place + " " +
+                                    more_list.get(wv.getCurrentItem()).getName();
+                        }
+                        if (province_list.size() > 0) {
+                            shen = province_list.get(wv_province.getCurrentItem()).getName();
+                        }
+                        if (city_list.size() > 0) {
+                            shi = city_list.get(wv_city.getCurrentItem()).getName();
+                        }
+                        if (more_list.size() > 0) {
+                            qu = more_list.get(wv.getCurrentItem()).getName();
+                        }
+                        placeDialog.dismiss();
+                        shengShiQu = shen + "," + shi + "," + qu;
+                        mTvAddressResult.setText(shen + " " + shi + " " + qu);
+                    }
+                }
+            });
+            wv_province.setAdapter(new ArrayWheelAdapter(listproStr));
+            //  wv_province.setLabel(province_list.get(i).getName());
+            wv_province.setCyclic(false);
+            wv_province.setHide(true);
+            wv_province.setOnItemSelectedListener(new OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(int i) {
+                    listCityStr.clear();
+                    listMoreStr.clear();
+                    city_list = province_list.get(i).getList();
+                    if (city_list != null && city_list.size() > 0) {
+                        more_list = city_list.get(0).getList();
+                    }
+                    getCityMore();
+                    wv_city.setAdapter(new ArrayWheelAdapter(listCityStr));
+                    wv.setAdapter(new ArrayWheelAdapter(listMoreStr));
+                    wv_city.setCurrentItem(0);
+                    wv.setCurrentItem(0);
+
+                    wv_province.setEnabled(true);
+                }
+            });
+            wv_city.setAdapter(new ArrayWheelAdapter(listCityStr));
+            wv_city.setCyclic(false);
+            wv_city.setHide(true);
+            wv_city.setOnItemSelectedListener(new OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(int index) {
+                    more_list = city_list.get(index).getList();
+                    getMore();
+                    wv_city.setEnabled(true);
+                    wv_province.setEnabled(true);
+                    wv.setAdapter(new ArrayWheelAdapter(listMoreStr));
+                    wv.setCurrentItem(0);
+                }
+            });
+            wv.setAdapter(new ArrayWheelAdapter(listMoreStr));
+            wv.setCyclic(false);
+            wv.setHide(true);
+            wv.setOnItemSelectedListener(new OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(int index) {
+                    wv.setEnabled(true);
+                    wv_city.setEnabled(true);
+                }
+            });
+            wv_province.setWv(wv_city);
+            wv_city.setWv(wv_province);
+        }
+        wv_province.setCurrentItem(currentItemp);
+        wv_city.setCurrentItem(currentItemc);
+        wv.setCurrentItem(currentItem);
+        placeDialog.show();
+    }
+
+    ArrayList<String> listproStr;
+    ArrayList<String> listCityStr;
+    ArrayList<String> listMoreStr;
+
+    public void getProvinceItem() {
+        listproStr = new ArrayList<>();
+        listCityStr = new ArrayList<>();
+        listMoreStr = new ArrayList<>();
+        for (int i = 0; i < province_list.size(); i++) {
+            listproStr.add(province_list.get(i).getName());
+        }
+        for (int i = 0; i < city_list.size(); i++) {
+            if (null != city_list.get(i).getName())
+                listCityStr.add(city_list.get(i).getName());
+        }
+        for (int i = 0; i < more_list.size(); i++) {
+            listMoreStr.add(more_list.get(i).getName());
+        }
+    }
+
+    public void getCityMore() {
+        for (int i = 0; i < city_list.size(); i++) {
+            if (null != city_list.get(i).getName())
+                listCityStr.add(city_list.get(i).getName());
+        }
+        for (int i = 0; i < more_list.size(); i++) {
+            listMoreStr.add(more_list.get(i).getName());
+        }
+    }
+
+    public void getMore() {
+        listMoreStr.clear();
+        for (int i = 0; i < more_list.size(); i++) {
+            listMoreStr.add(more_list.get(i).getName());
+        }
+    }
+
+    private Dialog streetDialog;
+    private WheelView wv_street;
+    public int currentItemS = 0;
+    private String mStreetName = "暂无街道地址";
+    private int mStreetId;
+    private List<StreetInfoModel.RowsBean> mStreetDataList;
+    private ArrayList<String> mStreetList = new ArrayList<>();
+
+    /**
+     * 显示街道数据
+     */
+    private void showStreetDialog() {
+        if (null == streetDialog) {
+            View view = LayoutInflater.from(this).inflate(R.layout.dia_picker_street, null);
+            streetDialog = DialogUtil.getDialog(this, view, Gravity.BOTTOM, false);
+            wv_street = (WheelView) view.findViewById(R.id.wv_street);
+            TextView btnCancel = (TextView) view.findViewById(R.id.btnCancel);
+            btnCancel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    streetDialog.dismiss();
+                }
+            });
+            final TextView btnSubmit = (TextView) view.findViewById(R.id.btnSubmit);
+            btnSubmit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // TODO: 2017/7/6  接到选择器 选择街道;
+                    if (wv_street.isEnabled()) {
+                        currentItemS = wv_street.getCurrentItem();
+                        if (mStreetList.size() > 0) {
+                            mStreetName = mStreetList.get(wv_street.getCurrentItem());
+                            mStreetId = mStreetDataList.get(wv_street.getCurrentItem()).getStreet_id();
+                        }
+                        mTVStreetResult.setText(mStreetName);
+                        streetDialog.dismiss();
+                        mStreetList.clear();
+                    }
+                }
+            });
+            wv_street.setAdapter(new ArrayWheelAdapter(mStreetList));
+            wv_street.setCyclic(false);
+            wv_street.setHide(true);
+        }
+        wv_street.setCurrentItem(currentItemS);
+        streetDialog.show();
+    }
+
+    /**
+     * 获取街道的数据
+     */
+    private void setStreetInfo() {
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_APP_WORKER_STREET_LOAD);
+        reqJson.setShengShiQuStr(shengShiQu.trim());
+        mSubscription = ApiImp.get().getStreetInfo(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<StreetInfoModel>() {
+                               @Override
+                               public void onCompleted() {
+
+                               }
+
+                               @Override
+                               public void onError(Throwable e) {
+                                   Toast.makeText(mContext, "网络异常", Toast.LENGTH_LONG).show();
+                               }
+
+                               @Override
+                               public void onNext(StreetInfoModel streetInfoModel) {
+                                   if (streetInfoModel.getResult().getOut_Flag() == 0) {
+                                       mStreetDataList = new ArrayList<>();
+                                       mStreetDataList = streetInfoModel.getRows();
+                                       if (mStreetDataList.size() > 0) {
+                                           for (int i = 0; i < mStreetDataList.size(); i++) {
+                                               mStreetList.add(mStreetDataList.get(i).getStreet_name());
+                                           }
+                                           showStreetDialog();
+                                       }
+                                   }
+                               }
+                           }
+
+                );
+
+    }
+
+    /**
+     * 退出登录
+     */
+    private PopDialog mDialogExit;
+
+    private void exitDialog() {
+        if (mDialogExit == null) {
+            mDialogExit = new PopDialog(this);
+            mDialogExit.setTextContentGravity(Gravity.CENTER);
+            mDialogExit.setText(null, "确认退出该账号？", null);
+            mDialogExit.setOnDialogListener(new PopDialog.OnDialogListener() {
+                @Override
+                public void onIsConfirm(boolean is) {
+                    if (is) {
+                        SPUtils.clear(mContext);
+                        finish();
+                        Intent intent = new Intent(mContext, LoginAct.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                    }
+                }
+            });
+        }
+        mDialogExit.show(titleRightToolbar);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
+    }
+}

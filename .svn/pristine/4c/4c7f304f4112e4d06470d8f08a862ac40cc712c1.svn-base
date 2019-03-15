@@ -1,0 +1,61 @@
+package com.rubu.ui.act.mine.view;
+
+import android.support.annotation.NonNull;
+import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.ui.act.mine.model.CheckOrderContentBean;
+
+import me.drakeet.multitype.ItemViewBinder;
+
+/**
+ * Created by 72732 on 2018/4/18.
+ */
+
+public class CheckContentItemView extends ItemViewBinder<CheckOrderContentBean, CheckContentItemView.ViewHolder> {
+
+    private ItemViewClickListenner listenner;
+
+    @NonNull
+    @Override
+    protected ViewHolder onCreateViewHolder(@NonNull LayoutInflater inflater, @NonNull ViewGroup parent) {
+        View view = inflater.inflate(R.layout.item_check_order_content, parent, false);
+        return new ViewHolder(view);
+    }
+
+    @Override
+    protected void onBindViewHolder(@NonNull ViewHolder holder, @NonNull final CheckOrderContentBean item) {
+        // 设置子单内容
+        holder.id_order_name.setText(item.getOrder_name() + " X " + item.getOrder_count());
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (listenner != null) {
+                    listenner.onClick(item);
+                }
+            }
+        });
+    }
+
+    static class ViewHolder extends RecyclerView.ViewHolder {
+
+        TextView id_order_name;
+
+        public ViewHolder(View itemView) {
+            super(itemView);
+            id_order_name = (TextView) itemView.findViewById(R.id.id_order_name);
+        }
+    }
+
+    public void setOnItemViewClickListenner(ItemViewClickListenner listenner) {
+        this.listenner = listenner;
+    }
+
+    public interface ItemViewClickListenner {
+        void onClick(CheckOrderContentBean bean);
+    }
+}

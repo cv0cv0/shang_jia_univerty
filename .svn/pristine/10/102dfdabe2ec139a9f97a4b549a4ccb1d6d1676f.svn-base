@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tl="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:gravity="center_horizontal"
+    android:orientation="vertical">
+
+    <include layout="@layout/toolbar" />
+
+    <LinearLayout
+        android:id="@+id/ll_msg_notice"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/bg_color"
+        android:orientation="horizontal"
+        android:paddingBottom="@dimen/dp_8"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@color/white"
+            android:gravity="center_vertical"
+            android:paddingLeft="@dimen/user_info_padding_left"
+            android:paddingRight="@dimen/user_info_padding_right"
+            android:text="通知"
+            android:textColor="@color/colorPrimary"
+            android:textSize="@dimen/sp_16" />
+
+        <TextSwitcher
+            android:id="@+id/ts_msg_notice"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_36"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:background="@color/white"
+            android:inAnimation="@anim/msg_push_up_in"
+            android:outAnimation="@anim/msg_push_up_out"
+            android:paddingRight="@dimen/user_info_padding_right">
+
+        </TextSwitcher>
+
+    </LinearLayout>
+
+    <com.rubu.view.commontablayout.SlidingTabLayout
+        android:id="@+id/tab_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:background="@android:color/white"
+        tl:tl_indicator_color="@color/colorAccent"
+        tl:tl_indicator_gravity="BOTTOM"
+        tl:tl_textSelectColor="@color/colorPrimaryDark"
+        tl:tl_textUnselectColor="@color/gray_dark"
+        tl:tl_underline_height="1dp" />
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+</LinearLayout>

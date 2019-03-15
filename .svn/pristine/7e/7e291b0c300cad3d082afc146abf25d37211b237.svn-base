@@ -1,0 +1,99 @@
+package com.rubu.adapter;
+
+import android.content.Context;
+import android.graphics.Color;
+import android.support.v4.content.ContextCompat;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.TextView;
+
+import com.rubu.R;
+
+/**
+ * Created by liuhaizhu on 2017/3/2.
+ */
+
+public class FailReasonAdapter extends BaseAdapter {
+
+    private FailReasonSelect failReasonSelect;
+
+    public FailReasonAdapter(Context context) {
+        mContext = context;
+    }
+
+    private Context mContext;
+    //    public static final String REASON[] = {"电话未接通（设置下次再约时间）", "未收到货（设置下次再约时间）", "客户暂不需要安装（设置下次再约时间）", "客户无需安装（回应总部复核）", "地址异常无法胜任（请求总部改派）"};
+    public static final String REASON[] = {"电话未接通（设置下次再约时间）", "未收到货（设置下次再约时间）", "客户暂不需要安装（设置下次再约时间）"};
+
+    public int getSelectIndex() {
+        return selectIndex;
+    }
+
+    private int selectIndex = -1;
+
+    @Override
+    public int getCount() {
+        return REASON.length;
+    }
+
+    @Override
+    public Object getItem(int position) {
+        return REASON[position];
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public View getView(final int position, View convertView, ViewGroup parent) {
+        ViewHolder holder;
+        if (convertView == null) {
+            LayoutInflater mInflater = LayoutInflater.from(parent.getContext());
+            convertView = mInflater.inflate(R.layout.item_fail_reason, null);
+            holder = new ViewHolder();
+            holder.tvAction = (TextView) convertView.findViewById(R.id.tv_time);
+            convertView.setTag(holder);
+        } else {
+            holder = (ViewHolder) convertView.getTag();
+        }
+        holder.tvAction.setText(REASON[position]);
+        if (selectIndex != position) {
+            holder.tvAction.setBackgroundResource(R.drawable.bg_login_edit_shape);
+            holder.tvAction.setTextColor(ContextCompat.getColor(mContext, R.color.black));
+        } else {
+            holder.tvAction.setBackgroundColor(ContextCompat.getColor(mContext, R.color.colorAccent));
+            holder.tvAction.setTextColor(Color.WHITE);
+        }
+//        if (REASON[position].equals("联系信息错误（转交总部复核）")) {
+//            holder.tvAction.setTextColor(ContextCompat.getColor(mContext, R.color.light_black));
+//            holder.tvAction.setEnabled(false);
+//        } else {
+//            holder.tvAction.setEnabled(true);
+//        }
+        holder.tvAction.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                selectIndex = position;
+                notifyDataSetChanged();
+                failReasonSelect.onFailReasonSelect();
+            }
+        });
+        return convertView;
+    }
+
+    class ViewHolder {
+        TextView tvAction;
+    }
+
+    public void setFailReasonSelect(FailReasonSelect failReasonSelect) {
+        this.failReasonSelect = failReasonSelect;
+    }
+
+    public interface FailReasonSelect {
+        void onFailReasonSelect();
+    }
+}

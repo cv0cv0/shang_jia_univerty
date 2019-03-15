@@ -1,0 +1,26 @@
+package com.rubu.ui.act.mine.model;
+
+/**
+ * Created by 72732 on 2018/5/11.
+ */
+
+public class MsgOrderReminderListModel {
+    private int reminder_message_id;
+    private int order_title_id;
+
+    public int getReminder_message_id() {
+        return reminder_message_id;
+    }
+
+    public void setReminder_message_id(int reminder_message_id) {
+        this.reminder_message_id = reminder_message_id;
+    }
+
+    public int getOrder_title_id() {
+        return order_title_id;
+    }
+
+    public void setOrder_title_id(int order_title_id) {
+        this.order_title_id = order_title_id;
+    }
+}

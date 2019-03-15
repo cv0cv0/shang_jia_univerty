@@ -1,0 +1,74 @@
+package com.rubu.ui.act.mine.view;
+
+import android.support.annotation.NonNull;
+import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.ui.act.mine.model.FinishOrderTitleBean;
+import com.rubu.util.StringUtil;
+import com.rubu.util.TimeUtil;
+
+import me.drakeet.multitype.ItemViewBinder;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/11/6
+ * Vwesion 1.0
+ * Dsscription: 完工标题的内容
+ */
+
+public class FinishTitleItemView extends ItemViewBinder<FinishOrderTitleBean, FinishTitleItemView.ViewHolder> {
+    private OnItemClickListenner mOnclick;
+
+    @NonNull
+    @Override
+    protected ViewHolder onCreateViewHolder(@NonNull LayoutInflater inflater, @NonNull ViewGroup parent) {
+        View view = inflater.inflate(R.layout.item_finish_order_title, parent, false);
+        return new ViewHolder(view);
+    }
+
+    @Override
+    protected void onBindViewHolder(@NonNull ViewHolder holder, @NonNull final FinishOrderTitleBean item) {
+        // 设置名字
+        holder.id_order_id.setText(item.getOrder_title_name());
+        // 设置工单完工时间
+        if (!StringUtil.isEmpty(item.getFinished_time())){
+            holder.name.setText(TimeUtil.castTime(item.getFinished_time(), TimeUtil.TIME_UNIT_STR, TimeUtil.TIME_UNIT_YEAR_CN));
+        }
+        // title点击事件
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mOnclick != null) {
+                    mOnclick.onItemClick(item);
+                }
+            }
+        });
+    }
+
+    public void setOnItemClickListenner(OnItemClickListenner onclickListenner) {
+        this.mOnclick = onclickListenner;
+    }
+
+    public interface OnItemClickListenner {
+        void onItemClick(FinishOrderTitleBean bean);
+    }
+
+    static class ViewHolder extends RecyclerView.ViewHolder {
+        // 工单Id
+        TextView id_order_id;
+        // 客户名称
+        TextView name;
+
+
+        ViewHolder(View itemView) {
+            super(itemView);
+            id_order_id = (TextView) itemView.findViewById(R.id.id_order_id);
+            name = (TextView) itemView.findViewById(R.id.id_name);
+        }
+    }
+}

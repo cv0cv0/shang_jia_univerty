@@ -1,0 +1,158 @@
+package com.rubu.city;
+
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.os.Environment;
+
+import com.rubu.R;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+
+/**
+ * Created by lijionghui on 16/8/18.
+ */
+public class PickDBManager {
+
+    private final int BUFFER_SIZE = 400000;
+    //8080的PACKGE_NAME
+    //private static final String PACKAGE_NAME = "com.shangjia" +"";
+    //8080的库路径
+    private static final String PACKAGE_NAME = "com.rubu" +"";
+
+    //9090的PACKGE_NAME
+    //private static final String PACKAGE_NAME = "com.app" +"";
+
+    /*//8080的DB_NAME
+//    public static final String DB_NAME = "tumu.db";*/
+    //8080的库名
+    public static final String DB_NAME = "city.db";
+    //9090的DB_NAME
+    //public static final String DB_NAME = "city.db";
+    public static final String DB_PATH = "/data" + Environment.getDataDirectory().getAbsolutePath() + "/" + PACKAGE_NAME; // 存放路径
+    public String PROVINCE_TABLE_NAME = "Province";
+    public String PROVINCE_COL_ID = "code";
+    public String PROVINCE_COL_NAME = "name";
+
+    public String CITY_TABLE_NAME = "City";
+    public String CITY_COL_ID = "code";
+    public String CITY_COL_NAME = "name";
+    public String CITY_COL_PROVINCE = "provinceCode";
+
+
+    public String AREA_TABLE_NAME = "Area";
+    public String AREA_COL_ID = "code";
+    public String AREA_COL_NAME = "name";
+    public String AREA_COL_CITY = "cityCode";
+
+
+    private Context mContext;
+    private SQLiteDatabase database;
+
+    public PickDBManager(Context context) {
+        this.mContext = context;
+    }
+
+    /**
+     * 被调用方法
+     */
+    public void openDateBase() {
+        this.database = this.openDateBase(DB_PATH + "/" + DB_NAME);
+
+    }
+
+    /**
+     * 打开数据库
+     *
+     * @param dbFile
+     * @return SQLiteDatabase
+     * @author sy
+     */
+    private SQLiteDatabase openDateBase(String dbFile) {
+        File file = new File(dbFile);
+        if (!file.exists()) {
+            // // 打开raw中得数据库文件，获得stream流
+            InputStream stream = this.mContext.getResources().openRawResource(R.raw.tumu);
+            try {
+
+                // 将获取到的stream 流写入道data中
+                FileOutputStream outputStream = new FileOutputStream(dbFile);
+                byte[] buffer = new byte[BUFFER_SIZE];
+                int count = 0;
+                while ((count = stream.read(buffer)) > 0) {
+                    outputStream.write(buffer, 0, count);
+                }
+                outputStream.close();
+                stream.close();
+                SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(dbFile, null);
+                return db;
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return database;
+    }
+
+    public void closeDatabase() {
+        if (database != null && database.isOpen()) {
+            this.database.close();
+        }
+    }
+
+
+    public ArrayList<AreaBean> findProvince(SQLiteDatabase database) {
+        ArrayList<AreaBean> provice = new ArrayList<>();
+        Cursor cursor = database.rawQuery(
+                "SELECT * FROM Province", null);
+        while (cursor.moveToNext()) {
+            AreaBean entity = new AreaBean(cursor.getString(cursor
+                    .getColumnIndex(PROVINCE_COL_ID)), cursor.getString(cursor
+                    .getColumnIndex(PROVINCE_COL_NAME)));
+            provice.add(entity);
+        }
+        cursor.close();
+        return provice;
+    }
+
+
+    public ArrayList<AreaBean> findCity(SQLiteDatabase database, AreaBean bean) {
+        ArrayList<AreaBean> citys = new ArrayList<>();
+
+        Cursor cursor = database.rawQuery(
+                "SELECT * FROM " + CITY_TABLE_NAME + " WHERE " + CITY_COL_PROVINCE + " = ?", new String[]{bean.getCode()});
+        while (cursor.moveToNext()) {
+            AreaBean entity = new AreaBean(cursor.getString(cursor
+                    .getColumnIndex(CITY_COL_ID)), cursor.getString(cursor
+                    .getColumnIndex(CITY_COL_NAME)), cursor.getString(cursor
+                    .getColumnIndex(CITY_COL_PROVINCE)));
+            citys.add(entity);
+        }
+        cursor.close();
+        return citys;
+
+    }
+
+    public ArrayList<AreaBean> findArea(SQLiteDatabase database, AreaBean bean) {
+        ArrayList<AreaBean> areas = new ArrayList<>();
+        Cursor cursor = database.rawQuery(
+                "SELECT * FROM " + AREA_TABLE_NAME + " WHERE " + AREA_COL_CITY + " = ?", new String[]{bean.getCode()});
+        while (cursor.moveToNext()) {
+            AreaBean entity = new AreaBean(cursor.getString(cursor
+                    .getColumnIndex(AREA_COL_ID)), cursor.getString(cursor
+                    .getColumnIndex(AREA_COL_NAME)), cursor.getString(cursor
+                    .getColumnIndex(AREA_COL_CITY)));
+            areas.add(entity);
+        }
+        cursor.close();
+        return areas;
+
+    }
+
+}

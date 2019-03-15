@@ -1,0 +1,67 @@
+package com.rubu.model;
+
+/**
+ * Created by liuhaizhu on 2017/3/6.
+ */
+
+public class Base {
+    /**
+     * result : {"out_nszRtn":"该语句没有返回结果集。:exec PROC_APP_S_USER_STEP1_ADD N'17682305898',N'4374',0,N''","out_Flag":"400"}
+     */
+
+    private ResultBean result;
+
+    public Object getRows() {
+        return rows;
+    }
+
+    public void setRows(Object rows) {
+        this.rows = rows;
+    }
+
+    private Object rows;
+
+    public Object getRows1() {
+        return rows1;
+    }
+
+    public void setRows1(Object rows1) {
+        this.rows1 = rows1;
+    }
+
+    private Object rows1;
+    public ResultBean getResult() {
+        return result;
+    }
+
+    public void setResult(ResultBean result) {
+        this.result = result;
+    }
+
+    public static class ResultBean {
+        /**
+         * out_nszRtn : 该语句没有返回结果集。:exec PROC_APP_S_USER_STEP1_ADD N'17682305898',N'4374',0,N''
+         * out_Flag : 400
+         */
+
+        private String out_nszRtn;
+        private int out_Flag;
+
+        public String getOut_nszRtn() {
+            return out_nszRtn;
+        }
+
+        public void setOut_nszRtn(String out_nszRtn) {
+            this.out_nszRtn = out_nszRtn;
+        }
+
+        public int getOut_Flag() {
+            return out_Flag;
+        }
+
+        public void setOut_Flag(int out_Flag) {
+            this.out_Flag = out_Flag;
+        }
+    }
+
+}

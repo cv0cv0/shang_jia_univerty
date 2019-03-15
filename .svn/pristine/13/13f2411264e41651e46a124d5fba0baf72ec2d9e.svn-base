@@ -1,0 +1,163 @@
+package com.rubu.ui.act.mine;
+
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.view.View;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.base.BaseActivity;
+import com.rubu.ui.fragment.FmUtil;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import butterknife.BindView;
+import butterknife.OnClick;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/10/17
+ * Vwesion 1.0
+ * Dsscription: 我的完工清单列表
+ */
+
+public class MineDetialFinishOrderAct extends BaseActivity {
+
+    @BindView(R.id.title)
+    TextView mTitle;
+    @BindView(R.id.title_left)
+    TextView mTitleLeft;
+    @BindView(R.id.tv_today)
+    TextView mToday;
+    @BindView(R.id.tv_seven_day)
+    TextView mSevenDay;
+    @BindView(R.id.tv_thirty_day)
+    TextView mThirtyDay;
+    @BindView(R.id.tv_all_day)
+    TextView mAllDay;
+    @BindView(R.id.tv_more_day)
+    TextView mMoreDay;
+
+    private List<Fragment> mFragments;
+    private int lastIndex, currentIndex;
+
+
+    @Override
+    protected int getViewId() {
+        return R.layout.activity_mine_finish_order;
+    }
+
+    @Override
+    protected void initEvent() {
+        mTitle.setText("完工清单");
+        mTitleLeft.setText(
+                R.string.back);
+        mTitleLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+        lastIndex = 0;
+        currentIndex = 0;
+        mToday.setBackground(mContext.getResources().getDrawable(R.drawable.bg_complete_selector));
+        initFragment();
+
+    }
+
+    @OnClick({R.id.tv_today, R.id.tv_seven_day, R.id.tv_thirty_day, R.id.tv_all_day, R.id.tv_more_day})
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.tv_today:
+                updateButtom(0);
+                break;
+            case R.id.tv_seven_day:
+                updateButtom(1);
+                break;
+            case R.id.tv_thirty_day:
+                updateButtom(2);
+                break;
+            case R.id.tv_all_day:
+                updateButtom(3);
+                break;
+            case R.id.tv_more_day:
+                updateButtom(4);
+                break;
+        }
+    }
+
+
+    /**
+     * 初始化相关的Fragment
+     */
+    private void initFragment() {
+        mFragments = new ArrayList<>();
+        mFragments.add(FmUtil.getFragConplete(0));
+        mFragments.add(FmUtil.getFragConplete(1));
+        mFragments.add(FmUtil.getFragConplete(2));
+        mFragments.add(FmUtil.getFragConplete(3));
+        mFragments.add(FmUtil.getFragConplete(4));
+        FragmentManager fm = getSupportFragmentManager();
+        FragmentTransaction transaction = fm.beginTransaction();
+        transaction.add(R.id.fragment, mFragments.get(0));
+        transaction.commit();
+    }
+
+    /**
+     * 根据按钮设置按钮样式
+     *
+     * @param index 当前摁下的按钮
+     */
+    private void updateButtom(int index) {
+        if (currentIndex == index) {
+            return;
+        }
+        lastIndex = currentIndex;
+        currentIndex = index;
+        switch (lastIndex) {
+            case 0:
+                mToday.setBackground(mContext.getResources().getDrawable(R.drawable.bg_complete_no_selector));
+                break;
+            case 1:
+                mSevenDay.setBackground(mContext.getResources().getDrawable(R.drawable.bg_complete_no_selector));
+                break;
+            case 2:
+                mThirtyDay.setBackground(mContext.getResources().getDrawable(R.drawable.bg_complete_no_selector));
+                break;
+            case 3:
+                mAllDay.setBackground(mContext.getResources().getDrawable(R.drawable.bg_complete_no_selector));
+                break;
+            case 4:
+                mMoreDay.setBackground(mContext.getResources().getDrawable(R.drawable.bg_complete_no_selector));
+                break;
+        }
+        switch (currentIndex) {
+            case 0:
+                mToday.setBackground(mContext.getResources().getDrawable(R.drawable.bg_complete_selector));
+                break;
+            case 1:
+                mSevenDay.setBackground(mContext.getResources().getDrawable(R.drawable.bg_complete_selector));
+                break;
+            case 2:
+                mThirtyDay.setBackground(mContext.getResources().getDrawable(R.drawable.bg_complete_selector));
+                break;
+            case 3:
+                mAllDay.setBackground(mContext.getResources().getDrawable(R.drawable.bg_complete_selector));
+                break;
+            case 4:
+                mMoreDay.setBackground(mContext.getResources().getDrawable(R.drawable.bg_complete_selector));
+                break;
+        }
+        if (null == mFragments.get(currentIndex)) {
+            mFragments.add(currentIndex, FmUtil.getFragConplete(currentIndex));
+        }
+        FragmentManager fm = getSupportFragmentManager();
+        FragmentTransaction transaction = fm.beginTransaction();
+        transaction.replace(R.id.fragment, mFragments.get(currentIndex));
+        transaction.commit();
+    }
+
+    private static final String TAG = "MineDetialFinishOrderAc";
+}

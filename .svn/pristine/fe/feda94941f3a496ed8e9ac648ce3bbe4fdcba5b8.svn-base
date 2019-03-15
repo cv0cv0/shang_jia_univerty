@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="fill_parent"
+              android:layout_height="wrap_content"
+              android:gravity="center"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:orientation="horizontal">
+
+    <FrameLayout
+        android:layout_width="98dp"
+        android:gravity="center"
+        android:layout_marginRight="10dp"
+        android:layout_height="50dp">
+
+        <ImageView
+            android:id="@+id/listview_header_arrow"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="invisible"
+            android:src="@drawable/anim_1"/>
+
+        <ImageView
+            android:id="@+id/listview_header_progressbar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="invisible"/>
+        <com.github.jdsjlzx.progressindicator.AVLoadingIndicatorView
+            android:id="@+id/loading_progress"
+            android:layout_width="30dp"
+            android:layout_gravity="center"
+            android:layout_height="30dp"
+            app:indicator="BallSpinFadeLoader"
+            app:indicator_color="@color/colorAccent"
+            android:layout_marginRight="@dimen/dp_4"
+            />
+
+    </FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/listview_header_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:gravity="center_vertical"
+        android:minWidth="100dip"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_for_home"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="一家人一件事一起做"
+            android:textSize="14sp"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/refresh_status_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/listview_header_hint_normal"/>
+    </LinearLayout>
+
+</LinearLayout>

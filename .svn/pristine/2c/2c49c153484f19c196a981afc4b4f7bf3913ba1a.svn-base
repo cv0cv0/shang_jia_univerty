@@ -1,0 +1,123 @@
+package com.rubu.ui.act;
+
+import android.content.Intent;
+import android.os.Parcelable;
+import android.util.Log;
+import android.view.View;
+import android.widget.ListView;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.adapter.QuestionTitleAdapter;
+import com.rubu.base.BaseActivity;
+import com.rubu.constant.Constant;
+import com.rubu.model.QuestionListModel;
+import com.rubu.net.ApiImp;
+import com.rubu.net.Params;
+import com.rubu.net.ReqJson;
+
+import java.io.Serializable;
+import java.util.List;
+
+import butterknife.BindView;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
+/**
+ * Created by liuhaizhu on 2017/3/6.
+ */
+
+public class QuestionTitleAct extends BaseActivity {
+
+    @BindView(R.id.title_left)
+    TextView mTitleLeft;
+    @BindView(R.id.title)
+    TextView mTitle;
+    @BindView(R.id.list_view)
+    ListView mListView;
+    private QuestionTitleAdapter mQuestionTitleAdapter;
+    private QuestionListModel mQuestionListModel = new QuestionListModel();
+
+    public static final int REQUEST_CODE_QUESTION_CHILD = 888;
+
+    @Override
+    protected int getViewId() {
+        return R.layout.act_question;
+    }
+
+    @Override
+    protected void initEvent() {
+        mTitleLeft.setText(R.string.back);
+        mTitleLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+        mTitle.setText("遇到问题");
+        mQuestionTitleAdapter = new QuestionTitleAdapter(mContext, mQuestionListModel);
+        mQuestionTitleAdapter.setOnParentClickListenner(new QuestionTitleAdapter.OnParentListenner() {
+            @Override
+            public void setChildList(List<QuestionListModel.Rows1Bean> childList) {
+                Intent intent = new Intent(mContext, QuestionChildAct.class);
+                intent.putExtra("childList", (Serializable) childList);
+                intent.putExtra("requestCode", REQUEST_CODE_QUESTION_CHILD);
+                startActivityForResult(intent, REQUEST_CODE_QUESTION_CHILD);
+            }
+        });
+        mListView.setAdapter(mQuestionTitleAdapter);
+        getQuestionList();
+    }
+
+    /**
+     * 获取问题列表的请求
+     */
+    private void getQuestionList() {
+        showProgressDialog("获取问题列表中");
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_APP_SCS_ORDER_PROBLEM);
+        reqJson.setHas_rows("yes");
+        mSubscription = ApiImp.get().getQuestionTitle(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<QuestionListModel>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        dissmisProgressDialog();
+                        showToast("网络不给力");
+                        Log.i("SCS_ORDER_PROBLEM", e.toString());
+                    }
+
+                    @Override
+                    public void onNext(QuestionListModel questionListModel) {
+                        dissmisProgressDialog();
+                        if (questionListModel.getResult().getOut_Flag() == 0) {
+                            mQuestionListModel = questionListModel;
+                            mQuestionTitleAdapter.refrsh(mQuestionListModel);
+                        } else {
+                            showToast(questionListModel.getResult().getOut_nszRtn());
+                        }
+                    }
+                });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQUEST_CODE_QUESTION_CHILD) {
+                String parentName = data.getStringExtra("parent");
+                String childName = data.getStringExtra("child");
+                Intent intent = new Intent();
+                intent.putExtra("parent", parentName);
+                intent.putExtra("child", childName);
+                setResult(RESULT_OK, intent);
+                finish();
+            }
+        }
+    }
+}

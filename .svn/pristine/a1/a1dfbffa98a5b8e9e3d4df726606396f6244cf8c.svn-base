@@ -1,0 +1,247 @@
+package com.rubu.ui.act;
+
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.util.Log;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.GridView;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.adapter.AddImgAdapter;
+import com.rubu.adapter.AddQuestionImgAdapter;
+import com.rubu.base.BaseActivity;
+import com.rubu.constant.Constant;
+import com.rubu.event.EventCode;
+import com.rubu.event.EventMessage;
+import com.rubu.model.Base;
+import com.rubu.model.Order;
+import com.rubu.model.UpLoadModel;
+import com.rubu.net.ApiImp;
+import com.rubu.net.Params;
+import com.rubu.net.ReqJson;
+import com.rubu.util.AppClassManager;
+import com.rubu.util.LoginUtil;
+import com.rubu.util.StringUtil;
+import com.rubu.util.TLog;
+import com.wq.photo.util.BitmapUtils;
+import com.wq.photo.widget.PickConfig;
+
+import org.greenrobot.eventbus.EventBus;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import butterknife.BindView;
+import butterknife.OnClick;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/9/1
+ * Vwesion 1.0
+ * Dsscription: 工单遇到问题的新界面
+ */
+
+public class OrderQuestionAct extends BaseActivity {
+
+    public static final int REQUEST_CODE_QUESTION_PARENT = 666;
+
+    @BindView(R.id.title_left)
+    TextView mTitleLeft;
+    @BindView(R.id.title)
+    TextView mTitle;
+    @BindView(R.id.question_descirbe)
+    TextView mQuestionDescirbe;
+    @BindView(R.id.question_content)
+    EditText mQuestionContent;
+    @BindView(R.id.grid_add)
+    GridView mAutoGridViewAdd;
+    // 获取工单详情
+    private Order.RowsBean mRowsBean;
+    // 问题的父类,子类的对应内容
+    private String mParent, mChild;
+    // 问题描述
+    private String mQuestionDescibe;
+    // 添加图片
+    private AddQuestionImgAdapter mAddImgAdapter;
+    // 图片的路径集合
+    private List<String> upLoadImgs = new ArrayList<>();
+
+    @Override
+    protected int getViewId() {
+        return R.layout.act_order_question;
+    }
+
+    @Override
+    protected void initEvent() {
+        // 获取工单ID
+        this.mRowsBean = (Order.RowsBean) getIntent().getSerializableExtra("bean");
+        this.mTitle.setText("遇到问题");
+        this.mTitleLeft.setText(R.string.back);
+        this.mTitleLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+        mAddImgAdapter = new AddQuestionImgAdapter(mContext, null);
+        mAutoGridViewAdd.setAdapter(mAddImgAdapter);
+    }
+
+    @OnClick({R.id.choose_question, R.id.commint})
+    public void onClick(View view) {
+        switch (view.getId()) {
+            // 选择问题的操作
+            case R.id.choose_question:
+                startActivityForResult(new Intent(mContext, QuestionTitleAct.class), REQUEST_CODE_QUESTION_PARENT);
+                break;
+            // 提交
+            case R.id.commint:
+                if (StringUtil.isEmpty(mParent)) {
+                    showToast("请选择问题类型!");
+                    return;
+                }
+                // 获取描述
+                mQuestionDescibe = mQuestionContent.getText().toString();
+                if (StringUtil.isEmpty(mQuestionDescibe)) {
+                    showToast("请填写问题描述!");
+                    return;
+                }
+                List<String> list = mAddImgAdapter.getList();
+                if (list == null || list.size() < 2) {
+                    showToast("请至少上传一张问题图片");
+                    return;
+                }
+                pushQuestion(list.get(0), 0);
+                break;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+            switch (requestCode) {
+                // 选择问题的内容
+                case REQUEST_CODE_QUESTION_PARENT:
+                    this.mParent = data.getStringExtra("parent");
+                    this.mChild = data.getStringExtra("child");
+                    this.mQuestionDescirbe.setText("已选择: " + "'" + this.mParent + "/" + this.mChild + "'");
+                    break;
+                // 选择照片的操作
+                case PickConfig.PICK_REQUEST_CODE:
+                    ArrayList<String> paths = data.getStringArrayListExtra("data");
+                    mAddImgAdapter.addAllUpdate(paths);
+                    break;
+            }
+        }
+    }
+
+    /**
+     * 上传图片到服务器
+     *
+     * @param img   图片路径
+     * @param index 图片下标
+     */
+    private void pushQuestion(String img, final int index) {
+        showProgressDialog("正在上传问题图片,请稍等...");
+        String url = BitmapUtils.INSTANCE.compress(img);
+        File file = new File(url);
+        RequestBody photoRequestBody = RequestBody.create(MediaType.parse("image/png"), file);
+        MultipartBody.Part photo = MultipartBody.Part.createFormData("workimg", "image.png", photoRequestBody);
+        mSubscription = ApiImp.get().uploadQuestion(photo)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<UpLoadModel>() {
+                    @Override
+                    public void onCompleted() {
+                        if (!isFinishing()) {
+                            dissmisProgressDialog();
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        dissmisProgressDialog();
+                        showToast("网络不给力");
+                        e.printStackTrace();
+                        Log.i("正在上传问题图片",e.toString());
+                    }
+
+                    @Override
+                    public void onNext(UpLoadModel model) {
+                        TLog.i(String.valueOf(model));
+                        upLoadImgs.add(model.getFilename());
+                        if ((index + 1) < mAddImgAdapter.getList().size() - 1) {
+                            //没有上传完
+                            pushQuestion(mAddImgAdapter.getList().get(index + 1), index + 1);
+                        } else {
+                            commitQuestion();
+                        }
+                    }
+                });
+    }
+
+    /**
+     * 提交问题
+     */
+    private void commitQuestion() {
+        // 图片文件名的字符串
+        StringBuffer sb = new StringBuffer();
+        if (upLoadImgs != null || upLoadImgs.size() > 0) {
+            for (String upLoadImg : upLoadImgs) {
+                sb.append(upLoadImg).append(",");
+            }
+        }
+        if (sb.length() > 0) {
+            sb.deleteCharAt(sb.length() - 1);
+        }
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_APP_ORDER_ELSE_EDIT);
+        reqJson.setUser_id(LoginUtil.getUserId(mContext));
+        reqJson.setOrder_title_id(String.valueOf(mRowsBean.getOrder_title_id()));
+        reqJson.setAccident_status(String.valueOf(mRowsBean.getWorker_status()));
+        reqJson.setProblem_category(mParent);
+        reqJson.setProblem_subclass(mChild);
+        reqJson.setUpimg_url_else(String.valueOf(sb));
+        reqJson.setMarker_description(mQuestionDescibe);
+        mSubscription = ApiImp.get().action(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Base>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        dissmisProgressDialog();
+                        showToast("网络不给力");
+                        Log.i("ORDER_ELSE_EDIT", e.toString());
+                    }
+
+                    @Override
+                    public void onNext(Base model) {
+                        dissmisProgressDialog();
+                        showToast(model.getResult().getOut_nszRtn());
+                        int flag = model.getResult().getOut_Flag();
+                        if (flag == 0) {
+                            EventMessage eventMessage = new EventMessage(EventCode.EVENT_ORDER_STATUS_CHANGE, "");
+                            EventBus.getDefault().post(eventMessage);
+                            AppClassManager.getAppManager().finishOtherActivity(HomeAct.class);
+                            Intent intent = new Intent(mContext, ActionPickAct.class);
+                            intent.putExtra("id", mRowsBean.getOrder_title_id());
+                            startActivity(intent);
+                            finish();
+                        }
+                    }
+                });
+    }
+}

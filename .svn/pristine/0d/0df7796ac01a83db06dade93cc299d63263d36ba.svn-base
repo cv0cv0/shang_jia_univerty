@@ -1,0 +1,738 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include layout="@layout/toolbar" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="12dp"
+                android:layout_marginRight="12dp"
+                android:orientation="vertical">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp">
+
+                    <TextView
+                        android:id="@+id/tv_order_type"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentStart="true"
+                        android:layout_centerVertical="true"
+                        android:text="安装单"
+                        android:textColor="@color/blue"
+                        android:textSize="@dimen/text_large" />
+
+                    <TextView
+                        android:id="@+id/tv_service_num"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginLeft="6dp"
+                        android:layout_toRightOf="@id/tv_order_type"
+                        android:text="x1"
+                        android:textColor="@color/blue"
+                        android:textSize="@dimen/text_large" />
+
+                </RelativeLayout>
+
+                <TextView
+                    android:id="@+id/order_Title_Id"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="测试单号"
+                    android:textColor="@color/blue"
+                    android:textSize="@dimen/text_medium" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/name"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="测试名字"
+                        android:textColor="@color/c_333333" />
+
+                    <TextView
+                        android:id="@+id/tel"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="right"
+                        android:paddingRight="8dp"
+                        android:text="测试电话"
+                        android:textColor="@color/c_333333"
+                        android:textSize="@dimen/text_medium" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="0.7dp"
+                    android:layout_marginTop="12dp"
+                    android:background="@color/light_black" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="服务地址:"
+                    android:textColor="@color/c_333333" />
+
+                <TextView
+                    android:id="@+id/sheng_shi_qu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="测试省市区"
+                    android:textSize="@dimen/text_medium" />
+
+                <TextView
+                    android:id="@+id/adress"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="测试详细地址"
+                    android:textSize="@dimen/text_medium" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_question_record"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="12dp"
+                    android:layout_marginTop="15dp"
+                    android:background="@color/grey_black" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="8dp"
+                    android:text="问题记录"
+                    android:textSize="@dimen/text_medium" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="0.7dp"
+                    android:layout_marginTop="12dp"
+                    android:background="@color/light_black" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:paddingBottom="12dp"
+                    android:paddingTop="12dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="发起人"
+                        android:textColor="@color/c_333333"
+                        android:textSize="@dimen/text_medium" />
+
+                    <TextView
+                        android:id="@+id/woker_name"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="4"
+                        android:text="测试名字"
+                        android:textColor="@color/gray_dark"
+                        android:textSize="@dimen/text_medium" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="0.7dp"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
+                    android:background="@color/light_black" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:paddingBottom="12dp"
+                    android:paddingTop="12dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="联系方式"
+                        android:textColor="@color/c_333333"
+                        android:textSize="@dimen/text_medium" />
+
+                    <TextView
+                        android:id="@+id/woker_prhone"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="4"
+                        android:text="测试手机号"
+                        android:textColor="@color/gray_dark"
+                        android:textSize="@dimen/text_medium" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="0.7dp"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
+                    android:background="@color/light_black" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:paddingBottom="12dp"
+                    android:paddingTop="12dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="分类"
+                        android:textColor="@color/c_333333"
+                        android:textSize="@dimen/text_medium" />
+
+                    <TextView
+                        android:id="@+id/problem_type"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="4"
+                        android:text="测试问题类型"
+                        android:textColor="@color/gray_dark"
+                        android:textSize="@dimen/text_medium" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="0.7dp"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
+                    android:background="@color/light_black" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:paddingBottom="12dp"
+                    android:paddingTop="12dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="描述"
+                        android:textColor="@color/c_333333"
+                        android:textSize="@dimen/text_medium"
+                        android:id="@+id/textView" />
+
+                    <TextView
+                        android:id="@+id/problem_decribe"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="4"
+                        android:text="测试描述内容"
+                        android:textColor="@color/gray_dark"
+                        android:textSize="@dimen/text_medium" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="0.7dp"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
+                    android:background="@color/light_black" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:paddingBottom="12dp"
+                    android:paddingTop="12dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="附件"
+                        android:textColor="@color/c_333333"
+                        android:textSize="@dimen/text_medium" />
+
+                    <GridView
+                        android:id="@+id/question_picture_1"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="4"
+                        android:numColumns="3"
+                        android:textColor="@color/gray_dark"
+                        android:textSize="@dimen/text_medium" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="0.7dp"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
+                    android:background="@color/light_black" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:paddingBottom="12dp"
+                    android:paddingTop="12dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="操作时间"
+                        android:textColor="@color/c_333333"
+                        android:textSize="@dimen/text_medium" />
+
+                    <TextView
+                        android:id="@+id/operate_time"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="4"
+                        android:text="测试操作时间"
+                        android:textColor="@color/gray_dark"
+                        android:textSize="@dimen/text_medium" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_evidence_record"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="12dp"
+                    android:layout_marginTop="15dp"
+                    android:background="@color/grey_black" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="8dp"
+                    android:text="取证记录"
+                    android:textSize="@dimen/text_medium" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="0.7dp"
+                    android:layout_marginTop="12dp"
+                    android:background="@color/light_black" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:paddingBottom="12dp"
+                    android:paddingTop="12dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="分类:"
+                        android:textColor="@color/c_333333"
+                        android:textSize="@dimen/text_medium" />
+
+                    <TextView
+                        android:id="@+id/problem_type_1"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="4"
+                        android:text="测试分类"
+                        android:textColor="@color/gray_dark"
+                        android:textSize="@dimen/text_medium" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="0.7dp"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
+                    android:background="@color/light_black" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:paddingBottom="12dp"
+                    android:paddingTop="12dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="取证"
+                        android:textColor="@color/c_333333"
+                        android:textSize="@dimen/text_medium" />
+
+                    <TextView
+                        android:id="@+id/evidence_content"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="4"
+                        android:text="取证测试内容"
+                        android:textColor="@color/gray_dark"
+                        android:textSize="@dimen/text_medium" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="0.7dp"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
+                    android:background="@color/light_black" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="0.7dp"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
+                    android:background="@color/light_black" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:paddingBottom="12dp"
+                    android:paddingTop="12dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="附件"
+                        android:textColor="@color/c_333333"
+                        android:textSize="@dimen/text_medium" />
+
+                    <GridView
+                        android:id="@+id/question_picture_2"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="4"
+                        android:numColumns="3"
+                        android:textColor="@color/gray_dark"
+                        android:textSize="@dimen/text_medium" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="0.7dp"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
+                    android:background="@color/light_black" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:paddingBottom="12dp"
+                    android:paddingTop="12dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="受理客服"
+                        android:textColor="@color/c_333333"
+                        android:textSize="@dimen/text_medium" />
+
+                    <TextView
+                        android:id="@+id/service_name_1"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="4"
+                        android:text="测试客服名字"
+                        android:textColor="@color/gray_dark"
+                        android:textSize="@dimen/text_medium" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="0.7dp"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
+                    android:background="@color/light_black" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:paddingBottom="12dp"
+                    android:paddingTop="12dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="操作时间"
+                        android:textColor="@color/c_333333"
+                        android:textSize="@dimen/text_medium" />
+
+                    <TextView
+                        android:id="@+id/operate_time_1"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="4"
+                        android:text="测试操作时间"
+                        android:textColor="@color/gray_dark"
+                        android:textSize="@dimen/text_medium" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_handle_record"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="12dp"
+                    android:layout_marginTop="15dp"
+                    android:background="@color/grey_black" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="8dp"
+                    android:text="处理记录"
+                    android:textSize="@dimen/text_medium" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="0.7dp"
+                    android:layout_marginTop="12dp"
+                    android:background="@color/light_black" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:paddingBottom="12dp"
+                    android:paddingTop="12dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="描述:"
+                        android:textColor="@color/c_333333"
+                        android:textSize="@dimen/text_medium" />
+
+                    <TextView
+                        android:id="@+id/problem_decribe_2"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="4"
+                        android:text="测试描述内容"
+                        android:textColor="@color/gray_dark"
+                        android:textSize="@dimen/text_medium" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="0.7dp"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
+                    android:background="@color/light_black" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="0.7dp"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
+                    android:background="@color/light_black" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:paddingBottom="12dp"
+                    android:paddingTop="12dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="附件"
+                        android:textColor="@color/c_333333"
+                        android:textSize="@dimen/text_medium" />
+
+                    <GridView
+                        android:id="@+id/question_picture_3"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="4"
+                        android:numColumns="3"
+                        android:textColor="@color/gray_dark"
+                        android:textSize="@dimen/text_medium" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="0.7dp"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
+                    android:background="@color/light_black" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:paddingBottom="12dp"
+                    android:paddingTop="12dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="受理客服:"
+                        android:textColor="@color/c_333333"
+                        android:textSize="@dimen/text_medium" />
+
+                    <TextView
+                        android:id="@+id/service_name_2"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="4"
+                        android:text="测试客服名字"
+                        android:textColor="@color/gray_dark"
+                        android:textSize="@dimen/text_medium" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="0.7dp"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
+                    android:background="@color/light_black" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:paddingBottom="12dp"
+                    android:paddingTop="12dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="操作时间"
+                        android:textColor="@color/c_333333"
+                        android:textSize="@dimen/text_medium" />
+
+                    <TextView
+                        android:id="@+id/operate_time_2"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="4"
+                        android:text="测试操作时间"
+                        android:textColor="@color/gray_dark"
+                        android:textSize="@dimen/text_medium" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <TextView
+        android:id="@+id/confirm"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:background="@drawable/bg_login_btn_shape"
+        android:gravity="center"
+        android:text="进入此工单"
+        android:textColor="@color/white"
+        android:textSize="16sp" />
+</LinearLayout>

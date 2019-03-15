@@ -1,0 +1,80 @@
+package com.rubu.ui.act;
+
+import android.content.Intent;
+import android.util.Log;
+import android.view.View;
+import android.widget.ListView;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.adapter.QuestionChildAdapter;
+import com.rubu.adapter.QuestionTitleAdapter;
+import com.rubu.base.BaseActivity;
+import com.rubu.constant.Constant;
+import com.rubu.model.QuestionListModel;
+import com.rubu.net.ApiImp;
+import com.rubu.net.Params;
+import com.rubu.net.ReqJson;
+
+import java.util.List;
+
+import butterknife.BindView;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
+/**
+ * Created by liuhaizhu on 2017/3/6.
+ */
+
+public class QuestionChildAct extends BaseActivity {
+
+    @BindView(R.id.title_left)
+    TextView mTitleLeft;
+    @BindView(R.id.title)
+    TextView mTitle;
+    @BindView(R.id.list_view)
+    ListView mListView;
+    private QuestionChildAdapter mQuestionChildAdapter;
+    // 传递到子类的列表
+    private List<QuestionListModel.Rows1Bean> mChildList;
+
+    @Override
+    protected int getViewId() {
+        return R.layout.act_question;
+    }
+
+    @Override
+    protected void initEvent() {
+        mTitleLeft.setText(R.string.back);
+        mTitleLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+        mTitle.setText("遇到问题");
+        mChildList = (List<QuestionListModel.Rows1Bean>) getIntent().getSerializableExtra("childList");
+        if (mChildList == null) {
+            showToast("传入的数据为空");
+        }
+        mQuestionChildAdapter = new QuestionChildAdapter(mContext, mChildList);
+        mQuestionChildAdapter.setmChildListListenner(new QuestionChildAdapter.OnChlidListenner() {
+            @Override
+            public void getChlidInfo(String parentName, String childName) {
+                Intent intent = new Intent();
+                intent.putExtra("parent", parentName);
+                intent.putExtra("child", childName);
+                setResult(RESULT_OK, intent);
+                finish();
+            }
+        });
+        mListView.setAdapter(mQuestionChildAdapter);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
+    }
+}

@@ -1,0 +1,79 @@
+package com.rubu.ui.act.mine.view;
+
+import android.support.annotation.NonNull;
+import android.support.v7.widget.RecyclerView;
+import android.text.Html;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.ui.act.mine.model.MsgModel;
+
+import me.drakeet.multitype.ItemViewBinder;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/11/16
+ * Vwesion 1.0
+ * Dsscription: 消息列表的item
+ */
+
+public class MsgListItemView extends ItemViewBinder<MsgModel.RowsBean, MsgListItemView.ViewHolder> {
+
+    private OnItemClickListenner mOnclick;
+    @NonNull
+    @Override
+    protected ViewHolder onCreateViewHolder(@NonNull LayoutInflater inflater, @NonNull ViewGroup parent) {
+        View view = inflater.inflate(R.layout.item_msg, parent, false);
+        return new ViewHolder(view);
+    }
+
+    @Override
+    protected void onBindViewHolder(@NonNull ViewHolder holder, @NonNull final MsgModel.RowsBean item) {
+        // 消息标题
+        holder.msgTitle.setText(item.getMsg_title());
+        // 消息内容
+        holder.msgContent.setText(Html.fromHtml(item.getMsg_content()));
+        // 消息时间
+        holder.msgTime.setText(item.getModify_time());
+        // 点击事件
+        holder.root.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mOnclick != null) {
+                    mOnclick.onItemClick(item);
+                }
+            }
+        });
+    }
+
+    public void setOnItemClickListenner(OnItemClickListenner onclickListenner) {
+        this.mOnclick = onclickListenner;
+    }
+
+    public interface OnItemClickListenner {
+        void onItemClick(MsgModel.RowsBean bean);
+    }
+
+    static class ViewHolder extends RecyclerView.ViewHolder {
+        // root
+        LinearLayout root;
+        // 消息标题
+        TextView msgTitle;
+        // 消息内容
+        TextView msgContent;
+        // 消息时间
+        TextView msgTime;
+
+        ViewHolder(View itemView) {
+            super(itemView);
+            root = (LinearLayout) itemView.findViewById(R.id.root);
+            msgTitle = (TextView) itemView.findViewById(R.id.tv_title);
+            msgContent = (TextView) itemView.findViewById(R.id.tv_content);
+            msgTime = (TextView) itemView.findViewById(R.id.tv_time);
+        }
+    }
+}

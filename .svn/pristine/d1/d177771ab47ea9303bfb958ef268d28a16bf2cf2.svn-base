@@ -1,0 +1,124 @@
+package com.rubu.model;
+
+import java.util.List;
+
+/**
+ * Created by Administrator on 2017/7/28.
+ */
+
+public class AdvertisementModel {
+
+    /**
+     {"result":{
+     "out_nszRtn":"修改成功！",
+     "out_Flag":0
+     },
+     "rows":[{
+     "msg_content":"http://localhost:9090/scs/admin/see.jsp?msg_id=7",
+     "img_url":"http://localhost:9090/upload/msg/1501213405586.jpg",
+     "issee":"N",
+     "msg_id":7,
+     "msg_title":"SAD"
+     }]}
+     */
+    private ResultBean result;
+    private List<RowsBean> rows;
+
+    public ResultBean getResult() {
+        return result;
+    }
+
+    public void setResult(ResultBean result) {
+        this.result = result;
+    }
+
+    public List<RowsBean> getRows() {
+        return rows;
+    }
+
+    public void setRows(List<RowsBean> rows) {
+        this.rows = rows;
+    }
+
+    public static class ResultBean {
+        /**
+         * out_nszRtn : 查询成功！
+         * out_Flag : 0
+         */
+
+        private String out_nszRtn;
+        private int out_Flag;
+
+        public String getOut_nszRtn() {
+            return out_nszRtn;
+        }
+
+        public void setOut_nszRtn(String out_nszRtn) {
+            this.out_nszRtn = out_nszRtn;
+        }
+
+        public int getOut_Flag() {
+            return out_Flag;
+        }
+
+        public void setOut_Flag(int out_Flag) {
+            this.out_Flag = out_Flag;
+        }
+    }
+
+    public static class RowsBean {
+        /**
+         * "msg_content":"http://localhost:9090/scs/admin/see.jsp?msg_id=4",
+         *" img_url":"http://localhost:9090/upload/msg/1501213344157.jpg",
+         *"issee":"N",
+         *"msg_id":4,
+         *"msg_title":"ASD"
+         */
+
+        private String msg_content;
+        private String img_url;
+        private String issee;
+        private int msg_id;
+        private String msg_title;
+
+        public String getMsg_content() {
+            return msg_content;
+        }
+
+        public void setMsg_content(String msg_content) {
+            this.msg_content = msg_content;
+        }
+
+        public String getImg_url() {
+            return img_url;
+        }
+
+        public void setImg_url(String img_url) {
+            this.img_url = img_url;
+        }
+
+        public String getIssee() {
+            return issee;
+        }
+
+        public void setIssee(String issee) {
+            this.issee = issee;
+        }
+
+        public int getMsg_id() {
+            return msg_id;
+        }
+
+        public void setMsg_id(int msg_id) {
+            this.msg_id = msg_id;
+        }
+
+        public String getMsg_title() {
+            return msg_title;
+        }
+
+        public void setMsg_title(String msg_title) {
+            this.msg_title = msg_title;
+        }
+    }
+}

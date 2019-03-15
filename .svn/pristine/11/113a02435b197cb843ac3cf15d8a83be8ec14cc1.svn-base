@@ -1,0 +1,99 @@
+package com.rubu.model;
+
+import java.util.List;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/10/10
+ * Vwesion 1.0
+ * Dsscription:
+ */
+
+public class RegisterModel {
+
+    /**
+     * result : {"out_nszRtn":"注册成功！","out_Flag":1}
+     * rows : [{"s_bind_tel":"13199999999","user_id":40125,"s_password":"81dc9bdb52d04dc20036dbd8313ed055"}]
+     */
+
+    private ResultBean result;
+    private List<RowsBean> rows;
+
+    public ResultBean getResult() {
+        return result;
+    }
+
+    public void setResult(ResultBean result) {
+        this.result = result;
+    }
+
+    public List<RowsBean> getRows() {
+        return rows;
+    }
+
+    public void setRows(List<RowsBean> rows) {
+        this.rows = rows;
+    }
+
+    public static class ResultBean {
+        /**
+         * out_nszRtn : 注册成功！
+         * out_Flag : 1
+         */
+
+        private String out_nszRtn;
+        private int out_Flag;
+
+        public String getOut_nszRtn() {
+            return out_nszRtn;
+        }
+
+        public void setOut_nszRtn(String out_nszRtn) {
+            this.out_nszRtn = out_nszRtn;
+        }
+
+        public int getOut_Flag() {
+            return out_Flag;
+        }
+
+        public void setOut_Flag(int out_Flag) {
+            this.out_Flag = out_Flag;
+        }
+    }
+
+    public static class RowsBean {
+        /**
+         * s_bind_tel : 13199999999
+         * user_id : 40125
+         * s_password : 81dc9bdb52d04dc20036dbd8313ed055
+         */
+
+        private String s_bind_tel;
+        private int user_id;
+        private String s_password;
+
+        public String getS_bind_tel() {
+            return s_bind_tel;
+        }
+
+        public void setS_bind_tel(String s_bind_tel) {
+            this.s_bind_tel = s_bind_tel;
+        }
+
+        public int getUser_id() {
+            return user_id;
+        }
+
+        public void setUser_id(int user_id) {
+            this.user_id = user_id;
+        }
+
+        public String getS_password() {
+            return s_password;
+        }
+
+        public void setS_password(String s_password) {
+            this.s_password = s_password;
+        }
+    }
+}

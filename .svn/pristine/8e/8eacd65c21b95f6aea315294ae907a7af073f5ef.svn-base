@@ -1,0 +1,145 @@
+package com.rubu.ui.act;
+
+import android.app.ProgressDialog;
+import android.os.Bundle;
+import android.view.KeyEvent;
+import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import com.github.jdsjlzx.interfaces.OnLRecyclerViewListener;
+import com.github.jdsjlzx.recyclerview.LRecyclerView;
+import com.rubu.R;
+import com.rubu.adapter.HomeListAdpater;
+import com.rubu.base.BaseActivity;
+import com.rubu.constant.Constant;
+import com.rubu.model.OrderList;
+import com.rubu.net.ApiImp;
+import com.rubu.net.Params;
+import com.rubu.net.ReqJson;
+import com.rubu.util.LoginUtil;
+import com.rubu.util.StringUtil;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
+/**
+ * Created by liuhaizhu on 2017/3/1.
+ */
+
+public class SearchAct extends BaseActivity implements OnLRecyclerViewListener {
+    @BindView(R.id.recycle_view)
+    LRecyclerView mRecycleView;
+    @BindView(R.id.activity_main)
+    LinearLayout mActivityMain;
+    @BindView(R.id.title_left)
+    TextView mTitleLeft;
+    @BindView(R.id.title)
+    TextView mTitle;
+    @BindView(R.id.edit)
+    TextView etSearch;
+    private String text;
+    private HomeListAdpater mHomeListAdpater;
+    private int mWorkStatus;
+
+
+    @Override
+    protected int getViewId() {
+        return R.layout.act_search;
+    }
+
+    @Override
+    protected void initEvent() {
+        mTitle.setText(R.string.search);
+        mTitleLeft.setText(R.string.back);
+        mTitleLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+        initViewController(mRecycleView);
+        mHomeListAdpater = new HomeListAdpater(mContext);
+        mRecycleView.setLinearLayout();
+        mRecycleView.setOnRefreshListener(this);
+        mRecycleView.setAdapter(mHomeListAdpater);
+        etSearch.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    String text = etSearch.getText().toString();
+                    if (StringUtil.isEmpty(text)) {
+                        showToast("请输入搜索内容");
+                    } else {
+                        showProgressDialog("正在查询中");
+                        getOrderList(text);
+                    }
+                    return true;
+                }
+                return false;
+            }
+        });
+    }
+
+    private void getOrderList(String text) {
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.ORDER_LOAD_PROC);
+        reqJson.setHas_rows("yes");
+        reqJson.setFlag("5");
+        reqJson.setWorker_status("0");//1 今日工单  2 明日工单  3 异常处理中 4 异常已处理 5 全+B68单+A68:E69
+        reqJson.setUser_id(LoginUtil.getUserId(mContext));
+        reqJson.setOrder_tag(text);
+        mSubscription = ApiImp.get().getOrderList(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<OrderList>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        dissmisProgressDialog();
+                    }
+
+                    @Override
+                    public void onNext(OrderList model) {
+                        dissmisProgressDialog();
+                        showLoading(false, "");
+                        mRecycleView.refreshComplete();
+                        if (model != null) {
+                            if (model.getRows() != null || model.getRows().size() != 0) {
+                                showEmpty(false, "暂无相关工单", null);
+                                mHomeListAdpater.addItems(model.getRows(), model.getRows1());
+                            } else {
+                                mHomeListAdpater.addItems(null, null);
+                                showEmpty(true, "暂无相关工单", null);
+                            }
+                        } else {
+                            mHomeListAdpater.addItems(null, null);
+                            showEmpty(true, "暂无相关工单", null);
+                        }
+                    }
+                });
+    }
+
+    @Override
+    public void onRefresh() {
+        getOrderList(text);
+    }
+
+    @Override
+    public void onLoadMore() {
+
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // TODO: add setContentView(...) invocation
+        ButterKnife.bind(this);
+    }
+}

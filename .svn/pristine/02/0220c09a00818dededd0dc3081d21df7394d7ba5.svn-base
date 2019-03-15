@@ -1,0 +1,478 @@
+package com.rubu.adapter;
+
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Color;
+import android.os.CountDownTimer;
+import android.support.v4.content.ContextCompat;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import com.github.jdsjlzx.recyclerview.BaseRecyclerAdapter;
+import com.github.jdsjlzx.recyclerview.BaseRecyclerViewHolder;
+import com.rubu.R;
+import com.rubu.constant.WorkerStatus;
+import com.rubu.model.OrderList;
+import com.rubu.ui.act.ActionPickAct;
+import com.rubu.ui.act.mine.QuestionOrderDetialAct;
+import com.rubu.util.StringUtil;
+import com.rubu.util.SyUtil;
+
+import java.util.ArrayList;
+import java.util.List;
+
+
+/**
+ * Created by niejiahuan on 16/12/19.
+ */
+
+/**
+ * 账单
+ */
+public class HomeListAdpater extends BaseRecyclerAdapter<OrderList.RowsBean> {
+    private final long ONE_MINUTE = 60000;
+    private final long MINUTE_15 = ONE_MINUTE * 15;
+    public Context mContext;
+    List<OrderList.Rows1Bean> listSku;
+    //  全部异常,待取证,待处理,已处理      flag = 3,4,8,9
+    //  待结算,已结算(两个都作废了)        flag = 5,6
+    //  今日预约工单,今日上门工单,明日预约工单,明日上门工单                 flag = 1,2,10,11
+    //  默认给0
+    private int flag;
+
+    public void setFlag(int flag) {
+        this.flag = flag;
+    }
+
+    public HomeListAdpater(Context context, List<OrderList.RowsBean> listOrder, List<OrderList.Rows1Bean> listSku) {
+        if (listOrder != null)
+            for (OrderList.RowsBean model : listOrder) {
+                model.setCountDown(model.getNear_time() * ONE_MINUTE);
+            }
+        mContext = context;
+        mList = listOrder;
+        this.listSku = listSku;
+        mCountDownTimerSingIn.start();
+    }
+
+    public HomeListAdpater(Context context) {
+        mContext = context;
+        mCountDownTimerSingIn.start();
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    private int status = -1;
+
+    @Override
+    public BaseRecyclerViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
+        View view = null;
+        if (i != 1) {
+            view = LayoutInflater.from(mContext).inflate(getListLayoutId(), viewGroup, false);
+        } else {
+            view = LayoutInflater.from(mContext).inflate(getListLayoutId(), viewGroup, false);
+        }
+        BaseRecyclerViewHolder holder = createViewHolder(view);
+        return holder;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        int itemType = 0;
+        // 异常工单
+        if (flag == 3 || flag == 4 || flag == 8 || flag == 9) {
+            itemType = 1;
+        }
+        return itemType;
+    }
+
+    @Override
+    public int getListLayoutId() {
+        if (flag == 3 || flag == 4 || flag == 8 || flag == 9) {
+            return R.layout.item_usunual_order_list;
+        } else {
+            return R.layout.item_home_list;
+        }
+    }
+
+    @Override
+    public BaseRecyclerViewHolder createViewHolder(View view) {
+        if (flag == 3 || flag == 4 || flag == 8 || flag == 9) {
+            return new QuestionViewHolder(view);
+        } else {
+            return new StoreViewHolder(view);
+        }
+
+    }
+
+    @Override
+    public int getItemCount() {
+        return null != getDataList() ? getDataList().size() : 0;
+    }
+
+    @Override
+    public void showData(BaseRecyclerViewHolder viewHolder, final int position, List<OrderList.RowsBean> mItemDataList) {
+        final OrderList.RowsBean model = mList.get(position);
+        // 新的异常工单界面
+        if (flag == 3 || flag == 4 || flag == 8 || flag == 9) {
+            QuestionViewHolder holder = (QuestionViewHolder) viewHolder;
+            // 客服工单Id
+            if (!StringUtil.isEmpty(model.getTitle_else_code())) {
+                holder.text_title.setText(model.getTitle_else_code());
+            } else {
+                holder.text_title.setText("暂无客服工单ID");
+            }
+            // 主工单号
+            if (!StringUtil.isEmpty(model.getParent_wk_order_id())) {
+                String orderId = StringUtil.addPlace(model.getParent_wk_order_id());
+                holder.text_content.setText("安装 : " + orderId);
+            } else {
+                holder.text_content.setText("暂无主工单号");
+            }
+            // 时间(操作记录)
+            if (!StringUtil.isEmpty(model.getThis_time())) {
+                String time = model.getThis_time().split(" ")[0];
+                holder.text_time.setText(time + " " + model.getThis_opt());
+            }
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(mContext, QuestionOrderDetialAct.class);
+                    // 客服工单ID
+                    intent.putExtra(("TitleId"), model.getTitle_else_id());
+                    // 进行不同的网络请求
+                    intent.putExtra("flag", WorkerStatus.getQuestionFlag(mList.get(position).getWaiter_else_status()));
+                    mContext.startActivity(intent);
+                }
+            });
+        } else {
+            // 其他工单的流程
+            StoreViewHolder holder = (StoreViewHolder) viewHolder;
+            // 设置列表Item的按钮的内容
+            String getWorkerStatus = WorkerStatus.getWorkerStatus(model.getWorker_status());
+            long time = model.getCountDown();
+//            int worker_status = model.getWorker_status();
+//            // 到货时间不为空,订单状态为接单或者预约,到货时间差小于下次操作时间
+////            if ((model.getReceived_long() != 0) && ((model.getWorker_status() == 44) || (model.getWorker_status() == 55)) && ((model.getReceived_long() + 180) < model.getNear_time())) {
+//            if (flag == 10) {
+//                worker_status = 100;
+//            }
+            String text = SyUtil.getSyStr(model, model.getWorker_status());
+            holder.tv_time_flag.setText(text);
+            if (listSku != null && listSku.size() > position) {
+                for (int i = 0; i < listSku.size(); i++) {
+                    if (listSku.get(i).getOrder_title_id() == model.getOrder_title_id()) {
+                        holder.serviceNum.setText("x" + listSku.get(i).getService_count());
+                    }
+                }
+            }
+            //设置省市区的地址
+            String tag = model.getTag();
+            String address = model.getBuyer_address();
+            String realAddress = model.getReal_address();
+            if (!StringUtil.isEmpty(realAddress) && !StringUtil.isEmpty(address)) {
+                if (!address.equals(realAddress)) {
+                    String[] adressses = realAddress.split(" ");
+                    if (adressses.length >= 3) {
+                        tag = adressses[0] + adressses[1] + adressses[2];
+                        address = adressses[adressses.length - 1];
+                    } else {
+                        address = realAddress;
+                    }
+                }
+            }
+            // 时间(操作记录)
+            if (!StringUtil.isEmpty(model.getThis_time())) {
+                String timeOperate = model.getThis_time().split(" ")[0];
+                holder.text_time.setText(timeOperate + " " + model.getThis_opt());
+            }
+            if (!StringUtil.isEmpty(tag)) {
+                holder.tag.setText(handleTag(tag));
+            } else {
+                holder.tag.setText("");
+            }
+
+            //设置接单状态的用户的电话,名字,详细地址 （接单和不接单的分开对待）
+            if (getWorkerStatus.equals("接单") && flag != 5 && flag != 6 && flag != 3 && flag != 4 && flag != 8 && flag != 9) {
+                String name = model.getBuyer_name();
+                if (!StringUtil.isEmpty(name)) {
+                    holder.tv_buyer_name.setText(model.getBuyer_name().substring(0, 1) + "**");
+                } else {
+                    holder.tv_buyer_name.setText("暂无买家名字信息");
+                }
+                String phone = model.getBuyer_mobile();
+                String buyer_phone = "暂无买家手机号信息";
+                if (!StringUtil.isEmpty(phone)) {
+                    buyer_phone = phone.replaceAll("(\\d{3})\\d{4}(\\d{4})", "$1****$2");
+                }
+                holder.tv_buyer_mobile.setText(buyer_phone);
+                holder.tv_buyer_address.setText("*********");
+            } else {
+                //设置客户名字
+                String name = model.getBuyer_name();
+                if (!StringUtil.isEmpty(name)) {
+                    holder.tv_buyer_name.setText(model.getBuyer_name());
+                } else {
+                    holder.tv_buyer_name.setText("暂无买家名字信息");
+                }
+                if (!StringUtil.isEmpty(address)) {
+                    holder.tv_buyer_address.setText(address);
+                } else {
+                    holder.tv_buyer_address.setText("");
+                }
+                //设置用户的电话号码
+                String buyer_phone = model.getBuyer_mobile();
+                if (!StringUtil.isEmpty(buyer_phone)) {
+                    holder.tv_buyer_mobile.setText(buyer_phone);
+                } else {
+                    holder.tv_buyer_mobile.setText("暂无买家手机号信息");
+                }
+            }
+
+            holder.tv_time_flag.setVisibility(View.VISIBLE);
+            // 预约取消待审状态
+            if (model.getWorker_status() == 55 && model.getCancel() == 1) {
+                holder.btnAction.setText("取消待审");
+                holder.btnAction.setBackgroundColor(Color.parseColor("#cccccc"));
+                // 服务调整, 完工调整待审
+            } else if (model.getWorker_status() == 57 && model.getCancel() == 1) {
+                holder.btnAction.setText("调整待审");
+                holder.btnAction.setBackgroundColor(Color.parseColor("#cccccc"));
+                // 代表完工审核中的工单
+            } else {
+                holder.btnAction.setText(getWorkerStatus);
+                holder.btnAction.setBackgroundColor(ContextCompat.getColor(mContext, WorkerStatus.getWorkerStatusColorId(model.getWorker_status())));
+            }
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(mContext, ActionPickAct.class);
+                    intent.putExtra("id", mList.get(position).getOrder_title_id());
+                    mContext.startActivity(intent);
+                }
+            });
+            if (text.equals("请于今日签到复查") && holder.tv_time_flag.getVisibility() == View.VISIBLE && model.getCancel() != 1) {
+                // flag ==1 (今日工单)
+                if (flag == 1) {
+                    holder.btnAction.setText("签到复查");
+                    holder.btnAction.setBackgroundColor(ContextCompat.getColor(mContext, R.color.orange));
+                } else {
+                    holder.tv_time_flag.setText("请于明日签到");
+                    holder.btnAction.setText("签到");
+                    holder.btnAction.setBackgroundColor(ContextCompat.getColor(mContext, R.color.orange));
+                }
+            }
+            if (text.equals("请于今日签到复查") && holder.tv_time_flag.getVisibility() == View.VISIBLE && model.getCancel() == 1) {
+                // flag ==1 (今日工单)
+                if (flag == 1) {
+                    holder.btnAction.setText("处理中");
+                    holder.btnAction.setBackgroundColor(ContextCompat.getColor(mContext, R.color.orange));
+                } else {
+                    holder.tv_time_flag.setText("请于明日签到");
+                    holder.btnAction.setText("处理中");
+                    holder.btnAction.setBackgroundColor(ContextCompat.getColor(mContext, R.color.orange));
+                }
+            }
+            //显示是否有货
+            if (model.getReceive_status() == 0) {
+                holder.tv_yes_no_goods.setVisibility(View.GONE);
+            } else {
+                holder.tv_yes_no_goods.setVisibility(View.VISIBLE);
+            }
+            // 显示是否催单
+            if (model.getReminderStatus() == 0) {
+                holder.tv_yes_no_urge.setVisibility(View.GONE);
+            } else {
+                holder.tv_yes_no_urge.setVisibility(View.VISIBLE);
+            }
+            // 显示是否急速安装
+            if (model.getIs_activity() == 0) {
+                holder.tv_yes_no_quickness.setVisibility(View.GONE);
+            } else {
+                holder.tv_yes_no_quickness.setVisibility(View.VISIBLE);
+            }
+            //判断是否冻结
+            if (model.getIs_address_correct() == 1) {
+                holder.btnAction.setBackgroundColor(ContextCompat.getColor(mContext, R.color.light_black));
+                holder.btnAction.setEnabled(false);
+            } else {
+                holder.btnAction.setEnabled(true);
+            }
+        }
+    }
+
+    /**
+     * 获取省市区地址
+     *
+     * @param tag
+     * @return
+     */
+    private String handleTag(String tag) {
+        String[] tags = tag.split(",");
+        if (tags.length == 4) {
+            return tags[0] + " " + tags[1] + " " + tags[2] + tags[3];
+        } else if (tags.length == 2) {
+            return tags[0] + " " + tags[1];
+        } else if (tags.length == 3) {
+            return tags[0] + " " + tags[1] + " " + tags[2];
+        } else {
+            String tt = "";
+            for (String t : tags) {
+                tt = tt + t + " ";
+            }
+            return tt;
+        }
+    }
+
+    /**
+     * 更新列表数据
+     *
+     * @param list
+     * @param listSku
+     */
+    public void addItems(List<OrderList.RowsBean> list, List<OrderList.Rows1Bean> listSku) {
+        this.mList = list;
+        this.listSku = listSku;
+        if (list != null) {
+            for (OrderList.RowsBean model : list) {
+                // 注释部分为废弃的天猫单超时预警功能
+//                long countDown = model.getNear_time() * ONE_MINUTE;
+//                // 接单状态，预约状态的到货时间有效
+////                if (model.getReceived_long() != 0 && (model.getWorker_status() == 44 || model.getWorker_status() == 55)) {
+//                if (flag == 10) {
+//                    countDown = (model.getReceived_long() + 180) * ONE_MINUTE;
+//                }
+//                model.setCountDown(countDown);
+                model.setCountDown(model.getNear_time() * ONE_MINUTE);
+            }
+        } else {
+            mList = new ArrayList<>();
+            this.listSku = new ArrayList<>();
+        }
+        notifyDataSetChanged();
+    }
+
+    /**
+     * 今日工单 手动加签到复查工单
+     *
+     * @param list
+     * @param listSku
+     */
+    public void addItemsForTodayOrder(List<OrderList.RowsBean> list, List<OrderList.Rows1Bean> listSku) {
+        if (list != null && listSku != null && list.size() > 0) {
+            for (int i = 0; i < list.size(); i++) {
+                OrderList.RowsBean bean = list.get(i);
+                bean.setCountDown(bean.getNear_time() * ONE_MINUTE);
+                String text = SyUtil.getSyStr(bean, bean.getWorker_status());
+                if (bean.getWorker_status() == 56 && text.equals("请于今日签到复查")) {
+                    mList.add(bean);
+                    this.listSku.add(listSku.get(i));
+                }
+            }
+        }
+        notifyDataSetChanged();
+    }
+
+    /**
+     * 普通工单列表Item的对象
+     */
+    public static class StoreViewHolder extends BaseRecyclerViewHolder {
+        TextView btnAction;                    //工单按钮显示内容
+        TextView tv_time_flag;              //列表的时间搓
+        TextView tv_order_type;             //安装单
+        TextView serviceNum;                //服务数量
+        TextView text_time;                    //工单最后一步内容
+        TextView tag;                        //省市区地址
+        //客户名字
+        TextView tv_buyer_name;
+        //客户手机号
+        TextView tv_buyer_mobile;
+        //详细地址
+        TextView tv_buyer_address;
+        //是否有货
+        TextView tv_yes_no_goods;
+        //是否催单
+        TextView tv_yes_no_urge;
+        // 是否是急速安装
+        TextView tv_yes_no_quickness;
+
+
+        StoreViewHolder(View view) {
+            super(view);
+            btnAction = (TextView) findView(R.id.btn_action);
+            tv_time_flag = (TextView) findView(R.id.tv_time_flag);
+            tv_order_type = (TextView) findView(R.id.tv_order_type);
+            serviceNum = (TextView) findView(R.id.tv_service_num);
+            text_time = (TextView) findView(R.id.text_time);
+            tag = (TextView) findView(R.id.tv_tag);
+            tv_buyer_name = (TextView) findView(R.id.tv_buyer_name);
+            tv_buyer_mobile = (TextView) findView(R.id.tv_buyer_mobile);
+            tv_buyer_address = (TextView) findView(R.id.tv_buyer_address);
+            tv_yes_no_goods = (TextView) findView(R.id.yes_no_good);
+            tv_yes_no_urge = (TextView) findView(R.id.yes_no_urge);
+            tv_yes_no_quickness = (TextView) findView(R.id.yes_no_quickness);
+        }
+    }
+
+    /**
+     * 异常工单列表item的ViewHolder
+     */
+    public static class QuestionViewHolder extends BaseRecyclerViewHolder {
+        TextView text_title;                 // 异常单子的标题
+        TextView text_content;                    // 异常单子的内容
+        TextView text_time;                        // 异常单子的时间
+
+        QuestionViewHolder(View view) {
+            super(view);
+            text_title = (TextView) findView(R.id.tv_title);
+            text_content = (TextView) findView(R.id.tv_content);
+            text_time = (TextView) findView(R.id.tv_time);
+        }
+    }
+
+    private String getStatusStr(int p) {
+
+        if (status == -1) {
+            return WorkerStatus.getWorkerStatus(p % 5);
+        } else {
+            return WorkerStatus.getWorkerStatus(status);
+        }
+    }
+
+    private int getStatusColorId(int p) {
+        if (status == -1) {
+            return WorkerStatus.getWorkerStatusColorId(p % 5);
+        } else {
+            return WorkerStatus.getWorkerStatusColorId(status);
+        }
+    }
+
+    private int getStatus(int p) {
+        if (status == -1) {
+            return (p % 5);
+        } else {
+            return status;
+        }
+    }
+
+    private CountDownTimer mCountDownTimerSingIn = new CountDownTimer(360000000, 1000) {
+        @Override
+        public void onTick(long millisUntilFinished) {
+            if (mList == null) return;
+            for (OrderList.RowsBean model : mList) {
+                model.setCountDown(model.getCountDown() - 1000);
+            }
+            notifyDataSetChanged();
+        }
+
+        @Override
+        public void onFinish() {
+
+        }
+    };
+
+}

@@ -1,0 +1,126 @@
+package com.rubu.ui.act;
+
+import android.support.v7.widget.Toolbar;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.base.BaseActivity;
+import com.rubu.constant.Constant;
+import com.rubu.event.EventCode;
+import com.rubu.event.EventMessage;
+import com.rubu.model.Base;
+import com.rubu.net.ApiImp;
+import com.rubu.net.Params;
+import com.rubu.net.ReqJson;
+import com.rubu.util.LoginUtil;
+import com.rubu.util.StringUtil;
+
+import org.greenrobot.eventbus.EventBus;
+
+import butterknife.BindView;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
+/**
+ * Created by liuhaizhu on 2017/3/6.
+ */
+
+public class RemarksEditAct extends BaseActivity {
+    @BindView(R.id.title_left)
+    TextView mTitleLeft;
+    @BindView(R.id.title)
+    TextView mTitle;
+    @BindView(R.id.tv_time)
+    TextView tv_time;
+    @BindView(R.id.edit_remark)
+    EditText edit_remark;
+    @BindView(R.id.toolbar)
+    Toolbar mToolbar;
+    @BindView(R.id.btn_edit)
+    Button mBtnEdit;
+    private long order_title_id;
+    private String updatetime;
+    private String remark;
+    @Override
+    protected int getViewId() {
+        return R.layout.act_remarks_edit;
+    }
+
+
+
+    @Override
+    protected void initEvent() {
+        order_title_id = getIntent().getLongExtra("id", 0);
+        updatetime = getIntent().getStringExtra("updatetime");
+        remark = getIntent().getStringExtra("remark");
+        if (!StringUtil.isEmpty(remark)) {
+            edit_remark.setText(remark);
+        }
+        mTitleLeft.setText(R.string.back);
+        mTitleLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+        mTitle.setText(R.string.edit);
+        mBtnEdit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String remark = edit_remark.getText().toString();
+                if (StringUtil.isEmpty(remark)) {
+                    showToast("请输入备注内容");
+                    return;
+                }
+                remarkOrder(remark);
+            }
+        });
+        if(!StringUtil.isEmpty(updatetime)){
+            tv_time.setText("最近更新时间："+ updatetime);
+        }
+    }
+
+    //备注
+    private void remarkOrder(String remark) {
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_APP_ORDER_RESERVING_MEMO);
+        reqJson.setReserv_memo(remark);
+        reqJson.setOrder_title_id(String.valueOf(order_title_id));
+        reqJson.setHas_rows("no");
+        reqJson.setUser_id(LoginUtil.getUserId(mContext));
+        showProgressDialog("正在保存");
+        action(reqJson);
+    }
+
+    private void action(ReqJson reqJson) {
+        mSubscription = ApiImp.get().action(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Base>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        showToast("网络不给力");
+                    }
+
+                    @Override
+                    public void onNext(Base model) {
+                        dissmisProgressDialog();
+                        showToast(model.getResult().getOut_nszRtn());
+                        int flag = model.getResult().getOut_Flag();
+                        if (flag == 0) {
+                            EventMessage eventMessage=new EventMessage(EventCode.EVENT_ORDER_CHANGE,"");
+                            EventBus.getDefault().post(eventMessage);
+                            finish();
+                        }
+                    }
+                });
+    }
+}

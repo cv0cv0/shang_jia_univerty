@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include layout="@layout/toolbar" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:orientation="vertical"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@mipmap/icon_logo" />
+
+        <EditText
+            android:id="@+id/edit_phone"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_login_edit_shape"
+            android:hint="手机号"
+            android:inputType="phone"
+            android:paddingLeft="8dp"
+            android:textColorHint="#767676" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="16dp">
+
+            <EditText
+                android:id="@+id/et_pwd"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="@drawable/bg_login_edit_shape"
+                android:hint="密码"
+                android:inputType="textPassword"
+                android:paddingLeft="8dp"
+                android:textColorHint="#767676" />
+
+            <LinearLayout
+                android:id="@+id/ll_code"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <EditText
+                    android:id="@+id/et_code"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_marginRight="8dp"
+                    android:layout_weight="2"
+                    android:background="@drawable/bg_login_edit_shape"
+                    android:hint="验证码"
+                    android:paddingLeft="8dp"
+                    android:textColorHint="#767676" />
+
+                <Button
+                    android:id="@+id/btn_send_code"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="8dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_login_btn_shape"
+                    android:text="发送验证码"
+                    android:textColor="@android:color/white" />
+            </LinearLayout>
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/tv_check"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:layout_marginTop="16dp"
+            android:gravity="right"
+            android:text="切换到短信验证码登录"
+            android:textColor="#fc431f" />
+
+        <Button
+            android:id="@+id/btn_login"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_login_btn_shape"
+            android:text="登录"
+            android:textColor="@android:color/white" />
+
+        <TextView
+            android:id="@+id/btn_register"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:text="我要成为上家技师"
+            android:textColor="@color/black"
+            />
+
+    </LinearLayout>
+
+
+</LinearLayout>

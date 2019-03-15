@@ -1,0 +1,8 @@
+package com.rubu.model;
+
+/**
+ * Created by 72732 on 2018/4/18.
+ */
+
+public class CheckOrderModel {
+}

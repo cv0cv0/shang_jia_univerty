@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:gravity="center"
+              android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="24dp"
+        android:layout_marginRight="24dp"
+        android:background="@drawable/bg_white_angle_shape"
+        android:minHeight="240dp"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:textSize="@dimen/text_medium"
+                android:text="签收时间:  "/>
+
+            <TextView
+                android:id="@+id/tv_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:textSize="@dimen/text_medium"
+                android:text="" />
+
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:textColor="@color/black"
+            android:textSize="@dimen/text_medium"
+            android:text="当前工单为花洒节特殊工单,需要在24小时内完成安装"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:textColor="@color/black"
+            android:textSize="@dimen/text_medium"
+            android:text="如客户暂时不需要安装,请备注"/>
+
+        <CheckBox
+            android:id="@+id/cb_hint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="26dp"
+            android:text="不再提示"
+            />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:background="@android:color/white"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn_confirm"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_login_btn_shape"
+                android:text="@string/i_know"
+                android:layout_marginRight="12dp"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/text_large"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+</LinearLayout>

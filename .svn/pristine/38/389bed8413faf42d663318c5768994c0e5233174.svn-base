@@ -1,0 +1,186 @@
+package com.rubu.model;
+
+import java.util.List;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/9/14
+ * Vwesion 1.0
+ * Dsscription: 催单详情的内容
+ */
+
+public class ReminderDetailModel {
+
+
+    /**
+     * result : {"out_nszRtn":"修改成功！","out_Flag":0}
+     * rows1 : [{"s_user_name":"安妮","record_massage":"快点，买家等不急了","record_times":"2017-09-13 09:28:43"}]
+     * rows : [{"buyer_mobile":"13002996913","buyer_address":"陕西西安市雁塔区陕西西安市雁塔区陕西西安市雁塔区长鸣路与南三环十字西北角，紫金城11-2201","parent_wk_order_id":"RB17187877053322","order_title_id":3,"buyer_name":"党雪霞","parent_wk_order_type":"安装","order_sub_count":10}]
+     */
+
+    private ResultBean result;
+    private List<Rows1Bean> rows1;
+    private List<RowsBean> rows;
+
+    public ResultBean getResult() {
+        return result;
+    }
+
+    public void setResult(ResultBean result) {
+        this.result = result;
+    }
+
+    public List<Rows1Bean> getRows1() {
+        return rows1;
+    }
+
+    public void setRows1(List<Rows1Bean> rows1) {
+        this.rows1 = rows1;
+    }
+
+    public List<RowsBean> getRows() {
+        return rows;
+    }
+
+    public void setRows(List<RowsBean> rows) {
+        this.rows = rows;
+    }
+
+    public static class ResultBean {
+        /**
+         * out_nszRtn : 修改成功！
+         * out_Flag : 0
+         */
+
+        private String out_nszRtn;
+        private int out_Flag;
+
+        public String getOut_nszRtn() {
+            return out_nszRtn;
+        }
+
+        public void setOut_nszRtn(String out_nszRtn) {
+            this.out_nszRtn = out_nszRtn;
+        }
+
+        public int getOut_Flag() {
+            return out_Flag;
+        }
+
+        public void setOut_Flag(int out_Flag) {
+            this.out_Flag = out_Flag;
+        }
+    }
+
+    public static class Rows1Bean {
+        /**
+         * s_user_name : 安妮
+         * record_massage : 快点，买家等不急了
+         * record_times : 2017-09-13 09:28:43
+         */
+
+        private String s_user_name;
+        private String record_massage;
+        private String record_times;
+
+        public String getS_user_name() {
+            return s_user_name;
+        }
+
+        public void setS_user_name(String s_user_name) {
+            this.s_user_name = s_user_name;
+        }
+
+        public String getRecord_massage() {
+            return record_massage;
+        }
+
+        public void setRecord_massage(String record_massage) {
+            this.record_massage = record_massage;
+        }
+
+        public String getRecord_times() {
+            return record_times;
+        }
+
+        public void setRecord_times(String record_times) {
+            this.record_times = record_times;
+        }
+    }
+
+    public static class RowsBean {
+        /**
+         * buyer_mobile : 13002996913
+         * buyer_address : 陕西西安市雁塔区陕西西安市雁塔区陕西西安市雁塔区长鸣路与南三环十字西北角，紫金城11-2201
+         * parent_wk_order_id : RB17187877053322
+         * order_title_id : 3
+         * buyer_name : 党雪霞
+         * parent_wk_order_type : 安装
+         * order_sub_count : 10
+         */
+
+        private String buyer_mobile;
+        private String buyer_address;
+        private String parent_wk_order_id;
+        private int order_title_id;
+        private String buyer_name;
+        private String parent_wk_order_type;
+        private int order_sub_count;
+
+        public String getBuyer_mobile() {
+            return buyer_mobile;
+        }
+
+        public void setBuyer_mobile(String buyer_mobile) {
+            this.buyer_mobile = buyer_mobile;
+        }
+
+        public String getBuyer_address() {
+            return buyer_address;
+        }
+
+        public void setBuyer_address(String buyer_address) {
+            this.buyer_address = buyer_address;
+        }
+
+        public String getParent_wk_order_id() {
+            return parent_wk_order_id;
+        }
+
+        public void setParent_wk_order_id(String parent_wk_order_id) {
+            this.parent_wk_order_id = parent_wk_order_id;
+        }
+
+        public int getOrder_title_id() {
+            return order_title_id;
+        }
+
+        public void setOrder_title_id(int order_title_id) {
+            this.order_title_id = order_title_id;
+        }
+
+        public String getBuyer_name() {
+            return buyer_name;
+        }
+
+        public void setBuyer_name(String buyer_name) {
+            this.buyer_name = buyer_name;
+        }
+
+        public String getParent_wk_order_type() {
+            return parent_wk_order_type;
+        }
+
+        public void setParent_wk_order_type(String parent_wk_order_type) {
+            this.parent_wk_order_type = parent_wk_order_type;
+        }
+
+        public int getOrder_sub_count() {
+            return order_sub_count;
+        }
+
+        public void setOrder_sub_count(int order_sub_count) {
+            this.order_sub_count = order_sub_count;
+        }
+    }
+}

@@ -1,0 +1,85 @@
+package com.rubu.ui.act.mine.view;
+
+import android.support.annotation.NonNull;
+import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.ui.act.mine.model.MsgOrderCancelModel;
+
+import me.drakeet.multitype.ItemViewBinder;
+
+/**
+ * Created by 72732 on 2018/5/10.
+ * 服务调整，工单取消的itemView
+ */
+
+public class MsgOrderCancelItemView extends ItemViewBinder<MsgOrderCancelModel, MsgOrderCancelItemView.ViewHolder> {
+    private OnMsgOrderCancelItemViewListenner listenner;
+
+    @NonNull
+    @Override
+    protected ViewHolder onCreateViewHolder(@NonNull LayoutInflater inflater, @NonNull ViewGroup parent) {
+        View view = inflater.inflate(R.layout.item_msg_order_adjust, parent, false);
+        return new ViewHolder(view);
+    }
+
+    @Override
+    protected void onBindViewHolder(@NonNull ViewHolder holder, @NonNull final MsgOrderCancelModel item) {
+        // 标题
+        holder.tv_title.setText(item.getTitle_app());
+        // 是否已读 0==未读 1==已读
+        if (item.getApp_is_read() == 0) {
+            holder.red_dot.setVisibility(View.VISIBLE);
+        }else {
+            holder.red_dot.setVisibility(View.INVISIBLE);
+        }
+        // 创建时间
+        holder.tv_time.setText(item.getCreate_time());
+        // 内容
+        holder.tv_content.setText(item.getContent_app());
+        // 原因
+        holder.tv_cancel_reason.setText(item.getOper_desc_app());
+        // 操作人
+        holder.tv_cancel_operater.setText("取消操作人: " + item.getOper_name());
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (listenner != null) {
+                    listenner.onClick(item);
+                }
+            }
+        });
+    }
+
+    public interface OnMsgOrderCancelItemViewListenner {
+        void onClick(MsgOrderCancelModel item);
+    }
+
+    public void setOnMsgOrderCancelItemViewListenner(OnMsgOrderCancelItemViewListenner listenner) {
+        this.listenner = listenner;
+    }
+
+
+    static class ViewHolder extends RecyclerView.ViewHolder {
+        TextView tv_title;
+        TextView red_dot;
+        TextView tv_time;
+        TextView tv_content;
+        TextView tv_cancel_reason;
+        TextView tv_cancel_operater;
+
+        public ViewHolder(View itemView) {
+            super(itemView);
+            tv_title = (TextView) itemView.findViewById(R.id.tv_title);
+            red_dot = (TextView) itemView.findViewById(R.id.red_dot);
+            tv_time = (TextView) itemView.findViewById(R.id.tv_time);
+            tv_content = (TextView) itemView.findViewById(R.id.tv_content);
+            tv_cancel_reason = (TextView) itemView.findViewById(R.id.tv_cancel_reason);
+            tv_cancel_operater = (TextView) itemView.findViewById(R.id.tv_cancel_operater);
+        }
+    }
+}

@@ -1,0 +1,1028 @@
+package com.rubu.net;
+
+import com.rubu.util.StringUtil;
+
+import java.io.Serializable;
+
+/**
+ * Created by liuhaizhu on 2017/3/6.
+ */
+
+public class ReqJson implements Serializable {
+    //    PROC_DATA_USER_LOGIN
+//    用户名			登录用户名默认为绑定手机号码
+//    密码			注册技师自设密码
+//    S  (登陆类型)			登录类型为注册账号密码登录和手机号验证登录
+//    验证码			账号密码登录随机验证码图片
+    private String proc;
+    //用户注册
+    private String s_bind_tel;
+    private String platform;
+    private String user_code;
+    private String user_id;
+    private String s_wk_user_id;
+    private String s_worker_id;
+    private String s_user_name;
+    private String password;
+    private String login_type;
+    private String smss_code;
+    private String s_smss_code;
+    private String s_smss_time;
+    private String s_idcard_no;
+    private String s_idcard_a;
+    private String s_idcard_b;
+    private String s_region_tag;
+    private String version;
+    //搜索工单列表
+    private String order_tag;
+    private String worker_status;
+    private String s_user_id;
+    private String order_title_id;
+    private String s_address;
+    private String flag;
+    private String reserving_time;
+    private String reserv_memo;
+    private String s_status;
+    private String logged_x;
+    private String logged_y;
+    private String reserved_result;
+    private String order_sub_id;
+    private String order_sub_idStr;
+    private String logged_address;
+    private String accident_status;
+    private String marker_description;
+    private String finished_images;
+    private String msg_id;
+    private int worker_verification_status;
+    private String worker_verification_time;
+    private String verification_code;
+    private String resv_time;
+    private String resv_date;
+    private String next_resv_time;
+    private String next_resv_date;
+    private String worker_mobile;
+    private String worker_name;
+    private String parent_biz_order_id;
+    private String service_order_id;
+    private String fail_code;
+    private String s_is_taking;
+    private String audience;
+    // TODO: 2017/4/21 推荐分站地址
+    private String substationStr;
+    private int ss_org_id;
+    private int street_id;
+    private int worker_type_id;
+    private String street_idStr;
+    private String region_codeStr;
+
+    private String service_ability_idStr;
+    private String ss_org_name;
+    private String s_user_account;
+    private String street_name;
+    private String worker_type_name;
+    private String service_ability_nameStr;
+    private String service_ability_parent_idStr;
+    private String s_service_parent_idStr;
+    private String service_ability_parent_nameStr;
+    private String worker_idcard_pic;
+    private String worker_register_pic;
+    private String s_bank_account;
+    private String shengShiQuStr;
+    //是否申请空跑费
+    private int is_hurry_fee;
+
+    //是否看过广告
+    private String issee;
+
+    // 遇到问题的问题的title
+    private String problem_category;
+    // 遇到问题的问题的内容
+    private String problem_subclass;
+    // 遇到问题的问题的描述
+    private String upimg_url_else;
+    // 客服工单ID
+    private int title_else_id;
+    // 催单ID
+    private int reminder_id;
+    // 处罚Id
+    private int punish_id;
+    // 分页加载的页数
+    private int pagecount;
+    // 分页加载的页数
+    private int current;
+    // 每页请求条数
+    private int pageSize;
+    // 审核列表的flag
+    private int audit_flag;
+    // 审核结果列表的status
+    private int audit_status;
+    // 预约失败参数
+    private int cancel_launch;
+    // 商户id /*商户ID，不过滤传0*/
+    private int b_group_id;
+    // 消息类型 1.消息发布2.主单审核通过3.子单取消审核通过4.商户地址修正发起5.客服地址修正发起6.修改列表改派 /*消息类型，不过滤传0*/ 拼接的字符串为(类型1,类型2)
+    private String message_type;
+    // 发起来源  /*发起来源，不过滤传0*/
+    private String lauch_source;
+    // pc端是否已读 /*是否已读,不过滤传0*/
+    private int is_read;
+    // 移动端是否已读 /*是否已读,不过滤传0*/
+    private int app_is_read;
+    // 排序字段 /*排序字段,不过滤传空串*/
+    private String order_by;
+    // 取最新的 默认传0不过滤 如果是最新传1
+    private int fetch_latest;
+    // 当前页码 /*当前页码,不过滤传1*/
+    private int currentPage;
+    // 消息列表中工单提醒单子的
+    private int reminder_message_id ;
+    // /*1:APP端发起的已经查看；2:PC端发起的已经查看*/
+    private int launch;
+    // 主工单id
+    private String parent_wk_order_id;
+    // 通话开始时间
+    private String call_begin_time;
+    // 通话时长
+    private String call_time;
+    // 拨打次数
+    private int call_num;
+    // 完工列表查询的开始时间
+    private String start_time;
+    // 完工列表查询的截止时间
+    private String end_time;
+    // 地址修正的原因
+    private String correction_cause;
+    // 地址修真的其他备注
+    private String other_remarks;
+
+    public int getCall_num() {
+        return call_num;
+    }
+
+    public void setCall_num(int call_num) {
+        this.call_num = call_num;
+    }
+
+    public String getCall_time() {
+        return call_time;
+    }
+
+    public void setCall_time(String call_time) {
+        this.call_time = call_time;
+    }
+
+    public String getCall_begin_time() {
+        return call_begin_time;
+    }
+
+    public void setCall_begin_time(String call_begin_time) {
+        this.call_begin_time = call_begin_time;
+    }
+
+    public String getParent_wk_order_id() {
+        return parent_wk_order_id;
+    }
+
+    public void setParent_wk_order_id(String parent_wk_order_id) {
+        this.parent_wk_order_id = parent_wk_order_id;
+    }
+
+    public int getLaunch() {
+        return launch;
+    }
+
+    public void setLaunch(int launch) {
+        this.launch = launch;
+    }
+
+    public int getReminder_message_id() {
+        return reminder_message_id;
+    }
+
+    public void setReminder_message_id(int reminder_message_id) {
+        this.reminder_message_id = reminder_message_id;
+    }
+
+    public int getB_group_id() {
+        return b_group_id;
+    }
+
+    public void setB_group_id(int b_group_id) {
+        this.b_group_id = b_group_id;
+    }
+
+    public String getMessage_type() {
+        return message_type;
+    }
+
+    public void setMessage_type(String message_type) {
+        this.message_type = message_type;
+    }
+
+    public String getLauch_source() {
+        return lauch_source;
+    }
+
+    public void setLauch_source(String lauch_source) {
+        this.lauch_source = lauch_source;
+    }
+
+    public int getIs_read() {
+        return is_read;
+    }
+
+    public void setIs_read(int is_read) {
+        this.is_read = is_read;
+    }
+
+    public int getApp_is_read() {
+        return app_is_read;
+    }
+
+    public void setApp_is_read(int app_is_read) {
+        this.app_is_read = app_is_read;
+    }
+
+    public String getOrder_by() {
+        return order_by;
+    }
+
+    public void setOrder_by(String order_by) {
+        this.order_by = order_by;
+    }
+
+    public int getFetch_latest() {
+        return fetch_latest;
+    }
+
+    public void setFetch_latest(int fetch_latest) {
+        this.fetch_latest = fetch_latest;
+    }
+
+    public int getCurrentPage() {
+        return currentPage;
+    }
+
+    public void setCurrentPage(int currentPage) {
+        this.currentPage = currentPage;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public int getCancel_launch() {
+        return cancel_launch;
+    }
+
+    public void setCancel_launch(int cancel_launch) {
+        this.cancel_launch = cancel_launch;
+    }
+
+    public int getAudit_status() {
+        return audit_status;
+    }
+
+    public void setAudit_status(int audit_status) {
+        this.audit_status = audit_status;
+    }
+
+    public int getAudit_flag() {
+        return audit_flag;
+    }
+
+    public void setAudit_flag(int audit_flag) {
+        this.audit_flag = audit_flag;
+    }
+
+    public int getCurrent() {
+        return current;
+    }
+
+    public void setCurrent(int current) {
+        this.current = current;
+    }
+
+    public int getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(int pageSize) {
+        this.pageSize = pageSize;
+    }
+
+    public int getPunish_id() {
+        return punish_id;
+    }
+
+    public void setPunish_id(int punish_id) {
+        this.punish_id = punish_id;
+    }
+
+    public String getRegion_codeStr() {
+        return region_codeStr;
+    }
+
+    public void setRegion_codeStr(String region_codeStr) {
+        this.region_codeStr = region_codeStr;
+    }
+
+    public String getStreet_idStr() {
+        return street_idStr;
+    }
+
+    public void setStreet_idStr(String street_idStr) {
+        this.street_idStr = street_idStr;
+    }
+
+    public String getS_worker_id() {
+        return s_worker_id;
+    }
+
+    public void setS_worker_id(String s_worker_id) {
+        this.s_worker_id = s_worker_id;
+    }
+
+    public String getS_service_parent_idStr() {
+        return s_service_parent_idStr;
+    }
+
+    public void setS_service_parent_idStr(String s_service_parent_idStr) {
+        this.s_service_parent_idStr = s_service_parent_idStr;
+    }
+
+    public int getReminder_id() {
+        return reminder_id;
+    }
+
+    public void setReminder_id(int reminder_id) {
+        this.reminder_id = reminder_id;
+    }
+
+    public String getS_wk_user_id() {
+        return s_wk_user_id;
+    }
+
+    public void setS_wk_user_id(String s_wk_user_id) {
+        this.s_wk_user_id = s_wk_user_id;
+    }
+
+    public int getTitle_else_id() {
+        return title_else_id;
+    }
+
+    public void setTitle_else_id(int title_else_id) {
+        this.title_else_id = title_else_id;
+    }
+
+    public String getUpimg_url_else() {
+        return upimg_url_else;
+    }
+
+    public void setUpimg_url_else(String upimg_url_else) {
+        this.upimg_url_else = upimg_url_else;
+    }
+
+    public String getProblem_category() {
+        return problem_category;
+    }
+
+    public void setProblem_category(String problem_category) {
+        this.problem_category = problem_category;
+    }
+
+    public String getProblem_subclass() {
+        return problem_subclass;
+    }
+
+    public void setProblem_subclass(String problem_subclass) {
+        this.problem_subclass = problem_subclass;
+    }
+
+    public String getService_ability_parent_idStr() {
+        return service_ability_parent_idStr;
+    }
+
+    public void setService_ability_parent_idStr(String service_ability_parent_idStr) {
+//        this.service_ability_parent_idStr = Base64Helper.encodeStringToBase64(service_ability_parent_idStr);
+        this.service_ability_parent_idStr = service_ability_parent_idStr;
+    }
+
+    public String getService_ability_parent_nameStr() {
+        return service_ability_parent_nameStr;
+    }
+
+    public void setService_ability_parent_nameStr(String service_ability_parent_nameStr) {
+//        this.service_ability_parent_nameStr = Base64Helper.encodeStringToBase64(service_ability_parent_nameStr);
+        this.service_ability_parent_nameStr = service_ability_parent_nameStr;
+    }
+
+    public String getShengShiQuStr() {
+        return shengShiQuStr;
+    }
+
+    public void setShengShiQuStr(String shengShiQuStr) {
+        this.shengShiQuStr = shengShiQuStr;
+    }
+
+    public String getS_bank_account() {
+        return s_bank_account;
+    }
+
+    public void setS_bank_account(String s_bank_account) {
+//        this.s_bank_account = Base64Helper.encodeStringToBase64(s_bank_account);
+        this.s_bank_account = s_bank_account
+        ;
+    }
+
+    public int getStreet_id() {
+        return street_id;
+    }
+
+    public void setStreet_id(int street_id) {
+        this.street_id = street_id;
+    }
+
+    public int getWorker_type_id() {
+        return worker_type_id;
+    }
+
+    public void setWorker_type_id(int worker_type_id) {
+        this.worker_type_id = worker_type_id;
+    }
+
+    public String getService_ability_idStr() {
+        return service_ability_idStr;
+    }
+
+    public void setService_ability_idStr(String service_ability_idStr) {
+//        this.service_ability_idStr = Base64Helper.encodeStringToBase64(service_ability_idStr);
+        this.service_ability_idStr = service_ability_idStr;
+    }
+
+    public String getStreet_name() {
+        return street_name;
+    }
+
+    public void setStreet_name(String street_name) {
+//        this.street_name = Base64Helper.encodeStringToBase64(street_name);
+        this.street_name = street_name;
+    }
+
+    public String getWorker_type_name() {
+        return worker_type_name;
+    }
+
+    public void setWorker_type_name(String worker_type_name) {
+//        this.worker_type_name = Base64Helper.encodeStringToBase64(worker_type_name);
+        this.worker_type_name = worker_type_name;
+    }
+
+    public String getService_ability_nameStr() {
+        return service_ability_nameStr;
+    }
+
+    public void setService_ability_nameStr(String service_ability_nameStr) {
+//        this.service_ability_nameStr = Base64Helper.encodeStringToBase64(service_ability_nameStr);
+        this.service_ability_nameStr = service_ability_nameStr;
+    }
+
+    public String getWorker_idcard_pic() {
+        return worker_idcard_pic;
+    }
+
+    public void setWorker_idcard_pic(String worker_idcard_pic) {
+//        this.worker_idcard_pic = Base64Helper.encodeStringToBase64(worker_idcard_pic);
+        this.worker_idcard_pic = worker_idcard_pic;
+    }
+
+    public String getWorker_register_pic() {
+        return worker_register_pic;
+    }
+
+    public void setWorker_register_pic(String worker_register_pic) {
+//        this.worker_register_pic = Base64Helper.encodeStringToBase64(worker_register_pic);
+        this.worker_register_pic = worker_register_pic;
+    }
+
+    public String getS_user_account() {
+        return s_user_account;
+    }
+
+    public void setS_user_account(String s_user_account) {
+//        this.s_user_account = Base64Helper.encodeStringToBase64(s_user_account);
+        this.s_user_account = s_user_account;
+    }
+
+    //服务确认码
+    private String identify_code;
+    private String buyer_mobile;
+
+    public int getSs_org_id() {
+        return ss_org_id;
+    }
+
+    public void setSs_org_id(int ss_org_id) {
+        this.ss_org_id = ss_org_id;
+    }
+
+    public String getSs_org_name() {
+        return ss_org_name;
+    }
+
+    public void setSs_org_name(String ss_org_name) {
+        if (!StringUtil.isEmpty(ss_org_name)) {
+//            this.ss_org_name = Base64Helper.encodeStringToBase64(ss_org_name);
+            this.ss_org_name = ss_org_name;
+        } else {
+            //            this.ss_org_name = Base64Helper.encodeStringToBase64(ss_org_name);
+            this.ss_org_name = ss_org_name;
+        }
+
+    }
+
+    public String getSubstationStr() {
+        return substationStr;
+    }
+
+    public void setSubstationStr(String substationStr) {
+        this.substationStr = substationStr;
+    }
+
+
+    public String getAudience() {
+        return audience;
+    }
+
+    public void setAudience(String audience) {
+        this.audience = audience;
+    }
+
+    public String getOrder_sub_idStr() {
+        return order_sub_idStr;
+    }
+
+    public void setOrder_sub_idStr(String order_sub_idStr) {
+        this.order_sub_idStr = order_sub_idStr;
+    }
+
+    public String getS_is_taking() {
+        return s_is_taking;
+    }
+
+    public void setS_is_taking(String s_is_taking) {
+        this.s_is_taking = s_is_taking;
+    }
+
+    public String getNext_resv_time() {
+        return next_resv_time;
+    }
+
+    public void setNext_resv_time(String next_resv_time) {
+        this.next_resv_time = next_resv_time;
+    }
+
+    public String getNext_resv_date() {
+        return next_resv_date;
+    }
+
+    public void setNext_resv_date(String next_resv_date) {
+        this.next_resv_date = next_resv_date;
+    }
+
+    public String getFail_code() {
+        return fail_code;
+    }
+
+    public void setFail_code(String fail_code) {
+        this.fail_code = fail_code;
+    }
+
+    public String getResv_time() {
+        return resv_time;
+    }
+
+    public void setResv_time(String resv_time) {
+        this.resv_time = resv_time;
+    }
+
+    public String getResv_date() {
+        return resv_date;
+    }
+
+    public void setResv_date(String resv_date) {
+        this.resv_date = resv_date;
+    }
+
+    public String getWorker_mobile() {
+        return worker_mobile;
+    }
+
+    public void setWorker_mobile(String worker_mobile) {
+        this.worker_mobile = worker_mobile;
+    }
+
+    public String getWorker_name() {
+        return worker_name;
+    }
+
+    public void setWorker_name(String worker_name) {
+        this.worker_name = worker_name;
+    }
+
+    public String getParent_biz_order_id() {
+        return parent_biz_order_id;
+    }
+
+    public void setParent_biz_order_id(String parent_biz_order_id) {
+        this.parent_biz_order_id = parent_biz_order_id;
+    }
+
+    public String getService_order_id() {
+        return service_order_id;
+    }
+
+    public void setService_order_id(String service_order_id) {
+        this.service_order_id = service_order_id;
+    }
+
+    public int getWorker_verification_status() {
+        return worker_verification_status;
+    }
+
+    public void setWorker_verification_status(int worker_verification_status) {
+        this.worker_verification_status = worker_verification_status;
+    }
+
+    public String getWorker_verification_time() {
+        return worker_verification_time;
+    }
+
+    public void setWorker_verification_time(String worker_verification_time) {
+        this.worker_verification_time = worker_verification_time;
+    }
+
+    public String getVerification_code() {
+        return verification_code;
+    }
+
+    public void setVerification_code(String verification_code) {
+        this.verification_code = verification_code;
+    }
+
+    public String getMsg_id() {
+        return msg_id;
+    }
+
+    public void setMsg_id(String msg_id) {
+        this.msg_id = msg_id;
+    }
+
+    public String getFinished_images() {
+        return finished_images;
+    }
+
+    public void setFinished_images(String finished_images) {
+        this.finished_images = finished_images;
+    }
+
+    public String getReserved_result() {
+        return reserved_result;
+    }
+
+    public String getAccident_status() {
+        return accident_status;
+    }
+
+    public void setAccident_status(String accident_status) {
+        this.accident_status = accident_status;
+    }
+
+    public String getMarker_description() {
+        return marker_description;
+    }
+
+    public void setMarker_description(String marker_description) {
+        this.marker_description = marker_description;
+    }
+
+    public void setReserved_result(String reserved_result) {
+        this.reserved_result = reserved_result;
+    }
+
+    public String getOrder_sub_id() {
+        return order_sub_id;
+    }
+
+    public void setOrder_sub_id(String order_sub_id) {
+        this.order_sub_id = order_sub_id;
+    }
+
+    public String getLogged_x() {
+        return logged_x;
+    }
+
+    public void setLogged_x(String logged_x) {
+        this.logged_x = logged_x;
+    }
+
+    public String getLogged_y() {
+        return logged_y;
+    }
+
+    public void setLogged_y(String logged_y) {
+        this.logged_y = logged_y;
+    }
+
+    public String getLogged_address() {
+        return logged_address;
+    }
+
+    public void setLogged_address(String logged_address) {
+        this.logged_address = logged_address;
+    }
+
+    public String getS_idcard_a() {
+        return s_idcard_a;
+    }
+
+    public String getPlatform() {
+        return platform;
+    }
+
+    public void setPlatform(String platform) {
+        this.platform = platform;
+    }
+
+    public void setS_idcard_a(String s_idcard_a) {
+//        this.s_idcard_a = Base64Helper.encodeStringToBase64(s_idcard_a);
+        this.s_idcard_a = s_idcard_a;
+    }
+
+    public String getS_idcard_b() {
+        return s_idcard_b;
+    }
+
+    public void setS_idcard_b(String s_idcard_b) {
+//        this.s_idcard_b = Base64Helper.encodeStringToBase64(s_idcard_b);
+        this.s_idcard_b = s_idcard_b;
+    }
+
+    public String getS_idcard_no() {
+        return s_idcard_no;
+    }
+
+    public void setS_idcard_no(String s_idcard_no) {
+        this.s_idcard_no = s_idcard_no;
+    }
+
+    public String getOrder_title_id() {
+        return order_title_id;
+    }
+
+    public void setOrder_title_id(String order_title_id) {
+        this.order_title_id = order_title_id;
+    }
+
+    public String getUser_id() {
+        return user_id;
+    }
+
+    public void setUser_id(String user_id) {
+        this.user_id = user_id;
+    }
+
+    public String getS_address() {
+        return s_address;
+    }
+
+    public void setS_address(String s_address) {
+//        this.s_address = Base64Helper.encodeStringToBase64(s_address);
+        this.s_address = s_address;
+    }
+
+    public String getS_region_tag() {
+        return s_region_tag;
+    }
+
+    public void setS_region_tag(String s_region_tag) {
+//        this.s_region_tag = Base64Helper.encodeStringToBase64(s_region_tag);
+        this.s_region_tag = s_region_tag;
+    }
+
+    public String getS_smss_time() {
+        return s_smss_time;
+    }
+
+    public void setS_smss_time(String s_smss_time) {
+        this.s_smss_time = s_smss_time;
+    }
+
+    public String getHas_rows() {
+        return has_rows;
+    }
+
+    public void setHas_rows(String has_rows) {
+        this.has_rows = has_rows;
+    }
+
+    private String has_rows;
+
+    public String getReserv_memo() {
+        return reserv_memo;
+    }
+
+    public void setReserv_memo(String reserv_memo) {
+        this.reserv_memo = reserv_memo;
+    }
+
+    public String getS_bind_tel() {
+        return s_bind_tel;
+    }
+
+    public void setS_bind_tel(String s_bind_tel) {
+        this.s_bind_tel = s_bind_tel;
+    }
+
+    public String getProc() {
+        return proc;
+    }
+
+    public void setProc(String proc) {
+        this.proc = proc;
+    }
+
+    public String getReserving_time() {
+        return reserving_time;
+    }
+
+    public void setReserving_time(String reserving_time) {
+        this.reserving_time = reserving_time;
+    }
+
+    public String getUser_code() {
+        return user_code;
+    }
+
+    public void setUser_code(String user_code) {
+        this.user_code = user_code;
+    }
+
+    public String getS_user_name() {
+        return s_user_name;
+    }
+
+    public void setS_user_name(String s_user_name) {
+//        this.s_user_name = Base64Helper.encodeStringToBase64(s_user_name);
+        this.s_user_name = s_user_name;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+//        this.password = Base64Helper.encodeStringToBase64(password);
+        this.password = password;
+    }
+
+    public String getLogin_type() {
+        return login_type;
+    }
+
+    public void setLogin_type(String login_type) {
+        this.login_type = login_type;
+    }
+
+    public String getSmss_code() {
+        return smss_code;
+    }
+
+    public void setSmss_code(String smss_code) {
+        this.smss_code = smss_code;
+    }
+
+    public String getS_user_id() {
+        return s_user_id;
+    }
+
+    public void setS_user_id(String s_user_id) {
+        this.s_user_id = s_user_id;
+    }
+
+    public String getWorker_status() {
+        return worker_status;
+    }
+
+    public void setWorker_status(String worker_status) {
+        this.worker_status = worker_status;
+    }
+
+    public String getFlag() {
+        return flag;
+    }
+
+    public void setFlag(String flag) {
+        this.flag = flag;
+    }
+
+    public String getOrder_tag() {
+        return order_tag;
+    }
+
+    public void setOrder_tag(String order_tag) {
+        this.order_tag = order_tag;
+    }
+
+    public String getS_smss_code() {
+        return s_smss_code;
+    }
+
+    public void setS_smss_code(String s_smss_code) {
+        this.s_smss_code = s_smss_code;
+    }
+
+    public String getS_status() {
+        return s_status;
+    }
+
+    public void setS_status(String s_status) {
+        this.s_status = s_status;
+    }
+
+    public String getIdentify_code() {
+        return identify_code;
+    }
+
+    public void setIdentify_code(String identify_code) {
+        this.identify_code = identify_code;
+    }
+
+    public String getBuyer_mobile() {
+        return buyer_mobile;
+    }
+
+    public void setBuyer_mobile(String buyer_mobile) {
+        this.buyer_mobile = buyer_mobile;
+    }
+
+    public int getIs_hurry_fee() {
+        return is_hurry_fee;
+    }
+
+    public void setIs_hurry_fee(int is_hurry_fee) {
+        this.is_hurry_fee = is_hurry_fee;
+    }
+
+    public String getIssee() {
+        return issee;
+    }
+
+    public void setIssee(String issee) {
+        this.issee = issee;
+    }
+
+    public int getPagecount() {
+        return pagecount;
+    }
+
+    public void setPagecount(int pagecount) {
+        this.pagecount = pagecount;
+    }
+
+    public String getStart_time() {
+        return start_time;
+    }
+
+    public void setStart_time(String start_time) {
+        this.start_time = start_time;
+    }
+
+    public String getEnd_time() {
+        return end_time;
+    }
+
+    public void setEnd_time(String end_time) {
+        this.end_time = end_time;
+    }
+
+    public String getCorrection_cause() {
+        return correction_cause;
+    }
+
+    public void setCorrection_cause(String correction_cause) {
+        this.correction_cause = correction_cause;
+    }
+
+    public String getOther_remarks() {
+        return other_remarks;
+    }
+
+    public void setOther_remarks(String other_remarks) {
+        this.other_remarks = other_remarks;
+    }
+}

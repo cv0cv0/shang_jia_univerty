@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/view_add_imgs"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="15dp"
+    android:background="@color/white"
+    android:orientation="vertical"
+    android:visibility="visible">
+
+    <TextView
+        android:id="@+id/tv_action"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/item_margin"
+        android:layout_marginRight="@dimen/item_margin"
+        android:text="服务效果图(至少上传一张)"
+        android:textColor="@color/black"
+        android:textSize="@dimen/text_medium"/>
+
+    <GridView
+        android:id="@+id/grid_add"
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="12dp"
+        android:horizontalSpacing="4dp"
+        android:numColumns="4" />
+</LinearLayout>

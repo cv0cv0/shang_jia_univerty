@@ -1,0 +1,75 @@
+package com.rubu.Bean;
+
+/**
+ * Created by 72732
+ * on 2018/6/2.
+ * 通话记录信息对象
+ */
+
+public class CallInfoBean {
+
+    private String callNumber;
+    private long callStartTimeL;
+    private String callStartTimeChar;
+    private long duration;
+    private boolean isCanReser;
+    private boolean isNeedPushService;
+
+    public String getCallNumber() {
+        return callNumber;
+    }
+
+    public void setCallNumber(String callNumber) {
+        this.callNumber = callNumber;
+    }
+
+    public long getCallStartTimeL() {
+        return callStartTimeL;
+    }
+
+    public void setCallStartTimeL(long callStartTimeL) {
+        this.callStartTimeL = callStartTimeL;
+    }
+
+    public String getCallStartTimeChar() {
+        return callStartTimeChar;
+    }
+
+    public void setCallStartTimeChar(String callStartTimeChar) {
+        this.callStartTimeChar = callStartTimeChar;
+    }
+
+    public long getDuration() {
+        return duration;
+    }
+
+    public void setDuration(long duration) {
+        this.duration = duration;
+    }
+
+    public boolean isCanReser() {
+        return isCanReser;
+    }
+
+    public void setCanReser(boolean canReser) {
+        isCanReser = canReser;
+    }
+
+    public boolean isNeedPushService() {
+        return isNeedPushService;
+    }
+
+    public void setNeedPushService(boolean needPushService) {
+        isNeedPushService = needPushService;
+    }
+
+    @Override
+    public String toString() {
+        return "CallInfoBean的内容为: " + "callNumber = " + callNumber + "\n"
+                + "callStartTimeL = " + callStartTimeL + "\n"
+                + "callStartTimeChar = " + callStartTimeChar + "\n"
+                + "duration = " + duration + "\n"
+                + "isCanReser = " + isCanReser + "\n"
+                + "isNeedPushService = " + isNeedPushService;
+    }
+}

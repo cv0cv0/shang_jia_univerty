@@ -1,0 +1,354 @@
+package com.rubu.ui.act.register;
+
+import android.content.Intent;
+import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.base.BaseActivity;
+import com.rubu.constant.Constant;
+import com.rubu.constant.SharePerenceCode;
+import com.rubu.model.AreaAbilityAppModel;
+import com.rubu.model.AreaAbilityModel;
+import com.rubu.model.ServiceAbilityModel;
+import com.rubu.net.ApiImp;
+import com.rubu.net.Params;
+import com.rubu.net.ReqJson;
+import com.rubu.pop.dialog.MyAlertDialog;
+import com.rubu.ui.act.mine.MineAct;
+import com.rubu.util.AppClassManager;
+import com.rubu.util.LoginUtil;
+import com.rubu.util.SPUtils;
+import com.rubu.util.StringUtil;
+import com.umeng.analytics.MobclickAgent;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
+import butterknife.BindView;
+import butterknife.OnClick;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/9/27
+ * Vwesion 1.0
+ * Dsscription: 注册时候的个人能力的页面（服务能力，覆盖能力）
+ */
+
+public class RegisterPersonalAbility extends BaseActivity {
+    @BindView(R.id.title)
+    TextView mTitle;
+    @BindView(R.id.title_left)
+    TextView mTitleLeft;
+    @BindView(R.id.tv_service_ability)
+    TextView mTVServiceAbility;
+    @BindView(R.id.tv_area_ability)
+    TextView mTVAreaAbility;
+
+    // 0表示从我的过来 ， 1从注册过来 ; 选择的街道数量, 总街道数量
+    private int mFlag = 0, mSelectStreetCounts, mStreetCounts;
+    // 省, 市
+    private String mProvice, mCity;
+    // 转换成需要的数据传到下一个页面
+    private List<AreaAbilityAppModel> mDataList = new ArrayList<>();
+    // 技师是否操作完成
+    private boolean isUserPersonalAbilityStatue = true;
+    private boolean isComplete1 = false, isComplete2 = false;
+
+    @Override
+    protected int getViewId() {
+        return R.layout.activity_register_personal_abilit;
+    }
+
+    @Override
+    protected void initEvent() {
+        mFlag = getIntent().getIntExtra("register", 0);
+        mTitle.setText("承接能力");
+        mTitleLeft.setText(R.string.back);
+        mTitleLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+//        mPostServiceAbility();
+//        mPostAreaAbility();
+        isUserPersonalAbilityStatue = (boolean) SPUtils.get(this, SharePerenceCode.SP_USER_PERSONAL_ABILITY_STATUE, true);
+        if (!isUserPersonalAbilityStatue) {
+            // 版本更新的新弹框;
+            final MyAlertDialog myDialog = new MyAlertDialog.Builder(mContext)
+                    .setContentView(R.layout.pop_update_force)
+                    .setCancelable(false)
+                    .setText(R.id.title, "友情提示")
+                    .setText(R.id.update_reson, "1.请师傅们确认覆盖地址及服务能力所勾选覆盖地址及服务能力会影响师傅的派单，务必两项都点击确定系统才会默认完成，如再次登录APP发现界面还在勾选界面代表师傅没有操作正确\n" +
+                            "2.师傅勾选的地址默认为无需远程全覆盖请师傅们认真勾选至街道地址\n" +
+                            "3.在一周内（从更新日起7天内）没有及时确认或重新勾选服务能力及覆盖地址的师傅将会派不了单")
+                    .setText(R.id.confirm, "确定")
+                    .show();
+            myDialog.setClick(R.id.confirm, new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (isComplete1 && isComplete2) {
+                        myDialog.dismiss();
+                    } else {
+                        showToast("数据加载中,请稍后");
+                    }
+                }
+            });
+        }
+    }
+
+
+    @OnClick({R.id.ll_service_ability, R.id.ll_area_ability})
+    public void onClick(View view) {
+        Intent intent;
+        switch (view.getId()) {
+            //  服务能力
+            case R.id.ll_service_ability:
+                intent = new Intent(mContext, RegisterServiceAbilityAct.class);
+                intent.putExtra("register", mFlag);
+                startActivity(intent);
+                break;
+            //  覆盖能力
+            case R.id.ll_area_ability:
+                intent = new Intent(mContext, RegisterAreaAbilityActivity.class);
+                intent.putExtra("provice", mProvice);
+                intent.putExtra("city", mCity);
+                intent.putExtra("slectStreetCounts", mSelectStreetCounts);
+                intent.putExtra("streetCounts", mStreetCounts);
+                intent.putExtra("mAreaList", (Serializable) mDataList);
+                intent.putExtra("register", mFlag);
+                startActivity(intent);
+                break;
+        }
+    }
+
+    private static final String TAG = "RegisterPersonalAbility";
+    private long mCurrentTime;
+
+    @Override
+    public void onBackPressed() {
+
+        int isUserPersonalAbilityDayStatue = (int) SPUtils.get(this, SharePerenceCode.SP_USER_PERSONAL_ABILITY_DAY_STATUE, 0);
+        Log.d(TAG, "onBackPressed: " + isUserPersonalAbilityStatue);
+        // 已经操作过了相关个人能力,是否超过了7天（如果不等于0代表超过了7天）
+        if (isUserPersonalAbilityStatue || (isUserPersonalAbilityDayStatue == 0)) {
+            AppClassManager.getAppManager().finishActivity(MineAct.class);
+//            if (mFlag == 0) {
+//                Log.d(TAG, "onBackPressed: mFlag == 0");
+//                finish();
+//            }
+//            if (mFlag == 1) {
+//                gotoNewAty(MineAct.class);
+//                Log.d(TAG, "onBackPressed: mFlag == 1");
+//                finish();
+//            }
+            gotoNewAty(MineAct.class);
+            Log.d(TAG, "onBackPressed: mFlag == 1");
+            finish();
+        } else {
+            if ((mCurrentTime == 0) || (System.currentTimeMillis() - mCurrentTime > 1500)) {
+                mCurrentTime = System.currentTimeMillis();
+                showToast("再按一次退出应用");
+                Log.d(TAG, "onBackPressed: " + mCurrentTime);
+            } else {
+                /**
+                 * 友盟保存用户推出进程的数据
+                 */
+                MobclickAgent.onKillProcess(mContext);
+                Log.d(TAG, "onBackPressed: 退出");
+                AppClassManager.getAppManager().AppExit(this);
+                finish();
+            }
+        }
+    }
+
+    /**
+     * 获取服务能力
+     */
+    private void mPostServiceAbility() {
+        if (isUserPersonalAbilityStatue) {
+            showProgressDialog("请稍等...");
+        }
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_GET_REGISTER_SERVICE_ABILITY);
+        reqJson.setUser_id(LoginUtil.getUserId(mContext));
+        mSubscription = ApiImp.get().getRegisterServiceAbility(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<ServiceAbilityModel>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        dissmisProgressDialog();
+                        isComplete1 = true;
+                        Log.i("获取服务能力错误信息", e.toString());
+                        showToast("网络不给力");
+                    }
+
+                    @Override
+                    public void onNext(ServiceAbilityModel model) {
+                        isComplete1 = true;
+                        if (model.getResult().getOut_flag() == 0) {
+                            mTVServiceAbility.setText(model.getRows1().get(0).getOut_num());
+                        } else {
+                            showToast(model.getResult().getOut_nszRtn());
+                        }
+                    }
+                });
+    }
+
+    /**
+     * 获取覆盖能力
+     */
+    private void mPostAreaAbility() {
+        if (isUserPersonalAbilityStatue) {
+            showProgressDialog("请稍等...");
+        }
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_GET_REGISTER_AREA_ABILITY);
+        reqJson.setS_worker_id(LoginUtil.getUserId(mContext));
+        mSubscription = ApiImp.get().getRegisterAreaAbility(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<AreaAbilityModel>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.i("获取服务能力错误信息", e.toString());
+                        showToast("网络不给力");
+                        isComplete2 = true;
+                    }
+
+                    @Override
+                    public void onNext(AreaAbilityModel model) {
+                        dissmisProgressDialog();
+                        isComplete2 = true;
+                        if (model.getRows3() != null) {
+                            mSelectStreetCounts = model.getRows3().size();
+                        }
+                        if (model.getRows1() != null) {
+                            mStreetCounts = model.getRows1().get(0).getAll_num_street();
+                            mProvice = model.getRows1().get(0).getProvince();
+                            mCity = model.getRows1().get(0).getCity();
+                        }
+                        if (model.getResult().getOut_Flag() == 0) {
+                            transformAreaModel(model.getRows(), model.getRows3());
+                        } else {
+                            showToast(model.getResult().getOut_nszRtn());
+                        }
+                    }
+                });
+    }
+
+    /**
+     * 转换成区域能力
+     *
+     * @param rowList
+     * @param rows3list
+     */
+    private void transformAreaModel(List<AreaAbilityModel.RowsBean> rowList, List<AreaAbilityModel.Rows3Bean> rows3list) {
+        mDataList.clear();
+        // 选中的区域的数量
+        int areaCounts = 0;
+        // 区域对象
+        AreaAbilityAppModel areaAbilityModel;
+        // 街道对象
+        AreaAbilityAppModel.StreetBean streetModel;
+        List<AreaAbilityModel.RowsBean> data = new ArrayList<>();
+        // 先把数据转换
+        for (int a = 0; a < rowList.size(); a++) {
+            data.add(rowList.get(a));
+        }
+        for (int i = 0; i < data.size(); i++) {
+            // 创建街道的数据
+            List<AreaAbilityAppModel.StreetBean> childData = new ArrayList<>();
+            // 删除掉父相同的 item
+            for (int j = data.size() - 1; j > i; j--) {
+                if (data.get(i).getRegion_code().equals(data.get(j).getRegion_code())) {
+                    data.remove(data.get(j));
+                }
+            }
+            // 获取目前的父的类目
+            String parentId = data.get(i).getRegion_code();
+            String parentName = data.get(i).getArea();
+            //  获取和这个类目相同的子的集合
+            for (int x = 0; x < rowList.size(); x++) {
+                if (rowList.get(x).getRegion_code().equals(parentId)) {
+                    String childId = rowList.get(x).getStreet_id();
+                    String childName = rowList.get(x).getStreet_name();
+                    streetModel = new AreaAbilityAppModel.StreetBean(childId, childName, isSelectStreet(childId, rows3list));
+                    childData.add(streetModel);
+                }
+            }
+            int streetCount = selectStreetCount(childData);
+
+            if (!StringUtil.isEmpty(parentName)) {
+                if (streetCount > 0) {
+                    areaCounts = areaCounts + 1;
+                }
+                areaAbilityModel = new AreaAbilityAppModel(parentName, parentId, childData.size(), streetCount, streetCount > 0 ? true : false, childData);
+                mDataList.add(areaAbilityModel);
+            }
+        }
+        mTVAreaAbility.setText(areaCounts + "个区 " + mSelectStreetCounts + "个街道");
+    }
+
+    /**
+     * 街道是否被选
+     *
+     * @return
+     */
+    private boolean isSelectStreet(String childId, List<AreaAbilityModel.Rows3Bean> rows3list) {
+        boolean isSelect = false;
+        for (AreaAbilityModel.Rows3Bean bean : rows3list) {
+            if (childId.equals(bean.getStreet_id_checked())) {
+                isSelect = true;
+            }
+        }
+        return isSelect;
+    }
+
+    /**
+     * 区域街道选择的数量
+     *
+     * @param childData
+     * @return
+     */
+    private int selectStreetCount(List<AreaAbilityAppModel.StreetBean> childData) {
+        int count = 0;
+        for (AreaAbilityAppModel.StreetBean bean : childData) {
+            if (bean.isSelect()) {
+                count = count + 1;
+            }
+        }
+        return count;
+    }
+
+    private long currentTime;
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (System.currentTimeMillis() - currentTime < 1000) {
+            currentTime = System.currentTimeMillis();
+        } else {
+            mPostServiceAbility();
+            mPostAreaAbility();
+            mDataList.clear();
+        }
+    }
+}

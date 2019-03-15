@@ -1,0 +1,400 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.rubu">
+
+    <!-- Required -->
+    <permission
+        android:name="com.rubu.permission.JPUSH_MESSAGE"
+        android:protectionLevel="signature" />
+
+    <!-- Required -->
+    <uses-permission android:name="com.rubu.permission.JPUSH_MESSAGE" />
+    <uses-permission android:name="android.permission.RECEIVE_USER_PRESENT" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.READ_LOGS" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.READ_CALL_LOG" />
+    <uses-permission android:name="android.permission.WRITE_CALL_LOG" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.WRITE_CONTACTS" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
+    <application
+        android:name=".application.SJApplication"
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme"
+        tools:replace="android:allowBackup">
+
+        <!-- 友盟的key -->
+        <meta-data
+            android:name="UMENG_APPKEY"
+            android:value="590045abcae7e7115d001899" />
+        <meta-data
+            android:name="UMENG_CHANNEL"
+            android:value="shangjia" />
+
+        <!--<activity android:name=".ui.act.ModifyPortAct">-->
+        <!--<intent-filter>-->
+        <!--<action android:name="android.intent.action.MAIN" />-->
+        <!--<category android:name="android.intent.category.LAUNCHER" />-->
+        <!--</intent-filter>-->
+        <!--</activity>-->
+        <!--<activity-->
+        <!--android:name=".MainActivity"-->
+        <!--android:launchMode="singleTask"-->
+        <!--android:windowSoftInputMode="adjustPan|stateHidden" />-->
+
+        <activity
+            android:name=".ui.act.login.LoginAct"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity android:name=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".ui.act.HomeAct"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name=".ui.act.WorkOrderAct"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name=".ui.act.mine.MineAct"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name=".ui.act.mine.MineBaseInfotAct"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name=".ui.act.mine.MineModifyAdressAct"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name=".ui.act.UserInfoAct"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name=".ui.act.ActionPickAct"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name=".ui.act.AccountingOrderAct"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name=".ui.act.AbnormalOrderAct"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name=".ui.act.RemarksAct"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name=".ui.act.RemarksEditAct"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name=".ui.act.OrderFailAct"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name=".ui.act.ActionResultAct"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name=".ui.act.QuestionEditAct"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name=".ui.act.QuestionTitleAct"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name=".ui.act.OrderQuestionAct"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name=".ui.act.QuestionChildAct"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name=".ui.act.mine.QuestionOrderDetialAct"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name=".ui.act.SearchAct"
+            android:windowSoftInputMode="adjustPan|stateAlwaysVisible" />
+        <activity
+            android:name=".ui.act.CancelYuYueAct"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name=".ui.act.ChangeServiceGoodsAct"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name=".ui.act.mine.MsgAct"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name=".ui.act.MsgDetailAct"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name=".ui.act.ReYuyueAct"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name=".ui.act.FullScreenImgAct"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
+        <activity
+            android:name=".ui.act.TMWebviewAct"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name=".ui.act.ModifyPasswordAct"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name=".ui.act.SetBankCodeAvt"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name=".ui.act.CalculateRouteActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.act.RouteNaviActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.act.StrategyChooseActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.act.WokerPhotoHintAct"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.act.ExamAct"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name=".ui.act.mine.AlertUnusualAct"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name=".ui.act.mine.AlertReminderAct"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name=".ui.act.mine.ReminderOrderDetialAct"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name=".ui.act.mine.AlertPunishAct"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name=".ui.act.FullScreenImgToolBarAct"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <!-- 注册-协议 -->
+        <activity
+            android:name=".ui.act.XYAct"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <!-- 注册-手机短信验证 -->
+        <activity
+            android:name=".ui.act.register.RegisterAct"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <!-- 注册-设置密码 -->
+        <activity
+            android:name=".ui.act.register.RegisterSetPasswordAct"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <!-- 注册-服务类型 -->
+        <activity
+            android:name=".ui.act.register.RegisterTianMaoServiceTypeAct"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <!-- 注册-基本信息 -->
+        <activity
+            android:name=".ui.act.register.RegisterBaseInfotAct"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <!-- 注册-基本身份证照片信息 -->
+        <activity
+            android:name=".ui.act.register.RegisterBasePhotoInfoAct"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <!-- 注册-个人能力信息 -->
+        <activity
+            android:name=".ui.act.register.RegisterPersonalAbility"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <!-- 注册-服务能力信息 -->
+        <activity
+            android:name=".ui.act.register.RegisterServiceAbilityAct"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <!-- 注册-服务能力子类信息 -->
+        <activity
+            android:name=".ui.act.register.RegisterServiceChildAbilityAct"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <!-- 注册-覆盖能力信息 -->
+        <activity
+            android:name=".ui.act.register.RegisterAreaAbilityActivity"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <!-- 我的-我的清单 -->
+        <activity
+            android:name=".ui.act.mine.MineDetialAccountAct"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name=".ui.act.mine.MineDetialFinishOrderAct"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <!-- 我的-处罚工单详情 -->
+        <activity
+            android:name=".ui.act.mine.PunishOrderDetialAct"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name=".ui.act.OrderFailTimeActivity"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name=".ui.act.MsgDetialWebViewActivity"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name=".ui.act.TianMaoMallActivity"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <!-- 审核记录 -->
+        <activity
+            android:name=".ui.act.mine.CheckOrderAct"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <!-- 审核记录条件 -->
+        <activity
+            android:name=".ui.act.mine.CheckOrderSizerAct"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name=".ui.act.QuestionCancelAct"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <!-- 维修单商品图片 -->
+        <activity android:name=".ui.act.GoodsPhotoActivity"></activity>
+
+        <service android:name="com.amap.api.location.APSService" />
+        <service android:name="com.rubu.service.TelService" />
+
+        <meta-data
+            android:name="com.amap.api.v2.apikey"
+            android:value="03ae85ed25e9687832c1f47351164f90" />
+
+        <service
+            android:name="cn.jpush.android.service.PushService"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="cn.jpush.android.intent.REGISTER" />
+                <action android:name="cn.jpush.android.intent.REPORT" />
+                <action android:name="cn.jpush.android.intent.PushService" />
+                <action android:name="cn.jpush.android.intent.PUSH_TIME" />
+            </intent-filter>
+        </service>
+
+        <!-- since 3.0.9 Required SDK 核心功能 -->
+        <provider
+            android:name="cn.jpush.android.service.DataProvider"
+            android:authorities="com.rubu.DataProvider"
+            android:exported="true" />
+
+        <!-- since 1.8.0 option 可选项。用于同一设备中不同应用的JPush服务相互拉起的功能。 -->
+        <!-- 若不启用该功能可删除该组件，将不拉起其他应用也不能被其他应用拉起 -->
+        <service
+            android:name="cn.jpush.android.service.DaemonService"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="cn.jpush.android.intent.DaemonService" />
+
+                <category android:name="com.rubu" />
+            </intent-filter>
+        </service>
+
+        <!-- Required SDK核心功能 -->
+        <receiver
+            android:name="cn.jpush.android.service.PushReceiver"
+            android:enabled="true">
+            <intent-filter android:priority="1000">
+                <action android:name="cn.jpush.android.intent.NOTIFICATION_RECEIVED_PROXY" />
+
+                <category android:name="com.rubu" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.USER_PRESENT" />
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+            <!-- Optional -->
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_ADDED" />
+                <action android:name="android.intent.action.PACKAGE_REMOVED" />
+
+                <data android:scheme="package" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Required SDK核心功能 -->
+        <activity
+            android:name="cn.jpush.android.ui.PushActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:exported="false"
+            android:theme="@android:style/Theme.NoTitleBar">
+            <intent-filter>
+                <action android:name="cn.jpush.android.ui.PushActivity" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="com.rubu" />
+            </intent-filter>
+        </activity>
+        <!-- SDK核心功能 -->
+        <activity
+            android:name="cn.jpush.android.ui.PopWinActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:exported="false"
+            android:theme="@android:style/Theme.NoTitleBar" />
+        <!-- Required SDK核心功能 -->
+        <service
+            android:name="cn.jpush.android.service.DownloadService"
+            android:enabled="true"
+            android:exported="false" />
+
+        <!-- Required SDK核心功能 -->
+        <receiver android:name="cn.jpush.android.service.AlarmReceiver" />
+
+        <!-- User defined. 用户自定义的广播接收器 -->
+        <receiver
+            android:name=".push.PushReceive"
+            android:enabled="true">
+            <intent-filter>
+
+                <!-- Required 用户注册SDK的intent -->
+                <action android:name="cn.jpush.android.intent.REGISTRATION" />
+                <!-- Required 用户接收SDK消息的intent -->
+                <action android:name="cn.jpush.android.intent.MESSAGE_RECEIVED" />
+                <!-- Required 用户接收SDK通知栏信息的intent -->
+                <action android:name="cn.jpush.android.intent.NOTIFICATION_RECEIVED" />
+                <!-- Required 用户打开自定义通知栏的intent -->
+                <action android:name="cn.jpush.android.intent.NOTIFICATION_OPENED" />
+                <!-- 接收网络变化 连接/断开 since 1.6.3 -->
+                <action android:name="cn.jpush.android.intent.CONNECTION" />
+
+                <category android:name="com.rubu" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Required. For publish channel feature -->
+        <!-- JPUSH_CHANNEL 是为了方便开发者统计APK分发渠道。 -->
+        <!-- 例如: -->
+        <!-- 发到 Google Play 的APK可以设置为 google-play; -->
+        <!-- 发到其他市场的 APK 可以设置为 xxx-market。 -->
+        <!-- 目前这个渠道统计功能的报表还未开放。 -->
+        <meta-data
+            android:name="JPUSH_CHANNEL"
+            android:value="developer-default" />
+        <!-- Required. AppKey copied from Portal -->
+        <meta-data
+            android:name="JPUSH_APPKEY"
+            android:value="4bb54da76d33d4e45562a65c" />
+
+        <activity
+            android:name="flutter.UniversityActivity"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|layoutDirection|fontScale|screenLayout|density"
+            android:hardwareAccelerated="true"
+            android:launchMode="singleTop"
+            android:windowSoftInputMode="adjustResize" >
+
+            <meta-data
+                android:name="io.flutter.app.android.SplashScreenUntilFirstFrame"
+                android:value="true" />
+        </activity>
+    </application>
+
+</manifest>

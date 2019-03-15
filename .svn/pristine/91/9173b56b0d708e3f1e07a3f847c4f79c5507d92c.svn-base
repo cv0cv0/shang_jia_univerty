@@ -1,0 +1,129 @@
+package com.rubu.adapter;
+
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.model.QuestionListModel;
+import com.rubu.util.StringUtil;
+
+import java.util.ArrayList;
+import java.util.List;
+
+
+/**
+ * Created by liuhaizhu on 2017/3/2.
+ */
+
+public class QuestionTitleAdapter extends BaseAdapter {
+    private Context mContext;
+
+    // 第一层问题选择的列表数据
+    private List<QuestionListModel.RowsBean> mTitleList;
+    // 第二层问题想请数据的列表
+    private List<QuestionListModel.Rows1Bean> mQuestionList;
+    // 传递到子类的列表
+    private List<QuestionListModel.Rows1Bean> mChildList;
+    // 获取问题选择的回调
+    private OnParentListenner mParentListenner;
+
+    public QuestionTitleAdapter(Context context, QuestionListModel data) {
+        this.mContext = context;
+        this.mTitleList = data.getRows();
+        this.mQuestionList = data.getRows1();
+        this.mChildList = new ArrayList<>();
+    }
+
+    public void refrsh(QuestionListModel data) {
+        this.mTitleList = data.getRows();
+        this.mQuestionList = data.getRows1();
+        notifyDataSetChanged();
+    }
+
+    @Override
+    public int getCount() {
+        return this.mTitleList == null ? 0 : this.mTitleList.size();
+    }
+
+    @Override
+    public Object getItem(int position) {
+        return this.mTitleList.get(position);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public View getView(final int position, View convertView, ViewGroup parent) {
+        final ViewHolder holder;
+        if (convertView == null) {
+            LayoutInflater mInflater = LayoutInflater.from(parent.getContext());
+            convertView = mInflater.inflate(R.layout.item_question_time, null);
+            holder = new ViewHolder();
+            holder.questionDescirbe = (TextView) convertView.findViewById(R.id.question_descirbe);
+            holder.question = convertView.findViewById(R.id.question);
+            convertView.setTag(holder);
+        } else {
+            holder = (ViewHolder) convertView.getTag();
+        }
+        // 设置内容
+        if (!StringUtil.isEmpty(this.mTitleList.get(position).getProblem_category())) {
+            holder.questionDescirbe.setText(this.mTitleList.get(position).getProblem_category());
+        } else {
+            holder.questionDescirbe.setText("其他问题");
+        }
+        final int parentId = this.mTitleList.get(position).getS_problem_category_id();
+        // 问题分类的点击事件
+        holder.question.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mParentListenner != null) {
+                    mParentListenner.setChildList(getChildList(parentId, mQuestionList));
+                }
+            }
+        });
+        return convertView;
+    }
+
+    class ViewHolder {
+        // 问题描述
+        TextView questionDescirbe;
+        // 问题布局
+        View question;
+    }
+
+    /**
+     * 获取子类的列表内容
+     *
+     * @param parentId
+     * @param list
+     * @return
+     */
+    private List<QuestionListModel.Rows1Bean> getChildList(int parentId, List<QuestionListModel.Rows1Bean> list) {
+        this.mChildList.clear();
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).getS_problem_category_id() == parentId) {
+                this.mChildList.add(list.get(i));
+            }
+        }
+        return this.mChildList;
+    }
+
+    // 问题Title 点击事件
+    public interface OnParentListenner {
+        void setChildList(List<QuestionListModel.Rows1Bean> childList);
+    }
+
+    public void setOnParentClickListenner(OnParentListenner listenner) {
+        if (listenner != null) {
+            this.mParentListenner = listenner;
+        }
+    }
+
+}

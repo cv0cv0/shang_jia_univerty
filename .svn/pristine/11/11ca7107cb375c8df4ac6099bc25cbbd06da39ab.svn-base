@@ -1,0 +1,442 @@
+package com.rubu.model;
+
+import java.io.Serializable;
+import java.util.List;
+
+/**
+ * Created by liuhaizhu on 2017/3/9.
+ */
+
+public class OrderList {
+
+
+    /**
+     * result : {"out_nszRtn":"查询成功！","out_Flag":0}
+     * rows1 : [{"workcard_id":"18782820","order_sub_id":10,"service_count":1,"order_title_id":10,"auction_sku_properties":"普通坐便器"},{"workcard_id":"18751973","order_sub_id":11,"service_count":1,"order_title_id":11,"auction_sku_properties":"普通坐便器"},{"workcard_id":"18746957","order_sub_id":12,"service_count":1,"order_title_id":12,"auction_sku_properties":"普通坐便器"},{"workcard_id":"18779836","order_sub_id":13,"service_count":1,"order_title_id":13,"auction_sku_properties":"浴室柜组合"},{"workcard_id":"18719925","order_sub_id":14,"service_count":1,"order_title_id":14,"auction_sku_properties":"普通坐便器"},{"workcard_id":"18746955","order_sub_id":15,"service_count":1,"order_title_id":15,"auction_sku_properties":"面盆龙头"},{"workcard_id":"18767861","order_sub_id":16,"service_count":1,"order_title_id":16,"auction_sku_properties":"普通坐便器"},{"workcard_id":"18767860","order_sub_id":17,"service_count":1,"order_title_id":17,"auction_sku_properties":"普通坐便器"},{"workcard_id":"18760910","order_sub_id":18,"service_count":1,"order_title_id":18,"auction_sku_properties":"普通坐便器"},{"workcard_id":"18746954","order_sub_id":19,"service_count":1,"order_title_id":19,"auction_sku_properties":"普通坐便器"},{"workcard_id":"18760908","order_sub_id":20,"service_count":1,"order_title_id":20,"auction_sku_properties":"立柱盆"}]
+     * rows : [{"this_opt":"强制派单","next_time":1489023127250,"next_opt":"技师接单","tag":"重庆,南岸","this_status":44,"near_time":-5,"next_status":55,"this_time":1489023127250,"reserv_times":null,"parent_wk_order_type":"安装单","worker_status":44,"order_title_id":10},{"this_opt":"强制派单","next_time":1489023133063,"next_opt":"技师接单","tag":"山西,太原,杏花岭,敦化坊街道","this_status":44,"near_time":-5,"next_status":55,"this_time":1489023133063,"reserv_times":null,"parent_wk_order_type":"安装单","worker_status":44,"order_title_id":11},{"this_opt":"强制派单","next_time":1489023138730,"next_opt":"技师接单","tag":"山西,太原,尖草坪,汇丰街道","this_status":44,"near_time":-5,"next_status":55,"this_time":1489023138730,"reserv_times":null,"parent_wk_order_type":"安装单","worker_status":44,"order_title_id":12},{"this_opt":"强制派单","next_time":1489023146383,"next_opt":"技师接单","tag":"福建,龙岩,新罗,曹溪街道","this_status":44,"near_time":-5,"next_status":55,"this_time":1489023146383,"reserv_times":null,"parent_wk_order_type":"安装单","worker_status":44,"order_title_id":13},{"this_opt":"强制派单","next_time":1489023153003,"next_opt":"技师接单","tag":"江苏,镇江,京口","this_status":44,"near_time":-5,"next_status":55,"this_time":1489023153003,"reserv_times":null,"parent_wk_order_type":"安装单","worker_status":44,"order_title_id":14},{"this_opt":"强制派单","next_time":1489023161547,"next_opt":"技师接单","tag":"山西,太原,迎泽,迎泽街道","this_status":44,"near_time":-5,"next_status":55,"this_time":1489023161547,"reserv_times":null,"parent_wk_order_type":"安装单","worker_status":44,"order_title_id":15},{"this_opt":"强制派单","next_time":1489023167667,"next_opt":"技师接单","tag":"山西,晋城,城区,矿区街道","this_status":44,"near_time":-5,"next_status":55,"this_time":1489023167667,"reserv_times":null,"parent_wk_order_type":"安装单","worker_status":44,"order_title_id":16},{"this_opt":"强制派单","next_time":1489023173580,"next_opt":"技师接单","tag":"河南,郑州,金水,南阳路街道","this_status":44,"near_time":-5,"next_status":55,"this_time":1489023173580,"reserv_times":null,"parent_wk_order_type":"安装单","worker_status":44,"order_title_id":17}]
+     */
+
+    private ResultBean result;
+    private List<Rows1Bean> rows1;
+    private List<RowsBean> rows;
+
+    public ResultBean getResult() {
+        return result;
+    }
+
+    public void setResult(ResultBean result) {
+        this.result = result;
+    }
+
+    public List<Rows1Bean> getRows1() {
+        return rows1;
+    }
+
+    public void setRows1(List<Rows1Bean> rows1) {
+        this.rows1 = rows1;
+    }
+
+    public List<RowsBean> getRows() {
+        return rows;
+    }
+
+    public void setRows(List<RowsBean> rows) {
+        this.rows = rows;
+    }
+
+    public static class ResultBean {
+        /**
+         * out_nszRtn : 查询成功！
+         * out_Flag : 0
+         */
+
+        private String out_nszRtn;
+        private int out_Flag;
+
+        public String getOut_nszRtn() {
+            return out_nszRtn;
+        }
+
+        public void setOut_nszRtn(String out_nszRtn) {
+            this.out_nszRtn = out_nszRtn;
+        }
+
+        public int getOut_Flag() {
+            return out_Flag;
+        }
+
+        public void setOut_Flag(int out_Flag) {
+            this.out_Flag = out_Flag;
+        }
+    }
+
+    public static class Rows1Bean {
+        /**
+         * workcard_id : 18782820
+         * order_sub_id : 10
+         * service_count : 1
+         * order_title_id : 10
+         * auction_sku_properties : 普通坐便器
+         */
+
+        private String workcard_id;
+        private int order_sub_id;
+        private int service_count;
+        private int order_title_id;
+        private String auction_sku_properties;
+        private String order_pending_count;    // 状态的电子的数量
+
+        public String getOrder_pending_count() {
+            return order_pending_count;
+        }
+
+        public void setOrder_pending_count(String order_pending_count) {
+            this.order_pending_count = order_pending_count;
+        }
+
+        public String getWorkcard_id() {
+            return workcard_id;
+        }
+
+        public void setWorkcard_id(String workcard_id) {
+            this.workcard_id = workcard_id;
+        }
+
+        public int getOrder_sub_id() {
+            return order_sub_id;
+        }
+
+        public void setOrder_sub_id(int order_sub_id) {
+            this.order_sub_id = order_sub_id;
+        }
+
+        public int getService_count() {
+            return service_count;
+        }
+
+        public void setService_count(int service_count) {
+            this.service_count = service_count;
+        }
+
+        public int getOrder_title_id() {
+            return order_title_id;
+        }
+
+        public void setOrder_title_id(int order_title_id) {
+            this.order_title_id = order_title_id;
+        }
+
+        public String getAuction_sku_properties() {
+            return auction_sku_properties;
+        }
+
+        public void setAuction_sku_properties(String auction_sku_properties) {
+            this.auction_sku_properties = auction_sku_properties;
+        }
+    }
+
+    public static class RowsBean implements Serializable {
+        public int getSystem_status() {
+            return system_status;
+        }
+
+        public void setSystem_status(int system_status) {
+            this.system_status = system_status;
+        }
+
+        /**
+         * this_opt : 强制派单
+         * next_time : 1489023127250
+         * next_opt : 技师接单
+         * tag : 重庆,南岸
+         * this_status : 44
+         * near_time : -5
+         * next_status : 55
+         * this_time : 1489023127250
+         * reserv_times : null
+         * parent_wk_order_type : 安装单
+         * worker_status : 44
+         * order_title_id : 10
+         * receive_status :0 0没货  其他有货
+         * ReminderStatus :0不显示，1显示
+         * real_address; 修正后的地址
+         */
+        private int system_status;
+        private String this_opt;
+        private long countDown;
+        private String next_opt;
+        private String tag;
+        private int this_status;
+        private int near_time;
+        private int next_status;
+        private String this_time;
+        private Object reserv_times;
+        private String parent_wk_order_type;  //  主工单类型
+        private int worker_status;
+        private long order_title_id;
+        private String next_time;
+        private String next_time_end;
+        private String buyer_name;
+        private String buyer_mobile;
+        private String buyer_address;
+        private int receive_status;
+        private String real_address; // 修正后的地址
+        private String waiter_else_status; // 问题工单处理状态
+        private String title_else_code; // 客服工单号
+        private String update_date; // 时间
+        private String parent_wk_order_id; // 主工单号
+        private int title_else_id; // 客服工单ID
+        private int is_address_correct; // 是否冻结  1冻结  其他未冻结
+        private int cancel; // 预约取消,服务调整 待审状态,  0(正常)   1(待审)
+        private int is_activity; // 是否急速安装  0(不急速安装)  1(急速安装)
+        private String finished_flag; //待完工,待审. “N” 待完工  "Y" 完工操作过,待审核
+        private String received_date; //到货时间点
+
+        public int getCancel() {
+            return cancel;
+        }
+
+        public void setCancel(int cancel) {
+            this.cancel = cancel;
+        }
+
+        public String getWaiter_else_status() {
+            return waiter_else_status;
+        }
+
+        public void setWaiter_else_status(String waiter_else_status) {
+            this.waiter_else_status = waiter_else_status;
+        }
+
+        public int getTitle_else_id() {
+            return title_else_id;
+        }
+
+        public void setTitle_else_id(int title_else_id) {
+            this.title_else_id = title_else_id;
+        }
+
+        public String getTitle_else_code() {
+            return title_else_code;
+        }
+
+        public void setTitle_else_code(String title_else_code) {
+            this.title_else_code = title_else_code;
+        }
+
+        public String getUpdate_date() {
+            return update_date;
+        }
+
+        public void setUpdate_date(String update_date) {
+            this.update_date = update_date;
+        }
+
+        public String getParent_wk_order_id() {
+            return parent_wk_order_id;
+        }
+
+        public void setParent_wk_order_id(String parent_wk_order_id) {
+            this.parent_wk_order_id = parent_wk_order_id;
+        }
+
+        // TODO: 2017/6/7 催单状态参数
+        private int ReminderStatus;
+
+        public int getReminderStatus() {
+            return ReminderStatus;
+        }
+
+        public void setReminderStatus(int ReminderStatus) {
+            this.ReminderStatus = ReminderStatus;
+        }
+
+        public String getBuyer_name() {
+            return buyer_name;
+        }
+
+        public void setBuyer_name(String buyer_name) {
+            this.buyer_name = buyer_name;
+        }
+
+        public String getBuyer_mobile() {
+            return buyer_mobile;
+        }
+
+        public void setBuyer_mobile(String buyer_mobile) {
+            this.buyer_mobile = buyer_mobile;
+        }
+
+        public String getBuyer_address() {
+            return buyer_address;
+        }
+
+        public void setBuyer_address(String buyer_address) {
+            this.buyer_address = buyer_address;
+        }
+
+        public String getNext_time_end() {
+            return next_time_end;
+        }
+
+        public void setNext_time_end(String next_time_end) {
+            this.next_time_end = next_time_end;
+        }
+
+        public String getNext_time() {
+            return next_time;
+        }
+
+        public void setNext_time(String next_time) {
+            this.next_time = next_time;
+        }
+
+        public long getCountDown() {
+            return countDown;
+        }
+
+        public void setCountDown(long countDown) {
+            this.countDown = countDown;
+        }
+
+        public String getThis_opt() {
+            return this_opt;
+        }
+
+        public void setThis_opt(String this_opt) {
+            this.this_opt = this_opt;
+        }
+
+
+        public String getNext_opt() {
+            return next_opt;
+        }
+
+        public void setNext_opt(String next_opt) {
+            this.next_opt = next_opt;
+        }
+
+        public String getTag() {
+            return tag;
+        }
+
+        public void setTag(String tag) {
+            this.tag = tag;
+        }
+
+        public int getThis_status() {
+            return this_status;
+        }
+
+        public void setThis_status(int this_status) {
+            this.this_status = this_status;
+        }
+
+        public int getNear_time() {
+            return near_time;
+        }
+
+        public void setNear_time(int near_time) {
+            this.near_time = near_time;
+        }
+
+        public int getNext_status() {
+            return next_status;
+        }
+
+        public void setNext_status(int next_status) {
+            this.next_status = next_status;
+        }
+
+        public String getThis_time() {
+            return this_time;
+        }
+
+        public void setThis_time(String this_time) {
+            this.this_time = this_time;
+        }
+
+        public Object getReserv_times() {
+            return reserv_times;
+        }
+
+        public void setReserv_times(Object reserv_times) {
+            this.reserv_times = reserv_times;
+        }
+
+        public String getParent_wk_order_type() {
+            return parent_wk_order_type;
+        }
+
+        public void setParent_wk_order_type(String parent_wk_order_type) {
+            this.parent_wk_order_type = parent_wk_order_type;
+        }
+
+        public int getWorker_status() {
+            return worker_status;
+        }
+
+        public void setWorker_status(int worker_status) {
+            this.worker_status = worker_status;
+        }
+
+        public long getOrder_title_id() {
+            return order_title_id;
+        }
+
+        public void setOrder_title_id(long order_title_id) {
+            this.order_title_id = order_title_id;
+        }
+
+        //是否有货
+        public int getReceive_status() {
+            return receive_status;
+        }
+
+        public void setReceive_status(int receive_status) {
+            this.receive_status = receive_status;
+        }
+
+        //修正后的地址
+        public String getReal_address() {
+            return real_address;
+        }
+
+        public void setReal_address(String real_address) {
+            this.real_address = real_address;
+        }
+
+        public int getIs_address_correct() {
+            return is_address_correct;
+        }
+
+        public void setIs_address_correct(int is_address_correct) {
+            this.is_address_correct = is_address_correct;
+        }
+
+        public int getIs_activity() {
+            return is_activity;
+        }
+
+        public void setIs_activity(int is_activity) {
+            this.is_activity = is_activity;
+        }
+
+        public String getFinished_flag() {
+            return finished_flag;
+        }
+
+        public void setFinished_flag(String finished_flag) {
+            this.finished_flag = finished_flag;
+        }
+
+        public String getReceived_date() {
+            return received_date;
+        }
+
+        public void setReceived_date(String received_date) {
+            this.received_date = received_date;
+        }
+
+    }
+}

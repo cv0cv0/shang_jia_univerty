@@ -1,0 +1,278 @@
+package com.rubu.ui.fragment;
+
+import android.util.Log;
+import android.view.View;
+import android.widget.LinearLayout;
+
+import com.github.jdsjlzx.interfaces.OnLRecyclerViewListener;
+import com.github.jdsjlzx.recyclerview.LRecyclerView;
+import com.rubu.R;
+import com.rubu.adapter.HomeListAdpater;
+import com.rubu.base.BaseFragment;
+import com.rubu.constant.Constant;
+import com.rubu.event.EventCode;
+import com.rubu.event.EventMessage;
+import com.rubu.model.OrderList;
+import com.rubu.net.ApiImp;
+import com.rubu.net.Params;
+import com.rubu.net.ReqJson;
+import com.rubu.ui.act.SearchAct;
+import com.rubu.util.LoginUtil;
+
+import org.greenrobot.eventbus.EventBus;
+
+import butterknife.BindView;
+import butterknife.OnClick;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
+/**
+ * Created by liuhaizhu on 2017/3/1.
+ */
+
+public class FmTodayOrTom extends BaseFragment implements OnLRecyclerViewListener {
+    @BindView(R.id.recycle_view)
+    LRecyclerView mRecycleView;
+    @BindView(R.id.activity_main)
+    LinearLayout mActivityMain;
+    private HomeListAdpater mHomeListAdpater;
+    //     flag      5 全部工单
+    //               3 全部异常（新的异常工单）4待取证（新的异常工单）8 待处理（新的异常工单） 9 已处理（新的异常工单）
+    //               6 结算中工单（已作废） 7 已结算工单（已作废）
+    //     status    44 待接单 55 待预约 56 待签到 57 待完工
+    //    formWhere 用于EventBuf传递不同的消息状态  FROM_GONG = 1;//工单管理  FROM_YI = 2;//异常工单消息状态 FROM_ACCOUNT = 3;//结算消息状态
+    private int flag, status, formWhere;
+
+    @OnClick(R.id.view_search)
+    void onClick() {
+        startActivity(SearchAct.class);
+    }
+
+    @Override
+    protected int getViewId() {
+        return R.layout.frag_list_with_search;
+    }
+
+    @Override
+    protected void init() {
+        flag = getArguments().getInt("flag");
+        status = getArguments().getInt("status");
+        formWhere = getArguments().getInt("formWhere");
+        initViewController(mRecycleView);
+        mHomeListAdpater = new HomeListAdpater(mContext);
+        // 异常列表设置
+        if (flag == 3 || flag == 4 || flag == 8 || flag == 9) {
+            mHomeListAdpater.setFlag(flag);
+        }
+        // 待结算（已作废）
+        if (status == 68) {
+            mHomeListAdpater.setFlag(5);
+        }
+        // 已结算(已作废)
+        if (status == 69) {
+            mHomeListAdpater.setFlag(6);
+        }
+        // 今日预约工单
+        if (flag == 1 && status == 0) {
+            mHomeListAdpater.setFlag(1);
+        }
+        // 今日上门工单
+        if (flag == 2 && status == 0) {
+            mHomeListAdpater.setFlag(2);
+        }
+        // 明日预约工单
+        if (flag == 10 && status == 0) {
+            mHomeListAdpater.setFlag(10);
+        }
+        // 明日上门工单
+        if (flag == 11 && status == 0) {
+            mHomeListAdpater.setFlag(11);
+        }
+        mRecycleView.setLinearLayout();
+        mRecycleView.setOnRefreshListener(this);
+        mRecycleView.setAdapter(mHomeListAdpater);
+        showLoading(true, "加载中");
+        getOrderList();
+    }
+
+    /**
+     * 获取工单列表数据
+     * 今日工单,明日工单  flag = 1，2   statue = 0,0
+     * 全部,待结单,待预约,待签到,待完工   flag = 0,0,0,0  statue = 44,55,56,57
+     * 全部异常,待取证,待处理,已处理      flag = 3,4,8,9  statue = 0,0,0,0
+     */
+    private void getOrderList() {
+        ReqJson reqJson = new ReqJson();
+        // 获取异常工单列表状态
+        if (flag == 3 || flag == 4 || flag == 8 || flag == 9) {
+            reqJson.setProc(Constant.PROC_APP_ORDER_LOAD_NEW);
+        } else {
+            // 获取普通工单列表状态
+            reqJson.setProc(Constant.ORDER_LOAD_PROC);
+        }
+        reqJson.setHas_rows("yes");
+        reqJson.setFlag(String.valueOf(flag));//1 今日工单  2 明日工单  3 异常处理中 4 异常已处理 5 全+B68单+A68:E69
+        reqJson.setWorker_status(String.valueOf(status));
+        reqJson.setUser_id(LoginUtil.getUserId(mContext));
+        reqJson.setOrder_tag("");
+        mSubscription = ApiImp.get().getOrderList(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<OrderList>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.i("工单列表错误信息", e.toString());
+                        dissmissDialog();
+                        mRecycleView.refreshComplete();
+                        showToast("网络不给力");
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onNext(OrderList model) {
+                        dissmissDialog();
+                        showLoading(false, "");
+                        mRecycleView.refreshComplete();
+                        if (flag == 1 && status == 0) {
+                            //今日工单
+                            if (model != null) {
+                                mHomeListAdpater.addItems(model.getRows(), model.getRows1());
+                            }
+                            getOrderTomorrow();
+                            return;
+                        }
+//                        // 签收预警工单
+//                        if (flag == 10 && status == 0) {
+//                            //今日工单
+//                            if (model != null) {
+//                                mHomeListAdpater.addItems(model.getRows(), model.getRows1());
+//                            }
+//                            return;
+//                        }
+                        if (model != null) {
+                            if (model.getRows() != null && model.getRows().size() != 0) {
+                                showEmpty(false, "暂无相关工单(点击刷新)", mOnClickListener);
+                                mHomeListAdpater.addItems(model.getRows(), model.getRows1());
+                                notifNumChange(model.getRows().size());
+                            } else {
+                                mHomeListAdpater.addItems(null, null);
+                                showEmpty(true, "暂无相关工单(点击刷新)", mOnClickListener);
+                                notifNumChange(0);
+                            }
+                        } else {
+                            mHomeListAdpater.addItems(null, null);
+                            showEmpty(true, "暂无相关工单(点击刷新)", mOnClickListener);
+                            notifNumChange(0);
+                        }
+                    }
+                });
+    }
+
+    private View.OnClickListener mOnClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            showDialog("刷新中");
+            getOrderList();
+        }
+    };
+    private boolean isOrderStatusChange = false;//订单状态变化,数量显示
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (isOrderStatusChange) {
+            getOrderList();
+            isOrderStatusChange = false;
+        }
+    }
+
+    public void onEventMainThread(EventMessage event) {
+        super.onEventMainThread(event);
+        //数量变化
+        if (EventCode.EVENT_ORDER_STATUS_CHANGE == event.action) {
+            isOrderStatusChange = true;
+            return;
+        } else if (EventCode.EVENT_ORDER_SET_FAIL == event.action) {
+            isOrderStatusChange = true;
+            return;
+        }
+    }
+
+    private void notifNumChange(int num) {
+        if (formWhere == Constant.FROM_GONG) {
+            EventMessage message = new EventMessage(EventCode.EVENT_ORDER_NUM_CHANGE, status, num);
+            EventBus.getDefault().post(message);
+        } else if (formWhere == Constant.FROM_YI) {
+            EventMessage message = new EventMessage(EventCode.EVENT_ABNORMAL_ORDER_NUM_CHANGE, flag, num);
+            EventBus.getDefault().post(message);
+        } else if (formWhere == Constant.FROM_ACCOUNT) {
+            EventMessage message = new EventMessage(EventCode.EVENT_ACCOUNTING_ORDER_NUM_CHANGE, status, num);
+            EventBus.getDefault().post(message);
+        }
+    }
+
+    @Override
+    public void onRefresh() {
+        getOrderList();
+    }
+
+    @Override
+    public void onLoadMore() {
+
+    }
+
+    /**
+     * 获取明日工单列表
+     */
+    private void getOrderTomorrow() {
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.ORDER_LOAD_PROC);
+        reqJson.setHas_rows("yes");
+        reqJson.setFlag("2");//1 今日工单  2 明日工单  3 异常处理中 4 异常已处理 5 全+B68单+A68:E69
+        reqJson.setWorker_status("0");
+        reqJson.setUser_id(LoginUtil.getUserId(mContext));
+        reqJson.setOrder_tag("");
+        mSubscription = ApiImp.get().getOrderList(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<OrderList>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        dissmissDialog();
+                        mRecycleView.refreshComplete();
+                        showToast("网络不给力");
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onNext(OrderList model) {
+                        if (model != null) {
+                            if (model.getRows() != null && model.getRows().size() != 0) {
+                                mHomeListAdpater.addItemsForTodayOrder(model.getRows(), model.getRows1());
+                            }
+                            if (mHomeListAdpater.getItemCount() == 0) {
+                                showEmpty(true, "暂无相关工单(点击刷新)", mOnClickListener);
+                            } else {
+                                showEmpty(false, "暂无相关工单(点击刷新)", mOnClickListener);
+                            }
+                        } else {
+                            if (mHomeListAdpater.getItemCount() == 0) {
+                                showEmpty(true, "暂无相关工单(点击刷新)", mOnClickListener);
+                            } else {
+                                showEmpty(false, "暂无相关工单(点击刷新)", mOnClickListener);
+                            }
+                        }
+                    }
+                });
+    }
+}

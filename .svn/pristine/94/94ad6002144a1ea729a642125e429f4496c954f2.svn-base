@@ -1,0 +1,145 @@
+package com.rubu.ui.act;
+
+
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.util.DisplayMetrics;
+import android.util.Log;
+import android.view.View;
+import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.base.BaseActivity;
+
+import butterknife.BindView;
+
+import butterknife.BindView;
+
+public class TianMaoMallActivity extends BaseActivity {
+
+    @BindView(R.id.title_left)
+    TextView mTitleLeft;
+    @BindView(R.id.title)
+    TextView mTitle;
+    @BindView(R.id.web)
+    WebView mWebView;
+
+    private  String url;
+
+    @Override
+    protected int getViewId() {
+        return R.layout.activity_tian_mao_mall;
+    }
+
+    @Override
+    protected void initEvent() {
+        url = getIntent().getStringExtra("url");
+
+
+        mTitleLeft.setText(R.string.close);
+        mTitleLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+        mTitle.setText("辅料配件商城");
+        WebSettings mWebSettings = mWebView.getSettings();
+
+        if(isNetworkAvailable(this)){
+            Log.i("===================", "initEvent: LOAD_DEFAULT");
+            mWebSettings.setCacheMode(WebSettings.LOAD_NO_CACHE);
+        }else {
+            Log.i("===================", "initEvent: LOAD_CACHE_ELSE_NETWORK");
+            mWebSettings.setCacheMode(WebSettings.LOAD_CACHE_ONLY);
+        }
+        mWebView.setWebChromeClient(new WebChromeClient(){
+            @Override
+            public void onProgressChanged(WebView view, int newProgress) {
+                super.onProgressChanged(view, newProgress);
+            }
+        });
+
+        mWebView.setWebViewClient(new WebViewClient(){
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                view.loadUrl(url);
+                return true;
+            }
+
+//            @Override
+//            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+//                Log.i("shouldOverrideUrl", "shouldOverrideUrlLoading: "+request);
+//                view.loadUrl(url);
+//                return true;
+//            }
+        });
+
+        mWebSettings.setJavaScriptEnabled(true);
+        mWebSettings.setJavaScriptCanOpenWindowsAutomatically(true);
+
+        // 鍏佽璁块棶鏂囦欢
+        mWebSettings.setAllowFileAccess(true);
+
+        mWebSettings.setAppCacheEnabled(true);
+        mWebSettings.setDomStorageEnabled(true);
+
+        mWebSettings.setLoadWithOverviewMode(true);
+        mWebSettings.setUseWideViewPort(true);
+
+        mWebSettings.setDisplayZoomControls(false);
+        mWebSettings.setBuiltInZoomControls(true);
+        mWebSettings.setSupportZoom(true);
+
+
+        mWebSettings.setAppCacheMaxSize(1024*1024*8);
+
+        String  appCacheDir  =  this .getApplicationContext().getDir("cache", Context.MODE_PRIVATE).getPath();
+
+        mWebSettings.setAppCachePath(appCacheDir);
+        mWebSettings.setDatabasePath(appCacheDir);
+
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        int mDensity = metrics.densityDpi;
+        Log.d("maomao", "densityDpi = " + mDensity);
+        if (mDensity == 240) {
+            mWebSettings.setDefaultZoom(WebSettings.ZoomDensity.FAR);
+        } else if (mDensity == 160) {
+            mWebSettings.setDefaultZoom(WebSettings.ZoomDensity.MEDIUM);
+        } else if (mDensity == 120) {
+            mWebSettings.setDefaultZoom(WebSettings.ZoomDensity.CLOSE);
+        } else if (mDensity == DisplayMetrics.DENSITY_XHIGH) {
+            mWebSettings.setDefaultZoom(WebSettings.ZoomDensity.FAR);
+        } else if (mDensity == DisplayMetrics.DENSITY_TV) {
+            mWebSettings.setDefaultZoom(WebSettings.ZoomDensity.FAR);
+        } else {
+            mWebSettings.setDefaultZoom(WebSettings.ZoomDensity.MEDIUM);
+        }
+
+        mWebSettings.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.SINGLE_COLUMN);
+
+        mWebView.loadUrl(url);
+    }
+
+    public static boolean isNetworkAvailable(Context context) {
+        ConnectivityManager connectivity = (ConnectivityManager) context
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivity != null) {
+            NetworkInfo info = connectivity.getActiveNetworkInfo();
+            if (info != null && info.isConnected())
+            {
+                if (info.getState() == NetworkInfo.State.CONNECTED)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+}

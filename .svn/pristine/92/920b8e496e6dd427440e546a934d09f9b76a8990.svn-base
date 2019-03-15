@@ -1,0 +1,113 @@
+package com.rubu.ui.act.mine;
+
+import android.util.Log;
+import android.view.View;
+import android.widget.ListView;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.base.BaseActivity;
+import com.rubu.constant.Constant;
+import com.rubu.net.ApiImp;
+import com.rubu.net.Params;
+import com.rubu.net.ReqJson;
+import com.rubu.ui.act.mine.adapter.DetialAccountAdapter;
+import com.rubu.ui.act.mine.model.DetialAccountModel;
+import com.rubu.util.LoginUtil;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import butterknife.BindView;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/10/17
+ * Vwesion 1.0
+ * Dsscription: 我的清单列表
+ */
+
+public class MineDetialAccountAct extends BaseActivity {
+
+    @BindView(R.id.title)
+    TextView mTitle;
+    @BindView(R.id.title_left)
+    TextView mTitleLeft;
+    // 清单总金额
+    @BindView(R.id.tv_account)
+    TextView mTVAccount;
+    // 清单列表
+    @BindView(R.id.lv_detial_account)
+    ListView mLVDetialAccout;
+
+    private List<DetialAccountModel.RowsBean> mList;
+    private DetialAccountAdapter mAdapter;
+
+    @Override
+    protected int getViewId() {
+        return R.layout.activity_mine_detial_account;
+    }
+
+    @Override
+    protected void initEvent() {
+        mList = new ArrayList<>();
+        mTitle.setText("我的清单");
+        mTitleLeft.setText(R.string.back);
+        mTitleLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+        getDetialAccount();
+    }
+
+    /**
+     * 拉取个人清单的列表
+     */
+    private void getDetialAccount() {
+        showProgressDialog("请稍等...");
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_GET_DETIAL_DETIAL_LIST);
+        reqJson.setS_worker_id(LoginUtil.getUserId(mContext));
+        mSubscription = ApiImp.get().getDetialAccount(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<DetialAccountModel>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        dissmisProgressDialog();
+                        showToast("网络不给力");
+                        Log.i("拉取个人清单失败", e.toString());
+                    }
+
+                    @Override
+                    public void onNext(DetialAccountModel model) {
+                        dissmisProgressDialog();
+                        if (model.getResult().getOut_Flag() == 0) {
+                            if (mList != null || mList.size() > 0) {
+                                mList.clear();
+                            }
+                            mList = model.getRows();
+                            mAdapter = new DetialAccountAdapter(mContext, mList);
+                            mLVDetialAccout.setAdapter(mAdapter);
+                            if (model.getRows().get(0).getS_status() == 0 || "N".equals(model.getRows().get(0).getS_org_show_status())) {
+                                mTVAccount.setText("");
+                            } else {
+                                mTVAccount.setText(model.getRows().get(0).getTotal_fee() + "");
+                            }
+                        } else {
+                            showToast(model.getResult().getOut_nszRtn());
+                        }
+                    }
+                });
+    }
+
+}

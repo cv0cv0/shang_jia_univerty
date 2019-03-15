@@ -1,0 +1,246 @@
+package com.rubu.ui.act.register;
+
+import android.content.Intent;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.rubu.R;
+import com.rubu.base.BaseActivity;
+import com.rubu.constant.Constant;
+import com.rubu.constant.SharePerenceCode;
+import com.rubu.model.Base;
+import com.rubu.model.RegisterPersonalModel;
+import com.rubu.model.ServiceAbilityModel;
+import com.rubu.model.ServiceModel;
+import com.rubu.net.ApiImp;
+import com.rubu.net.Params;
+import com.rubu.net.ReqJson;
+import com.rubu.ui.act.ActionResultAct;
+import com.rubu.ui.act.register.adapter.RegisterServiceAbilityAdapter;
+import com.rubu.util.LoginUtil;
+import com.rubu.util.SPUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import butterknife.BindView;
+import butterknife.OnClick;
+import rx.Observer;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/9/27
+ * Vwesion 1.0
+ * Dsscription: 注册的服务能力选择
+ */
+
+public class RegisterServiceAbilityAct extends BaseActivity {
+    @BindView(R.id.title)
+    TextView mTitle;
+    @BindView(R.id.title_left)
+    TextView mTitleLeft;
+    @BindView(R.id.lv_service_ability)
+    ListView mLVServiceAbility;
+    @BindView(R.id.btn_next)
+    Button mBTNNext;
+
+    // 整个父的服务能力
+    private List<ServiceModel> mDataList = new ArrayList<>();
+    private List<ServiceModel> mCheckList = new ArrayList<>();
+    // 父的适配器
+    private RegisterServiceAbilityAdapter mAdapter;
+    // 0表示从我的过来 ， 1从注册过来 ;
+    private int mFlag = 0;
+
+    @Override
+
+    protected int getViewId() {
+        return R.layout.activity_register_service_ability;
+    }
+
+    @Override
+    protected void initEvent() {
+        mFlag = getIntent().getIntExtra("register", 0);
+        mTitle.setText(R.string.service_ability);
+        mTitleLeft.setText(R.string.back);
+        mTitleLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+        if (mFlag == 0) {
+            mBTNNext.setText("确认");
+        }
+        mPostServiceAbility();
+    }
+
+    @OnClick({R.id.btn_next})
+    public void onClick(View view) {
+        switch (view.getId()) {
+            // 下一步的操作
+            case R.id.btn_next:
+                // 选择了
+                if (mCheckList != null && mCheckList.size() > 0) {
+                    setServiceAbility(mCheckList);
+                } else {
+                    Toast.makeText(mContext, "网络开了小差,请重新选择", Toast.LENGTH_LONG).show();
+                }
+                break;
+        }
+    }
+
+    /**
+     * 获取服务能力
+     */
+    private void mPostServiceAbility() {
+        showProgressDialog("请稍等...");
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_GET_REGISTER_SERVICE_ABILITY);
+        reqJson.setUser_id(LoginUtil.getUserId(mContext));
+        mSubscription = ApiImp.get().getRegisterServiceAbility(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<ServiceAbilityModel>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        dissmisProgressDialog();
+                        Log.i("获取服务能力错误信息", e.toString());
+                        showToast("网络不给力");
+                    }
+
+                    @Override
+                    public void onNext(ServiceAbilityModel model) {
+                        dissmisProgressDialog();
+                        if (model.getResult().getOut_flag() == 0) {
+                            List<ServiceAbilityModel.RowsBean> data = new ArrayList<>();
+                            data = model.getRows();
+                            Log.i("数据长度", data.size() + "");
+                            getServiceContent(data);
+                        } else {
+                            showToast(model.getResult().getOut_nszRtn());
+                        }
+                    }
+                });
+    }
+
+    /**
+     * 获取比较厚的服务能力内容
+     *
+     * @param list
+     */
+    private void getServiceContent(List<ServiceAbilityModel.RowsBean> list) {
+        ServiceModel serviceModel;
+        ServiceModel.ChildModel childModel;
+        List<ServiceAbilityModel.RowsBean> data = new ArrayList<>();
+        for (int a = 0; a < list.size(); a++) {
+            data.add(list.get(a));
+        }
+        for (int i = 0; i < data.size(); i++) {
+            List<ServiceModel.ChildModel> childData = new ArrayList<>();
+            // 删除掉父相同的 item
+            for (int j = data.size() - 1; j > i; j--) {
+                if (data.get(i).getS_service_parent_id().equals(data.get(j).getS_service_parent_id())) {
+                    data.remove(data.get(j));
+                }
+            }
+            // 获取目前的父的类目
+            String parentId = data.get(i).getS_service_parent_id();
+            String parentName = data.get(i).getService_parent();
+            boolean isCheck = data.get(i).getService_status().equals("Y") ? true : false;
+            //  获取和这个类目相同的子的集合
+            for (int x = 0; x < list.size(); x++) {
+                if (list.get(x).getS_service_parent_id().equals(parentId)) {
+                    int childId = list.get(x).getS_service_subclass_id();
+                    String childName = list.get(x).getService_name();
+                    childModel = new ServiceModel.ChildModel(childId, childName);
+                    childData.add(childModel);
+                }
+            }
+            serviceModel = new ServiceModel(isCheck, parentId, parentName, childData);
+            if (serviceModel.isCheck()) {
+                mCheckList.add(serviceModel);
+            }
+            mDataList.add(serviceModel);
+        }
+        mAdapter = new RegisterServiceAbilityAdapter(mContext, mDataList);
+        mAdapter.setOnCheckListenner(new RegisterServiceAbilityAdapter.OnCheckListenner() {
+            @Override
+            public void onClick(List<ServiceModel> mList) {
+                mCheckList.clear();
+                for (ServiceModel model : mList) {
+                    mCheckList.add(model);
+                }
+            }
+        });
+        mLVServiceAbility.setAdapter(mAdapter);
+    }
+
+    /**
+     * 传递给后台
+     *
+     * @param list
+     */
+    private void setServiceAbility(List<ServiceModel> list) {
+        showProgressDialog("请稍等...");
+        StringBuffer st = new StringBuffer();
+        for (ServiceModel model : list) {
+            st.append(model.getService_ability_parent_id()).append(",");
+        }
+        if (st.length() > 0) {
+            st = st.deleteCharAt(st.length() - 1);
+        }
+        String abilityIds = st.toString();
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_SET_REGISTER_SERVICE_ABILITY);
+        reqJson.setUser_id(LoginUtil.getUserId(mContext));
+        reqJson.setS_service_parent_idStr(abilityIds);
+        reqJson.setHas_rows("yes");
+        mSubscription = ApiImp.get().setRegisterServiceAbility(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<RegisterPersonalModel>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        dissmisProgressDialog();
+                        Log.i("上传服务能力失败原因", e.toString());
+                        showToast("网络不给力");
+                    }
+
+                    @Override
+                    public void onNext(RegisterPersonalModel registerPersonalModel) {
+                        dissmisProgressDialog();
+                        if (registerPersonalModel.getRows().get(0).getRe_select_service_region() == 4) {
+                            SPUtils.put(mContext, SharePerenceCode.SP_USER_PERSONAL_ABILITY_STATUE, true);
+                        }
+                        Intent intent = new Intent(mContext, ActionResultAct.class);
+                        intent.putExtra("action", Constant.PROC_SET_REGISTER_SERVICE_ABILITY);
+                        startActivity(intent);
+                        finish();
+                    }
+                });
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
+    }
+}

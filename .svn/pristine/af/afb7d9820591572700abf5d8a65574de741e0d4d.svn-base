@@ -1,0 +1,103 @@
+package com.rubu.adapter;
+
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.base.BaseListAdapter;
+import com.rubu.model.UnusualModel;
+import com.rubu.util.StringUtil;
+
+import java.util.List;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/9/13
+ * Vwesion 1.0
+ * Dsscription:  异常提醒列表适配
+ */
+
+public class AlertUnusualAdapter extends BaseListAdapter<UnusualModel.RowsBean> {
+
+
+    public AlertUnusualAdapter(Context context, List<UnusualModel.RowsBean> list) {
+        super(context, list);
+    }
+
+    @Override
+    public View initView(final UnusualModel.RowsBean bean, View convertView, ViewGroup parent) {
+        final ViewHolder holder;
+        if (convertView == null) {
+            convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_unusual_order, null);
+            holder = new ViewHolder();
+            holder.root = (LinearLayout) convertView.findViewById(R.id.root);
+            holder.unusualIcon = (ImageView) convertView.findViewById(R.id.alert_icon);
+            holder.redDot = (TextView) convertView.findViewById(R.id.red_dot);
+            holder.alertTitle = (TextView) convertView.findViewById(R.id.alert_title);
+            holder.alertContent = (TextView) convertView.findViewById(R.id.alert_content);
+            holder.alertDate = (TextView) convertView.findViewById(R.id.alert_date);
+            convertView.setTag(holder);
+        } else {
+            holder = (ViewHolder) convertView.getTag();
+        }
+        // 设置图片
+        holder.unusualIcon.setImageResource(R.mipmap.yichang);
+        // 设置红点
+        if (bean.getSerach_sign().equals("N")) {
+            holder.redDot.setVisibility(View.VISIBLE);
+        } else {
+            holder.redDot.setVisibility(View.GONE);
+        }
+        // 设置标题
+        holder.alertTitle.setText("异常提醒");
+        // 设置内容
+        if (!StringUtil.isEmpty(bean.getHandler_description())) {
+            holder.alertContent.setText(bean.getHandler_description());
+        } else {
+            holder.alertContent.setText("暂无提醒描述");
+        }
+        // 设置时间
+        if (!StringUtil.isEmpty(bean.getHandler_date())) {
+            holder.alertDate.setText(bean.getHandler_date());
+        } else {
+            holder.alertDate.setText(bean.getHandler_date());
+        }
+        // 设置工单的ID的Id
+        if (mItemOnclick != null) {
+            holder.root.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mItemOnclick.onClick(bean.getTitle_else_id(), bean.getWaiter_else_status());
+                    holder.redDot.setVisibility(View.GONE);
+                }
+            });
+        }
+        return convertView;
+    }
+
+    class ViewHolder {
+        LinearLayout root;
+        ImageView unusualIcon;
+        TextView redDot;
+        TextView alertTitle;
+        TextView alertContent;
+        TextView alertDate;
+    }
+
+    // 点击事件
+    private ItemOnclick mItemOnclick;
+
+    public void setmItemOnclick(ItemOnclick itemOnclick) {
+        this.mItemOnclick = itemOnclick;
+    }
+
+    public interface ItemOnclick {
+        void onClick(int titleId, int orderStatus);
+    }
+
+}

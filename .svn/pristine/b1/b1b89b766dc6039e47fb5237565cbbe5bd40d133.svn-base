@@ -1,0 +1,93 @@
+package com.rubu.ui.act.mine;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.view.View;
+import android.widget.GridView;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.base.BaseActivity;
+import com.rubu.ui.act.mine.adapter.AuditSizerAdapter;
+import com.rubu.ui.act.mine.model.AuditModel;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import butterknife.BindView;
+import butterknife.OnClick;
+
+import static com.rubu.ui.act.mine.CheckOrderAct.REQUEST_SELECT_SIZER;
+import static com.rubu.ui.act.mine.CheckOrderAct.REQUEST_SELECT_SIZER_KEY;
+
+public class CheckOrderSizerAct extends BaseActivity {
+
+    @BindView(R.id.title_left)
+    TextView titleLeft;
+    @BindView(R.id.title)
+    TextView title;
+    @BindView(R.id.rc_sizer)
+    RecyclerView recyclerView;
+
+    private AuditSizerAdapter adapter;
+    private List<AuditModel> list;
+    private int lastIndex;
+    private String selectItem = "全部";
+
+    @Override
+    protected int getViewId() {
+        return R.layout.activity_check_order_sizer;
+    }
+
+    @Override
+    protected void initEvent() {
+        title.setText(R.string.check_record);
+        titleLeft.setText(R.string.back);
+        titleLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+        initData();
+    }
+
+    private void initData() {
+        recyclerView.setLayoutManager(new GridLayoutManager(mContext, 3));
+        lastIndex = 0;
+        list = new ArrayList<>();
+        list.add(new AuditModel("全部", true));
+        list.add(new AuditModel("审核通过", false));
+        list.add(new AuditModel("审核驳回", false));
+        list.add(new AuditModel("审核中", false));
+        adapter = new AuditSizerAdapter();
+        adapter.addItems(list);
+        recyclerView.setAdapter(adapter);
+        adapter.setOnItemViewClickListenner(new AuditSizerAdapter.ItemViewClickListenner() {
+            @Override
+            public void onClick(AuditModel bean, int position) {
+                AuditModel lastModel = list.get(lastIndex);
+                lastModel.setSelect(false);
+                AuditModel model = list.get(position);
+                model.setSelect(true);
+                lastIndex = position;
+                selectItem = bean.getName();
+                adapter.resetItems(list);
+            }
+        });
+    }
+
+    @OnClick({R.id.tv_confirm})
+    public void OnClick(View view) {
+        switch (view.getId()) {
+            case R.id.tv_confirm:
+                Intent intent = new Intent();
+                intent.putExtra(REQUEST_SELECT_SIZER_KEY, selectItem);
+                setResult(RESULT_OK, intent);
+                finish();
+                break;
+        }
+    }
+}

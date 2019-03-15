@@ -1,0 +1,110 @@
+package com.rubu.adapter;
+
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.model.QuestionListModel;
+import com.rubu.ui.act.QuestionChildAct;
+import com.rubu.util.StringUtil;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Created by liuhaizhu on 2017/3/2.
+ */
+
+public class QuestionChildAdapter extends BaseAdapter {
+    private Context mContext;
+    // 传递到子类的列表
+    private List<QuestionListModel.Rows1Bean> mChildList;
+    // 获取问题选择的回调
+    private OnChlidListenner mChildListenner;
+
+    public QuestionChildAdapter(Context context, List<QuestionListModel.Rows1Bean> data) {
+        this.mContext = context;
+        this.mChildList = data;
+    }
+
+    @Override
+    public int getCount() {
+        return this.mChildList == null ? 0 : this.mChildList.size();
+    }
+
+    @Override
+    public Object getItem(int position) {
+        return this.mChildList.get(position);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public View getView(final int position, View convertView, ViewGroup parent) {
+        final ViewHolder holder;
+        if (convertView == null) {
+            LayoutInflater mInflater = LayoutInflater.from(parent.getContext());
+            convertView = mInflater.inflate(R.layout.item_question_time, null);
+            holder = new ViewHolder();
+            holder.questionDescirbe = (TextView) convertView.findViewById(R.id.question_descirbe);
+            holder.tv_arrow = (TextView) convertView.findViewById(R.id.tv_arrow);
+            holder.question = convertView.findViewById(R.id.question);
+            convertView.setTag(holder);
+        } else {
+            holder = (ViewHolder) convertView.getTag();
+        }
+        // 设置内容
+        if (!StringUtil.isEmpty(this.mChildList.get(position).getProblem_subclass())) {
+            holder.questionDescirbe.setText(this.mChildList.get(position).getProblem_subclass());
+        } else {
+            holder.questionDescirbe.setText("其他问题详情");
+        }
+        // 隐藏箭头
+        holder.tv_arrow.setVisibility(View.INVISIBLE);
+        // 子问题的选择
+        holder.question.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 父的名字
+                String parent = mChildList.get(position).getProblem_category();
+                // 子的名字
+                String child = mChildList.get(position).getProblem_subclass();
+                if (mChildListenner != null) {
+                    mChildListenner.getChlidInfo(parent, child);
+                }
+            }
+        });
+        return convertView;
+    }
+
+    class ViewHolder {
+        // 问题描述
+        TextView questionDescirbe;
+        // 问题子item的箭头
+        TextView tv_arrow;
+        // 问题布局
+        View question;
+    }
+
+    public interface OnChlidListenner {
+        // 获取问题子类的点击内容
+        void getChlidInfo(String parentName, String childName);
+    }
+
+    public void setmChildListListenner(OnChlidListenner listenner) {
+        if (listenner != null) {
+            this.mChildListenner = listenner;
+        }
+    }
+
+}

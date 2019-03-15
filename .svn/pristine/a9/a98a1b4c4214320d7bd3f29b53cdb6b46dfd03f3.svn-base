@@ -1,0 +1,71 @@
+package com.rubu.ui.act.mine.view;
+
+import android.support.annotation.NonNull;
+import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.ui.act.mine.model.CheckOrderTitleBean;
+import com.rubu.util.StringUtil;
+
+import me.drakeet.multitype.ItemViewBinder;
+
+/**
+ * Created by 72732 on 2018/4/18.
+ */
+
+public class CheckTitleItemView extends ItemViewBinder<CheckOrderTitleBean, CheckTitleItemView.ViewHolder> {
+
+    private ItemViewClickListenner listenner;
+
+    @NonNull
+    @Override
+    protected ViewHolder onCreateViewHolder(@NonNull LayoutInflater inflater, @NonNull ViewGroup parent) {
+        View view = inflater.inflate(R.layout.item_check_order_title, parent, false);
+        return new ViewHolder(view);
+    }
+
+    @Override
+    protected void onBindViewHolder(@NonNull ViewHolder holder, @NonNull final CheckOrderTitleBean item) {
+        // 工单id
+        if (!StringUtil.isEmpty(item.getOrder_title_name())) {
+            holder.order_Id.setText(item.getOrder_title_name());
+        }
+        // 员工名字
+        if (!StringUtil.isEmpty(item.getmCouserName())) {
+            holder.name.setText(item.getmCouserName());
+        }
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (listenner != null) {
+                    listenner.onClick(item);
+                }
+            }
+        });
+    }
+
+    static class ViewHolder extends RecyclerView.ViewHolder {
+
+        TextView order_Id;
+        TextView name;
+
+        public ViewHolder(View itemView) {
+            super(itemView);
+            order_Id = (TextView) itemView.findViewById(R.id.order_Title_Id);
+            name = (TextView) itemView.findViewById(R.id.id_name);
+        }
+    }
+
+    public void setOnItemViewClickListenner(ItemViewClickListenner listenner) {
+        this.listenner = listenner;
+    }
+
+    public interface ItemViewClickListenner {
+        void onClick(CheckOrderTitleBean bean);
+    }
+
+}

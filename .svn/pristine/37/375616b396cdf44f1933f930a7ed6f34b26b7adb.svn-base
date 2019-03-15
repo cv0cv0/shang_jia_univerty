@@ -1,0 +1,34 @@
+package com.rubu.util;
+
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.widget.Toast;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/5/15
+ * Vwesion 1.0
+ * Dsscription:  获取app信息工具
+ */
+
+public class PackInfoUtil {
+
+    /**
+     * 获取版本信息
+     *
+     * @param context
+     * @return
+     */
+    public static String getVersion(Context context) {
+        String version = null;
+        try {
+            PackageManager packageManager = context.getPackageManager();
+            version = packageManager.getPackageInfo(context.getPackageName(), 0).versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            Toast.makeText(context, "版本信息获取失败", Toast.LENGTH_LONG).show();
+            e.printStackTrace();
+        }
+        return version;
+    }
+
+}

@@ -1,0 +1,394 @@
+package com.rubu.ui.act.login;
+
+import android.Manifest;
+import android.annotation.TargetApi;
+import android.app.Activity;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Paint;
+import android.os.Build;
+import android.os.CountDownTimer;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import com.google.gson.Gson;
+import com.rubu.R;
+import com.rubu.base.BaseActivity;
+import com.rubu.constant.Constant;
+import com.rubu.constant.SharePerenceCode;
+import com.rubu.model.Base;
+import com.rubu.model.UserModel;
+import com.rubu.model.VersionModel;
+import com.rubu.net.ApiImp;
+import com.rubu.net.Params;
+import com.rubu.net.ReqJson;
+import com.rubu.ui.act.HomeAct;
+import com.rubu.ui.act.XYAct;
+import com.rubu.ui.act.register.RegisterPersonalAbility;
+import com.rubu.util.AESUtils;
+import com.rubu.util.JsonUtil;
+import com.rubu.util.LoginUtil;
+import com.rubu.util.MD5Utils;
+import com.rubu.util.SPUtils;
+import com.rubu.util.StringUtil;
+import com.rubu.util.TLog;
+import com.rubu.util.TimeUtil;
+import com.rubu.util.UpdateUtils;
+import com.umeng.analytics.MobclickAgent;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import butterknife.BindView;
+import butterknife.OnClick;
+import cn.jpush.android.api.JPushInterface;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
+/**
+ * Created by fly on 2017/3/2.
+ */
+
+public class LoginAct extends BaseActivity {
+    private static final int PERMISSON_STORGE = 0x978;
+    @BindView(R.id.title_left)
+    TextView titleLeft;
+    @BindView(R.id.title)
+    TextView title;
+    @BindView(R.id.title_right_toolbar)
+    TextView titleRightToolbar;
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
+    @BindView(R.id.et_pwd)
+    EditText etPwd;
+    @BindView(R.id.et_code)
+    EditText etCode;
+    @BindView(R.id.edit_phone)
+    EditText edit_phone;
+    @BindView(R.id.ll_code)
+    LinearLayout llCode;
+    @BindView(R.id.tv_check)
+    TextView tvCheck;
+    @BindView(R.id.btn_login)
+    Button btnLogin;
+    @BindView(R.id.btn_send_code)
+    Button mBtnGetCode;
+    private String phoneNmuber;
+
+    private int mUpdateFlag;
+
+    private VersionModel mModel;
+
+    @Override
+    protected int getViewId() {
+        return R.layout.activity_login;
+    }
+
+    @Override
+    protected void initEvent() {
+        mUpdateFlag = (int) SPUtils.get(mContext, "updateFlag", 1);
+        title.setText("上家服务");
+        tvCheck.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG);//下划线／／／
+        edit_phone.setText((String) SPUtils.get(mContext, "phone", ""));
+        String pwd = (String) SPUtils.get(mContext, "pwd", "");
+        if (!StringUtil.isEmpty(pwd)) {
+            etPwd.setText(AESUtils.decode(pwd));
+        }
+        if (mUpdateFlag == 0) {
+            getVersion();
+        }
+    }
+
+    @OnClick({R.id.tv_check, R.id.btn_login, R.id.btn_register, R.id.btn_send_code})
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.tv_check:
+                if (etPwd.getVisibility() == View.GONE) {
+                    etPwd.setVisibility(View.VISIBLE);
+                    llCode.setVisibility(View.GONE);
+                    tvCheck.setText("切换到短信验证码登录");
+                } else {
+                    etPwd.setVisibility(View.GONE);
+                    llCode.setVisibility(View.VISIBLE);
+                    tvCheck.setText("切换到密码登录");
+                }
+                break;
+            case R.id.btn_login:
+                checkData();
+                break;
+            case R.id.btn_register:
+                Intent intent = new Intent(mContext, XYAct.class);
+                intent.putExtra("register", 1);
+                startActivity(intent);
+                break;
+            case R.id.btn_send_code:
+                getCode(edit_phone.getText().toString());
+                break;
+        }
+    }
+
+    private void getCode(final String phone) {
+        if (StringUtil.isEmpty(phone)) {
+            showToast("请输入手机号");
+            return;
+        }
+        if (!StringUtil.isTel(phone)) {
+            showToast("手机号格式不正确");
+            return;
+        }
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_APP_S_USER_LOGIN1_ADD);
+        reqJson.setS_bind_tel(phone);
+        reqJson.setS_smss_code(" ");
+        reqJson.setHas_rows("no");
+        mSubscription = ApiImp.get().login(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Base>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onNext(Base model) {
+                        int flag = model.getResult().getOut_Flag();
+                        if (flag == 0) {
+
+                            mBtnGetCode.setEnabled(false);
+                            mCountDownTimerSingIn.start();
+                            showToast("发送验证码成功");
+                        } else {
+                            showToast(model.getResult().getOut_nszRtn());
+                        }
+                    }
+                });
+    }
+
+    CountDownTimer mCountDownTimerSingIn = new CountDownTimer(60000, 1000) {
+        @Override
+        public void onTick(long millisUntilFinished) {
+            mBtnGetCode.setBackgroundResource(R.drawable.btn_gray);
+            mBtnGetCode.setText("重新发送" + millisUntilFinished / 1000 + "S");
+        }
+
+        @Override
+        public void onFinish() {
+            mBtnGetCode.setEnabled(true);
+            mBtnGetCode.setBackgroundResource(R.drawable.bg_login_btn_shape);
+            mBtnGetCode.setText("重新发送");
+        }
+    };
+
+    private HashMap<String, Object> getNetWorkParams(Object jsonObject, String pwd) {
+        String tsp = TimeUtil.getCurrentTime();
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("app_key", "201700306");
+        params.put("secrets", "4678445f307e1a4db80e0ed3d645889d");
+        params.put("timestamp", tsp);
+        String json = new Gson().toJson(jsonObject);
+        String code = tsp + "8512625aec7e13cfadb571ZZ3b783ec03face4d4c731efa422088624" + json;
+        code = MD5Utils.md5Password(code);
+        params.put("code", code);
+        params.put("json", json);
+        for (Map.Entry<String, Object> entry : params.entrySet()) {
+            TLog.i("Key = " + entry.getKey() + ", Value = " + entry.getValue());
+        }
+        return params;
+    }
+
+    private void checkData() {
+        String phone = edit_phone.getText().toString();
+
+        if (StringUtil.isEmpty(phone)) {
+            showToast("请输入手机号");
+            return;
+        }
+        if (etPwd.getVisibility() == View.GONE) {
+            String code = etCode.getText().toString();
+            if (StringUtil.isEmpty(code)) {
+                showToast("请输入短信验证码");
+                return;
+            }
+            login(phone, "", code);
+        } else {
+            String pwd = etPwd.getText().toString();
+            if (StringUtil.isEmpty(pwd)) {
+                showToast("请输入密码");
+                return;
+            }
+            phoneNmuber = edit_phone.getText().toString();
+            login(phone, pwd, " ");
+        }
+    }
+
+    /**
+     * 登陆接口请求
+     *
+     * @param phone
+     * @param pwd
+     * @param smsCode
+     */
+    private void login(final String phone, final String pwd, String smsCode) {
+        showProgressDialog("登录中");
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.LOGIN_PROC);
+        reqJson.setS_bind_tel(phone);
+        reqJson.setHas_rows("yes");
+        reqJson.setPlatform("android");
+        reqJson.setPassword(pwd);
+        reqJson.setVersion(Constant.APP_VERSION);
+        reqJson.setAudience(JPushInterface.getRegistrationID(this));
+        reqJson.setLogin_type("s");
+        reqJson.setSmss_code(smsCode);
+
+        mSubscription = ApiImp.get().login(getNetWorkParams(reqJson, pwd)).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Observer<Base>() {
+            @Override
+            public void onCompleted() {
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Log.d("登录", "onError: " + "sssss");
+                showToast("网络不给力");
+                Log.i("登陆错误信息", e.toString());
+                dissmisProgressDialog();
+            }
+
+            @Override
+            public void onNext(Base model) {
+                dissmisProgressDialog();
+                int flag = model.getResult().getOut_Flag();
+                Log.d("", "onNext: ssss" + flag);
+                if (flag == 0) {
+                    showToast("登录成功！");
+                    SPUtils.put(mContext, "phone", phone);
+                    SPUtils.put(mContext, "pwd", AESUtils.encode(pwd));
+                    List<UserModel> list = JsonUtil.jsonToArrayList(String.valueOf(model.getRows()).trim(), UserModel.class);
+                    if (list != null && list.size() > 0) {
+                        LoginUtil.info = list.get(0);
+                        LoginUtil.saveInfo(mContext, list.get(0));
+                        /**
+                         * 友盟通过用户账号统计登陆数量
+                         */
+                        MobclickAgent.onProfileSignIn(phoneNmuber);
+                        // 保存7天的标志位
+                        SPUtils.put(mContext, SharePerenceCode.SP_USER_PERSONAL_ABILITY_DAY_STATUE, list.get(0).getRe_time_limit_flag());
+                        // 保存技师是否需要提醒工单
+                        SPUtils.put(mContext, SharePerenceCode.SP_USER_IS_ACTIVITY_STATUE, list.get(0).getIs_remind());
+                        startNewActivity(list.get(0).getRe_select_service_region());
+                        finish();
+                    }
+                } else {
+                    showToast(model.getResult().getOut_nszRtn());
+                }
+            }
+        });
+    }
+
+    /**
+     * 根据老用户是否重新设置个人能力相关信息来确认跳转的activity
+     *
+     * @param personal_statue --0:默认值，表示覆盖区域和服务能力都没有重新勾选过
+     *                        --1:服务能力重新勾选过
+     *                        --2:覆盖区域重新勾选过
+     *                        --4:两都都勾选过了
+     */
+    private void startNewActivity(int personal_statue) {
+        if (personal_statue == 4) {
+            gotoNewAty(HomeAct.class);
+            SPUtils.put(this, SharePerenceCode.SP_USER_PERSONAL_ABILITY_STATUE, true);
+        } else {
+            /**
+             * 承接能力
+             */
+            gotoNewAty(RegisterPersonalAbility.class);
+            SPUtils.put(this, SharePerenceCode.SP_USER_PERSONAL_ABILITY_STATUE, false);
+        }
+    }
+
+    // 版本更新
+    private void getVersion() {
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_DATA_APP_VERSION_UPDATE);
+        mSubscription = ApiImp.get().getVersion(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<VersionModel>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        showToast("暂时无法更新");
+                    }
+
+                    @Override
+                    public void onNext(VersionModel model) {
+                        SPUtils.put(mContext, "updateFlag", 1);
+                        if (model.getResult().getOut_Flag() == 0) {
+                            mModel = model;
+//                            mWokerInfoState = updater.getWokerStatue(mModel);
+//                            String version = PackInfoUtil.getVersion(mContext);
+                            String version = Constant.APP_VERSION;
+//                            if (!version.equals(model.getRows().get(0).getVersion())) {
+//                                mModel = model;
+//                                if(model.getRows2().size()>0){
+//                                    VersionModel.Rows2Bean rows2Bean = model.getRows2().get(0);
+//                                    openAdvertisementDialog(rows2Bean.getMsg_title(),rows2Bean.getImg_url(),rows2Bean.getMsg_id()+"",rows2Bean.getMsg_content());
+//                                }else {
+//                                    checkPermission();
+//                                }
+//                            } else {
+                            if (!version.equals(model.getRows().get(0).getVersion())) {
+                                checkPermission();
+                            }
+//                            } else {
+//                                updater.showHint(mWokerInfoState);
+//                            }
+                        } else {
+                            showToast(model.getResult().getOut_nszRtn());
+                        }
+                    }
+                });
+    }
+
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    private void checkPermission() {
+        if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            //应用还未获取读取本地文件 的权限，询问是否允许
+            ActivityCompat.requestPermissions((Activity) mContext, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSON_STORGE);
+        } else {
+            UpdateUtils.alertDownload(mContext, mModel.getRows().get(0), 0);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSON_STORGE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                UpdateUtils.alertDownload(mContext, mModel.getRows().get(0), 0);
+            } else {
+                showToast("权限被禁止");
+//                updater.showHint(mWokerInfoState);
+            }
+        }
+    }
+}

@@ -1,0 +1,58 @@
+package com.rubu.city;
+
+import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+
+import java.util.ArrayList;
+
+/**
+ *
+ */
+public class CityUtils {
+
+
+    public static ArrayList<AreaBean> options1Items = new ArrayList<AreaBean>();
+    public static ArrayList<ArrayList<AreaBean>> options2Items = new ArrayList<ArrayList<AreaBean>>();
+    public static ArrayList<ArrayList<ArrayList<AreaBean>>> options3Items = new ArrayList<ArrayList<ArrayList<AreaBean>>>();
+
+    public static void initCitys(Context context) {
+        if (options1Items.size() <= 0 || options2Items.size() <= 0 || options3Items.size() <= 0) {
+            options1Items.clear();
+            options2Items.clear();
+            options3Items.clear();
+            PickDBManager dbManager = new PickDBManager(context);
+            dbManager.openDateBase();
+            dbManager.closeDatabase();
+            SQLiteDatabase database = SQLiteDatabase.openOrCreateDatabase(PickDBManager.DB_PATH + "/"
+                    + PickDBManager.DB_NAME, null);
+            options1Items = dbManager.findProvince(database);
+            for (AreaBean entity : options1Items) {
+                ArrayList<AreaBean> list = new ArrayList<>();
+                list = dbManager.findCity(database, entity);
+                ArrayList<ArrayList<AreaBean>> areaList = new ArrayList<>();
+                if (list.size() > 0) {
+                    options2Items.add(list);
+                    for (AreaBean areaBean : list) {
+                        ArrayList<AreaBean> area = new ArrayList<>();
+                        area = dbManager.findArea(database, areaBean);
+                        if (area.size() > 0) {
+                            areaList.add(area);
+                        } else {
+                            area.add(new AreaBean("0", "", "0"));
+                            areaList.add(area);
+                        }
+                    }
+                } else {
+                    list.add(new AreaBean("0", "", "0"));
+                    options2Items.add(list);
+                    ArrayList<AreaBean> area = new ArrayList<>();
+                    area.add(new AreaBean("0", "", "0"));
+                    areaList.add(area);
+                }
+                options3Items.add(areaList);
+            }
+            database.close();
+        }
+    }
+
+}

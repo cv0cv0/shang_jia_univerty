@@ -1,0 +1,48 @@
+package com.rubu.ui.act.mine.model;
+
+/**
+ * Created by 72732 on 2018/4/18.
+ */
+
+public class CheckOrderTitleBean {
+    // 标题
+    private String order_title_name;
+    // 客户名称
+    private String mCouserName;
+    // 祝列表的审核状态
+    private boolean isCheck;
+    // order_title_id
+    private String order_title_id;
+
+    public String getOrder_title_name() {
+        return order_title_name;
+    }
+
+    public void setOrder_title_name(String order_title_name) {
+        this.order_title_name = order_title_name;
+    }
+
+    public String getmCouserName() {
+        return mCouserName;
+    }
+
+    public void setmCouserName(String mCouserName) {
+        this.mCouserName = mCouserName;
+    }
+
+    public boolean isCheck() {
+        return isCheck;
+    }
+
+    public void setCheck(boolean check) {
+        isCheck = check;
+    }
+
+    public String getOrder_title_id() {
+        return order_title_id;
+    }
+
+    public void setOrder_title_id(String order_title_id) {
+        this.order_title_id = order_title_id;
+    }
+}

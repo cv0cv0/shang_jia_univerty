@@ -1,0 +1,89 @@
+package com.rubu.model;
+
+/**
+ * Created by liuhaizhu on 2017/3/8.
+ */
+
+public class UserModel {
+
+    /**
+     * s_user_id : 2155
+     * s_org_name : null
+     * s_org_code : null
+     * s_bind_tel : 17682305898
+     * s_user_name : lhz
+     */
+
+    private int s_user_id;
+    private String s_org_name;
+    private String s_org_code;
+    private String s_bind_tel;
+    private String s_user_name;
+    private int re_select_service_region;
+    private int re_time_limit_flag; // 0代表7天内，1代表7天后 （某天上功能，该天7天后的老技师需要强制去完善个人能力功能）
+    private String is_remind;  // 代表是否提醒急速安装的订单的提醒信息, N == 不提醒; Y == 提醒
+
+    public int getS_user_id() {
+        return s_user_id;
+    }
+
+    public void setS_user_id(int s_user_id) {
+        this.s_user_id = s_user_id;
+    }
+
+    public String getS_org_name() {
+        return s_org_name;
+    }
+
+    public void setS_org_name(String s_org_name) {
+        this.s_org_name = s_org_name;
+    }
+
+    public String getS_org_code() {
+        return s_org_code;
+    }
+
+    public void setS_org_code(String s_org_code) {
+        this.s_org_code = s_org_code;
+    }
+
+    public String getS_bind_tel() {
+        return s_bind_tel;
+    }
+
+    public void setS_bind_tel(String s_bind_tel) {
+        this.s_bind_tel = s_bind_tel;
+    }
+
+    public String getS_user_name() {
+        return s_user_name;
+    }
+
+    public void setS_user_name(String s_user_name) {
+        this.s_user_name = s_user_name;
+    }
+
+    public int getRe_select_service_region() {
+        return re_select_service_region;
+    }
+
+    public void setRe_select_service_region(int re_select_service_region) {
+        this.re_select_service_region = re_select_service_region;
+    }
+
+    public int getRe_time_limit_flag() {
+        return re_time_limit_flag;
+    }
+
+    public void setRe_time_limit_flag(int re_time_limit_flag) {
+        this.re_time_limit_flag = re_time_limit_flag;
+    }
+
+    public String getIs_remind() {
+        return is_remind;
+    }
+
+    public void setIs_remind(String is_remind) {
+        this.is_remind = is_remind;
+    }
+}

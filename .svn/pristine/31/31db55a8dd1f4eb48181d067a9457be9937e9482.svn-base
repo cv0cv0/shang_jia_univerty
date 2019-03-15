@@ -1,0 +1,85 @@
+package com.rubu.adapter;
+
+import android.content.Context;
+import android.support.v4.content.ContextCompat;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.model.Order;
+
+import java.util.List;
+
+/**
+ * Created by liuhaizhu on 2017/3/2.
+ */
+
+public class TimeLineAdapter extends BaseAdapter {
+    private int firstColor;
+    private int otherColor;
+    private List<Order.Rows2Bean> list;
+    private Context context;
+
+    public TimeLineAdapter(Context context, List<Order.Rows2Bean> list, int firstColor) {
+        this.context = context;
+        this.list = list;
+        this.firstColor = firstColor;
+        this.otherColor = ContextCompat.getColor(context,R.color.gray);
+    }
+
+    @Override
+    public int getCount() {
+        if (list == null) {
+            return 0;
+        }
+        return list.size();
+    }
+
+    @Override
+    public Object getItem(int position) {
+        return list.get(position);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        ViewHolder holder;
+        if (convertView == null) {
+            LayoutInflater mInflater = LayoutInflater.from(parent.getContext());
+            convertView = mInflater.inflate(R.layout.item_time_line, null);
+            holder = new ViewHolder();
+            holder.tvTime = (TextView) convertView.findViewById(R.id.time);
+            holder.tvTitle = (TextView) convertView.findViewById(R.id.title);
+            holder.tvYuan = (TextView) convertView.findViewById(R.id.yuan);
+            convertView.setTag(holder);
+        } else {
+            holder = (ViewHolder) convertView.getTag();
+        }
+        if(position==0){
+            holder.tvTime.setTextColor(firstColor);
+            holder.tvTitle.setTextColor(firstColor);
+            holder.tvYuan.setTextColor(firstColor);
+        }else {
+            holder.tvTime.setTextColor(otherColor);
+            holder.tvTitle.setTextColor(otherColor);
+            holder.tvYuan.setTextColor(otherColor);
+        }
+        Order.Rows2Bean rows2Bean=list.get(list.size()-position-1);
+        holder.tvTime.setText(rows2Bean.getOpt_real_time());
+        holder.tvTitle.setText(rows2Bean.getOpt_result());
+        return convertView;
+    }
+
+    class ViewHolder {
+        TextView tvTime;
+        TextView tvTitle;
+        TextView tvYuan;
+    }
+}

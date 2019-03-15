@@ -1,0 +1,119 @@
+package com.rubu.pop;
+
+import android.app.Activity;
+import android.graphics.drawable.ColorDrawable;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.PopupWindow;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.util.StringUtil;
+
+public class PopDialog {
+    private Button btnConfirm, btnCancel;
+    private Activity mContext;
+    private PopupWindow mPopupWindow;
+    private TextView mTvTitle, mTvContent, mTvRemark;
+
+    public void setOnDialogListener(OnDialogListener onDialogListener) {
+        mOnDialogListener = onDialogListener;
+    }
+
+    private OnDialogListener mOnDialogListener;
+
+    public void setText(String title, String content, String remark) {
+        if (!StringUtil.isEmpty(title)) {
+            mTvTitle.setText(title);
+        }
+        if (!StringUtil.isEmpty(content)) {
+            mTvContent.setText(content);
+        }
+        if (!StringUtil.isEmpty(remark)) {
+            mTvRemark.setText(remark);
+        }
+    }
+    public void setTextContentGravity(int gravity){
+        mTvContent.setGravity(gravity);
+}
+    public PopDialog(Activity context) {
+        this.mContext = context;
+        init();
+    }
+
+
+    protected void init() {
+        View rootView = LayoutInflater.from(mContext).inflate(R.layout.pop_dialog, null);
+        btnConfirm = (Button) rootView.findViewById(R.id.btn_confirm);
+        btnCancel = (Button) rootView.findViewById(R.id.btn_cancel);
+        mTvTitle = (TextView) rootView.findViewById(R.id.tv_dialog_title);
+        mTvContent = (TextView) rootView.findViewById(R.id.tv_dialog_content);
+        mTvRemark = (TextView) rootView.findViewById(R.id.tv_dialog_remark);
+        mPopupWindow = new PopupWindow(rootView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        mPopupWindow.setAnimationStyle(R.style.popwin_anim_style);
+        mPopupWindow.setFocusable(true);
+        ColorDrawable dw = new ColorDrawable(0x00000000);
+        mPopupWindow.setBackgroundDrawable(dw);
+        btnConfirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss();
+                if (mOnDialogListener != null) {
+                    mOnDialogListener.onIsConfirm(true);
+                }
+            }
+        });
+        btnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss();
+                if (mOnDialogListener != null) {
+                    mOnDialogListener.onIsConfirm(false);
+                }
+            }
+        });
+        mPopupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                WindowManager.LayoutParams lp = mContext.getWindow().getAttributes();
+                lp.alpha = 1f;
+                mContext.getWindow().setAttributes(lp);
+            }
+        });
+    }
+
+    /**
+     * 显示popupwindow
+     *
+     * @param view
+     */
+    public void show(View view) {
+        WindowManager.LayoutParams lp = mContext.getWindow().getAttributes();
+        lp.alpha = 0.7f;
+        mContext.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+        mContext.getWindow().setAttributes(lp);
+        if (mPopupWindow.isShowing()) {
+            mPopupWindow.dismiss();
+        } else {
+            mPopupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
+        }
+    }
+
+    /**
+     * 关闭popupwindow
+     */
+    public void dismiss() {
+        if (mPopupWindow.isShowing()) mPopupWindow.dismiss();
+    }
+
+
+    public interface OnDialogListener {
+        void onIsConfirm(boolean is);
+
+        ;
+    }
+}

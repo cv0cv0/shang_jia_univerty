@@ -1,0 +1,209 @@
+package com.rubu.model;
+
+import java.util.List;
+
+/**
+ * Created by liuhaizhu on 2017/3/16.
+ */
+
+public class VersionModel {
+
+    /**
+     * result : {"out_nszRtn":"查询成功！","out_Flag":0}
+     * rows : [{"url":"https://www.uphome.cn","version":"1.0"}]
+     * rows2: 广告
+     */
+
+    private ResultBean result;
+    private List<Rows1Bean> rows1;
+    private List<RowsBean> rows;
+//    private List<Rows2Bean> rows2;
+
+    public ResultBean getResult() {
+        return result;
+    }
+
+    public void setResult(ResultBean result) {
+        this.result = result;
+    }
+
+    public List<Rows1Bean> getRows1() {
+        return rows1;
+    }
+
+    public void setRows1(List<Rows1Bean> rows1) {
+        this.rows1 = rows1;
+    }
+
+    public List<RowsBean> getRows() {
+        return rows;
+    }
+
+    public void setRows(List<RowsBean> rows) {
+        this.rows = rows;
+    }
+
+//    public List<Rows2Bean> getRows2() {
+//        return rows2;
+//    }
+//
+//    public void setRows2(List<Rows2Bean> rows2) {
+//        this.rows2 = rows2;
+//    }
+
+    public static class ResultBean {
+        /**
+         * out_nszRtn : 查询成功！
+         * out_Flag : 0
+         */
+
+        private String out_nszRtn;
+        private int out_Flag;
+
+        public String getOut_nszRtn() {
+            return out_nszRtn;
+        }
+
+        public void setOut_nszRtn(String out_nszRtn) {
+            this.out_nszRtn = out_nszRtn;
+        }
+
+        public int getOut_Flag() {
+            return out_Flag;
+        }
+
+        public void setOut_Flag(int out_Flag) {
+            this.out_Flag = out_Flag;
+        }
+    }
+
+    public static class Rows1Bean {
+        private String is_old_worker;
+        private int is_examine;
+        private int examine_sums;
+
+        public String getIs_old_worker() {
+            return is_old_worker;
+        }
+
+        public void setIs_old_worker(String is_old_worker) {
+            this.is_old_worker = is_old_worker;
+        }
+
+        public int getIs_examine() {
+            return is_examine;
+        }
+
+        public void setIs_examine(int is_examine) {
+            this.is_examine = is_examine;
+        }
+
+        public int getExamine_sums() {
+            return examine_sums;
+        }
+
+        public void setExamine_sums(int examine_sums) {
+            this.examine_sums = examine_sums;
+        }
+    }
+
+    public static class RowsBean {
+        /**
+         * url : https://www.uphome.cn
+         * version : 1.0
+         */
+
+        private String url;
+        private String version;
+        private String is_force;
+        private String update_reason;
+
+        public String getUpdate_reason() {
+            return update_reason;
+        }
+
+        public void setUpdate_reason(String update_reason) {
+            this.update_reason = update_reason;
+        }
+
+        public String getIs_force() {
+            return is_force;
+        }
+
+        public void setIs_force(String is_force) {
+            this.is_force = is_force;
+        }
+
+        public String getUrl() {
+            return url;
+        }
+
+        public void setUrl(String url) {
+            this.url = url;
+        }
+
+        public String getVersion() {
+            return version;
+        }
+
+        public void setVersion(String version) {
+            this.version = version;
+        }
+    }
+
+//    public static class Rows2Bean {
+//        /**
+//         * "msg_content":"http://localhost:9090/scs/admin/see.jsp?msg_id=4",
+//         *" img_url":"http://localhost:9090/upload/msg/1501213344157.jpg",
+//         *"issee":"N",
+//         *"msg_id":4,
+//         *"msg_title":"ASD"
+//         */
+//
+//        private String msg_content;
+//        private String img_url;
+//        private String issee;
+//        private int msg_id;
+//        private String msg_title;
+//
+//        public String getMsg_content() {
+//            return msg_content;
+//        }
+//
+//        public void setMsg_content(String msg_content) {
+//            this.msg_content = msg_content;
+//        }
+//
+//        public String getImg_url() {
+//            return img_url;
+//        }
+//
+//        public void setImg_url(String img_url) {
+//            this.img_url = img_url;
+//        }
+//
+//        public String getIssee() {
+//            return issee;
+//        }
+//
+//        public void setIssee(String issee) {
+//            this.issee = issee;
+//        }
+//
+//        public int getMsg_id() {
+//            return msg_id;
+//        }
+//
+//        public void setMsg_id(int msg_id) {
+//            this.msg_id = msg_id;
+//        }
+//
+//        public String getMsg_title() {
+//            return msg_title;
+//        }
+//
+//        public void setMsg_title(String msg_title) {
+//            this.msg_title = msg_title;
+//        }
+//    }
+}

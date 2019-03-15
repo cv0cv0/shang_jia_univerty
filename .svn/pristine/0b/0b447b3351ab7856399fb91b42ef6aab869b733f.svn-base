@@ -1,0 +1,43 @@
+package com.rubu.ui.act;
+
+import android.content.Intent;
+import android.util.Log;
+import android.view.View;
+import android.widget.EditText;
+
+import com.rubu.MainActivity;
+import com.rubu.R;
+import com.rubu.base.BaseActivity;
+import com.rubu.constant.Constant;
+
+import butterknife.BindView;
+import butterknife.OnClick;
+
+/**
+ * Created by Administrator on 2017/7/6.
+ */
+
+public class ModifyPortAct extends BaseActivity {
+    @BindView(R.id.modify_et)
+    EditText modifyEt;
+
+    @OnClick({R.id.confirm})
+    public void confirm(View view){
+//        Constant.BASE_URL = "http://"+modifyEt.getText()+"/";
+//        Constant.BASE_WOKE_IMG = "http://"+modifyEt.getText()+"/upload/workimg/";
+        Log.i("===========", "confirm: "+Constant.BASE_URL);
+        Log.i("===========", "confirm: "+Constant.BASE_WOKE_IMG);
+        Intent intent = new Intent(ModifyPortAct.this, MainActivity.class);
+        startActivity(intent);
+    }
+
+    @Override
+    protected int getViewId() {
+        return R.layout.act_modify_port;
+    }
+
+    @Override
+    protected void initEvent() {
+
+    }
+}

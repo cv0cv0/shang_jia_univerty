@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="spinner_arr">
+        <item>@string/sprinner_reason</item>
+        <item>@string/stop_teamworker</item>
+        <item>@string/no_enough_skill</item>
+        <item>@string/no_my_area</item>
+        <item>@string/address_is_error</item>
+        <item>@string/others</item>
+    </string-array>
+</resources>

@@ -1,0 +1,167 @@
+package com.rubu.model;
+
+import java.util.List;
+
+/**
+ * Created by liuhaizhu on 2017/3/16.
+ */
+
+public class FenModel {
+
+
+    /**
+     * result : {"out_nszRtn":"查询成功!","out_Flag":0}
+     * rows : [{"operater_updatetime":"2017-09-11 16:37:47","business_time":null,"operater_operator_id":"管理员","business_operator":null,"order_title_id":44245,"s_org_remark":null,"remark_time":null,"remark_operator_id":null,"operater_remark":"","business_note":null}]
+     */
+
+    private ResultBean result;
+    private List<RowsBean> rows;
+
+    public ResultBean getResult() {
+        return result;
+    }
+
+    public void setResult(ResultBean result) {
+        this.result = result;
+    }
+
+    public List<RowsBean> getRows() {
+        return rows;
+    }
+
+    public void setRows(List<RowsBean> rows) {
+        this.rows = rows;
+    }
+
+    public static class ResultBean {
+        /**
+         * out_nszRtn : 查询成功!
+         * out_Flag : 0
+         */
+
+        private String out_nszRtn;
+        private int out_Flag;
+
+        public String getOut_nszRtn() {
+            return out_nszRtn;
+        }
+
+        public void setOut_nszRtn(String out_nszRtn) {
+            this.out_nszRtn = out_nszRtn;
+        }
+
+        public int getOut_Flag() {
+            return out_Flag;
+        }
+
+        public void setOut_Flag(int out_Flag) {
+            this.out_Flag = out_Flag;
+        }
+    }
+
+    public static class RowsBean {
+        /**
+         * operater_updatetime : 2017-09-11 16:37:47
+         * business_time : null
+         * operater_operator_id : 管理员
+         * business_operator : null
+         * order_title_id : 44245
+         * s_org_remark : null
+         * remark_time : null
+         * remark_operator_id : null
+         * operater_remark :
+         * business_note : null
+         */
+
+        private String operater_updatetime;
+        private String business_time;
+        private String operater_operator_id;
+        private String business_operator;
+        private int order_title_id;
+        private String s_org_remark;
+        private String remark_time;
+        private String remark_operator_id;
+        private String operater_remark;
+        private String business_note;
+
+        public String getOperater_updatetime() {
+            return operater_updatetime;
+        }
+
+        public void setOperater_updatetime(String operater_updatetime) {
+            this.operater_updatetime = operater_updatetime;
+        }
+
+        public String getBusiness_time() {
+            return business_time;
+        }
+
+        public void setBusiness_time(String business_time) {
+            this.business_time = business_time;
+        }
+
+        public String getOperater_operator_id() {
+            return operater_operator_id;
+        }
+
+        public void setOperater_operator_id(String operater_operator_id) {
+            this.operater_operator_id = operater_operator_id;
+        }
+
+        public String getBusiness_operator() {
+            return business_operator;
+        }
+
+        public void setBusiness_operator(String business_operator) {
+            this.business_operator = business_operator;
+        }
+
+        public int getOrder_title_id() {
+            return order_title_id;
+        }
+
+        public void setOrder_title_id(int order_title_id) {
+            this.order_title_id = order_title_id;
+        }
+
+        public String getS_org_remark() {
+            return s_org_remark;
+        }
+
+        public void setS_org_remark(String s_org_remark) {
+            this.s_org_remark = s_org_remark;
+        }
+
+        public String getRemark_time() {
+            return remark_time;
+        }
+
+        public void setRemark_time(String remark_time) {
+            this.remark_time = remark_time;
+        }
+
+        public String getRemark_operator_id() {
+            return remark_operator_id;
+        }
+
+        public void setRemark_operator_id(String remark_operator_id) {
+            this.remark_operator_id = remark_operator_id;
+        }
+
+        public String getOperater_remark() {
+            return operater_remark;
+        }
+
+        public void setOperater_remark(String operater_remark) {
+            this.operater_remark = operater_remark;
+        }
+
+        public String getBusiness_note() {
+            return business_note;
+        }
+
+        public void setBusiness_note(String business_note) {
+            this.business_note = business_note;
+        }
+    }
+}

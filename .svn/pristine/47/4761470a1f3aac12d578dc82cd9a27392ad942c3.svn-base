@@ -1,0 +1,133 @@
+package com.rubu.pop;
+
+import android.app.Activity;
+import android.graphics.drawable.ColorDrawable;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
+
+import com.rubu.R;
+import com.rubu.adapter.popupAdditionalservicesGoodsListAdapter;
+import com.rubu.adapter.popupAdditionalservicesServicesListAdapter;
+import com.rubu.model.Order;
+import com.rubu.view.AutoListView;
+
+import java.util.List;
+
+public class AdditionalServicesPopDialog {
+    private Button btnConfirm, btnCancel;
+    private Activity mContext;
+    private PopupWindow mPopupWindow;
+    private AutoListView mServiceGoodsLv,mAdditionalServicesLv;
+    private LinearLayout mServicesll,mOtherServicesll;
+    private popupAdditionalservicesGoodsListAdapter popupAdditionalservicesListAdapter_goods;
+
+    private popupAdditionalservicesServicesListAdapter popupAdditionalservicesListAdapter_services;
+
+    public void setOnDialogListener(OnDialogListener onDialogListener) {
+        mOnDialogListener = onDialogListener;
+    }
+
+    private OnDialogListener mOnDialogListener;
+
+    public AdditionalServicesPopDialog(Activity context,List<Order.Rows1Bean> mList,List<Order.Rows4Bean> mServiceList,Boolean isChack) {
+        this.mContext = context;
+        init();
+        setDatas(mList,mServiceList,isChack);
+    }
+
+    private void setDatas(List<Order.Rows1Bean> mList,List<Order.Rows4Bean> mServicesList,Boolean isChack) {
+        popupAdditionalservicesListAdapter_goods = new popupAdditionalservicesGoodsListAdapter(mContext,mList);
+        mServiceGoodsLv.setAdapter(popupAdditionalservicesListAdapter_goods);
+        if(mServicesList.size()==0){
+            mServicesll.setVisibility(View.GONE);
+        }else {
+            mServicesll.setVisibility(View.VISIBLE);
+        }
+        if (isChack){
+            mOtherServicesll.setVisibility(View.VISIBLE);
+        }else {
+            mOtherServicesll.setVisibility(View.GONE);
+        }
+        popupAdditionalservicesListAdapter_services = new popupAdditionalservicesServicesListAdapter(mContext,mServicesList);
+        mAdditionalServicesLv.setAdapter(popupAdditionalservicesListAdapter_services);
+    }
+
+
+    protected void init() {
+        View rootView = LayoutInflater.from(mContext).inflate(R.layout.additional_services_pop_dialog, null);
+        btnConfirm = (Button) rootView.findViewById(R.id.btn_confirm);
+        btnCancel = (Button) rootView.findViewById(R.id.btn_cancel);
+        mServiceGoodsLv = (AutoListView) rootView.findViewById(R.id.service_goods_listview);
+        mAdditionalServicesLv = (AutoListView) rootView.findViewById(R.id.additional_service_listview);
+        mServicesll = (LinearLayout) rootView.findViewById(R.id.additional_service_ll) ;
+        mOtherServicesll = (LinearLayout) rootView.findViewById(R.id.other_coast_ll);
+        mPopupWindow = new PopupWindow(rootView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        mPopupWindow.setAnimationStyle(R.style.popwin_anim_style);
+        mPopupWindow.setFocusable(true);
+        ColorDrawable dw = new ColorDrawable(0x00000000);
+        mPopupWindow.setBackgroundDrawable(dw);
+        btnConfirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss();
+                if (mOnDialogListener != null) {
+                    mOnDialogListener.onIsConfirm(true);
+                }
+            }
+        });
+        btnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss();
+                if (mOnDialogListener != null) {
+                    mOnDialogListener.onIsConfirm(false);
+                }
+            }
+        });
+        mPopupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                WindowManager.LayoutParams lp = mContext.getWindow().getAttributes();
+                lp.alpha = 1f;
+                mContext.getWindow().setAttributes(lp);
+            }
+        });
+    }
+
+    /**
+     * 显示popupwindow
+     *
+     * @param view
+     */
+    public void show(View view) {
+        WindowManager.LayoutParams lp = mContext.getWindow().getAttributes();
+        lp.alpha = 0.7f;
+        mContext.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+        mContext.getWindow().setAttributes(lp);
+        if (mPopupWindow.isShowing()) {
+            mPopupWindow.dismiss();
+        } else {
+            mPopupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
+        }
+    }
+
+    /**
+     * 关闭popupwindow
+     */
+    public void dismiss() {
+        if (mPopupWindow.isShowing()) mPopupWindow.dismiss();
+    }
+
+
+    public interface OnDialogListener {
+        void onIsConfirm(boolean is);
+
+        ;
+    }
+}

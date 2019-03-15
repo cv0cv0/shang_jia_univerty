@@ -1,0 +1,44 @@
+package com.rubu.ui.act.register.model;
+
+import java.io.Serializable;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/10/9
+ * Vwesion 1.0
+ * Dsscription: 区域能力，子的对象
+ */
+
+public class AreaChildModel implements Serializable {
+    // 街道的Id
+    private String street_id;
+    // 街道的名字
+    private String street_name;
+    // 是否选择
+    private boolean isSelect;
+
+
+    public String getStreet_id() {
+        return street_id;
+    }
+
+    public void setStreet_id(String street_id) {
+        this.street_id = street_id;
+    }
+
+    public String getStreet_name() {
+        return street_name;
+    }
+
+    public void setStreet_name(String street_name) {
+        this.street_name = street_name;
+    }
+
+    public boolean isSelect() {
+        return isSelect;
+    }
+
+    public void setSelect(boolean select) {
+        isSelect = select;
+    }
+}

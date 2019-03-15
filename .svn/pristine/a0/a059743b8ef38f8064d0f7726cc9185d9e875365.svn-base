@@ -1,0 +1,106 @@
+package com.rubu.ui.act.mine.adapter;
+
+import android.content.Context;
+import android.content.Intent;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.base.BaseListAdapter;
+import com.rubu.ui.act.ActionPickAct;
+import com.rubu.ui.act.mine.model.DetialAccountModel;
+
+import java.util.List;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/9/13
+ * Vwesion 1.0
+ * Dsscription:  我的清单适配
+ */
+
+public class DetialAccountAdapter extends BaseListAdapter<DetialAccountModel.RowsBean> {
+
+    public DetialAccountAdapter(Context context, List<DetialAccountModel.RowsBean> list) {
+        super(context, list);
+    }
+
+    @Override
+    public View initView(final DetialAccountModel.RowsBean bean, View convertView, ViewGroup parent) {
+        final ViewHolder holder;
+        if (convertView == null) {
+            convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_mine_detial_account, null);
+            holder = new ViewHolder();
+            holder.root = (LinearLayout) convertView.findViewById(R.id.root);
+            holder.mOperate = (TextView) convertView.findViewById(R.id.tv_operate);
+            holder.mTime = (TextView) convertView.findViewById(R.id.tv_time);
+            holder.mAccount = (TextView) convertView.findViewById(R.id.tv_account);
+            convertView.setTag(holder);
+        } else {
+            holder = (ViewHolder) convertView.getTag();
+        }
+        // 设置事件
+        holder.mTime.setText(bean.getCreate_time());
+        // 单子操作名字
+        if (bean.getOrder_sub_id() != 0) {
+            holder.mOperate.setText(bean.getOperation_name());
+            holder.root.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(context, ActionPickAct.class);
+                    intent.putExtra("id", Long.valueOf(bean.getOrder_title_id()));
+                    context.startActivity(intent);
+                }
+            });
+        } else {
+            holder.mOperate.setText("操作");
+        }
+        // 是否显示金额
+        if (bean.getS_status() == 0 || "N".equals(bean.getS_org_show_status())) {
+            if (bean.getOrder_sub_id() != 0) {
+                holder.mAccount.setText("完结");
+            } else {
+                // 设置操作记录
+                holder.mAccount.setText("");
+            }
+        } else {
+            if (bean.getOrder_sub_id() != 0) {
+                holder.mAccount.setText("+" + bean.getOperation_fee());
+            } else {
+                // 设置操作记录
+                holder.mAccount.setText("" + bean.getOperation_fee());
+            }
+        }
+        if (bean.getOperation_fee() > 0) {
+            holder.mAccount.setTextColor(context.getResources().getColor(R.color.colorAccent));
+        } else {
+            holder.mAccount.setTextColor(context.getResources().getColor(R.color.c_009688));
+        }
+        return convertView;
+    }
+
+    class ViewHolder {
+        LinearLayout root;
+        // 操作
+        TextView mOperate;
+        // 事件
+        TextView mTime;
+        // 金额
+        TextView mAccount;
+    }
+
+    // 点击事件
+    private ItemOnclick mItemOnclick;
+
+    public void setmItemOnclick(ItemOnclick itemOnclick) {
+        this.mItemOnclick = itemOnclick;
+    }
+
+    public interface ItemOnclick {
+        void onClick(int titleId, int orderStatus);
+    }
+
+}

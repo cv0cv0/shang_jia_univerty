@@ -1,0 +1,247 @@
+package com.rubu.util;
+
+import android.util.Log;
+
+import com.rubu.constant.WorkerStatus;
+import com.rubu.model.Order;
+import com.rubu.model.OrderList;
+
+/**
+ * Created by liuhaizhu on 2017/3/12.
+ * Dsscription:操作时间格式,剩余天数的类
+ */
+
+public class SyUtil {
+    private static final long ONE_MINUTE = 60000;
+    private static final long MINUTE_5 = ONE_MINUTE * 5;
+    public static final long MINUTE_15 = ONE_MINUTE * 15;
+    private static final long MINUTE_30 = ONE_MINUTE * 30;
+    private static final long MINUTE_60 = ONE_MINUTE * 60;
+    private static final long HOUR_2 = MINUTE_60 * 2;
+    private static final long HOUR_3 = MINUTE_60 * 3;
+    private static final long HOUR_4 = MINUTE_60 * 4;
+    private static final long HOUR_5 = MINUTE_60 * 5;
+    private static final long HOUR_6 = MINUTE_60 * 6;
+    public static final long HOUR_24 = MINUTE_60 * 24;
+    private static final long HOUR_48 = HOUR_24 * 2;
+    private static final String TIMER_LOST = "已超时";
+
+
+    public static String getSyStr(OrderList.RowsBean rowsBean, int status) {
+        long time = rowsBean.getCountDown();
+        int realStatus = WorkerStatus.getRealState(status);
+        switch (realStatus) {
+            case WorkerStatus.STATU_J:
+                return getSyStrJ(rowsBean);
+            case WorkerStatus.STATU_Y:
+                return getSyStrY(time);
+            case WorkerStatus.STATU_Q:
+                return getSyStrQ(rowsBean);
+            case WorkerStatus.STATU_W:
+                return getSyStrW(time);
+        }
+        return "";
+    }
+
+    /**
+     * 接单
+     *
+     * @param rowsBean
+     * @return
+     */
+    private static String getSyStrJ(OrderList.RowsBean rowsBean) {
+        long time = rowsBean.getCountDown();
+        long currentTime = System.currentTimeMillis();
+        long nextEndTimes = TimeUtil.TimeToLong(rowsBean.getNext_time_end());
+        long times = nextEndTimes - currentTime;
+        String getWorkerStatus = "接单";
+        Log.i("=========", "getSyStrJ: " + time / 60000);
+        if (time > 1000) {
+            if (time <= MINUTE_5) {//小于15分钟
+                return ("请于" + CountDownUtil.getCountDownSTR2(time) + "内" + getWorkerStatus);
+            } else if (time <= MINUTE_15) {
+                return "请于15分钟内接单";
+            } else if (time <= MINUTE_30) {
+                return "请于30分钟内接单";
+            } else if (time <= MINUTE_60) {
+                return "请于1小时内接单";
+            } else if (0 < times && times <= MINUTE_60 * 2) {
+                return "请于2小时内接单";
+            } else {
+                return "请于3小时内接单";
+            }
+        } else {
+            return TIMER_LOST;
+        }
+    }
+
+    /**
+     * 预约
+     *
+     * @param time
+     */
+    private static String getSyStrY(long time) {
+        long time24 = TimeUtil.getToday24Time();//24点时间
+        long hadTime = time24 - System.currentTimeMillis();//24点时间
+        long time48 = TimeUtil.getToday48Time();//24点时间
+        String getWorkerStatus = "预约";
+        if (time48 - System.currentTimeMillis() < time) {
+            return "请于" + ((time - hadTime) / HOUR_24 + 1) + "天内" + getWorkerStatus;
+
+        } else if (time24 - System.currentTimeMillis() < time) {
+            return "请于明天24：00之前预约";
+        } else if (time > MINUTE_60) {
+            return "请于24：00之前预约";
+        } else if (time > 1000) {
+            if (time <= MINUTE_5) {//小于15分钟
+                return ("请于" + CountDownUtil.getCountDownSTR2(time) + "内" + getWorkerStatus);
+            } else if (time <= MINUTE_15) {
+                return "请于15分钟内" + getWorkerStatus;
+            } else if (time <= MINUTE_30) {
+                return "请于30分钟内" + getWorkerStatus;
+            } else {
+                return "请于1小时内" + getWorkerStatus;
+            }
+        } else {
+            return TIMER_LOST;
+        }
+    }
+
+
+    /**
+     * 列表签到时间设置
+     *
+     * @param rowsBean
+     * @return
+     */
+    private static String getSyStrQ(OrderList.RowsBean rowsBean) {
+        long time = rowsBean.getCountDown();
+        long time24 = TimeUtil.getToday24Time();//24点时间
+        long hadTime = time24 - System.currentTimeMillis();//今天剩余的时间
+        long nextTimes = TimeUtil.TimeToLong(rowsBean.getNext_time());
+        long nextEndTimes = TimeUtil.TimeToLong(rowsBean.getNext_time_end());
+        long currentTime = System.currentTimeMillis();
+        String getWorkerStatus = "签到";
+        if (time > hadTime) {
+            if (time < hadTime + HOUR_24) {
+                return "请于今日签到复查";
+            } else {
+                return "还剩" + ((time - hadTime) / HOUR_24 + 1) + "天" + getWorkerStatus;
+            }
+        } else {
+            if (time <= 1000) {
+                return TIMER_LOST;
+            } else if (time <= MINUTE_5) {
+                return ("请于" + CountDownUtil.getCountDownSTR2(time) + "之内" + getWorkerStatus);
+            } else if (time <= MINUTE_15) {
+                return "请于15分钟之内" + getWorkerStatus;
+            } else if (time <= MINUTE_30) {
+                return "请于30分钟之内" + getWorkerStatus;
+            } else if (time <= MINUTE_60) {
+                return "请于1小时之内" + getWorkerStatus;
+            } else if (currentTime < nextTimes) {
+//              return "请于" + (time / MINUTE_60 + 1) + "小时内" + getWorkerStatus;
+                return "请于" + ((HOUR_24 - (time24 - nextTimes)) / MINUTE_60) + ":00之后" + getWorkerStatus;
+            } else {
+                return "请于" + ((nextEndTimes - currentTime) / MINUTE_60 + 1) + "小时之内" + getWorkerStatus;
+            }
+        }
+    }
+
+    /**
+     * 完工
+     *
+     * @param time
+     */
+    private static String getSyStrW(long time) {
+        long time24 = TimeUtil.getToday24Time();//24点时间
+        String getWorkerStatus = "核销";
+        if (time >= 1000) {
+            if (time <= MINUTE_5) {//小于15分钟
+                return ("请于" + CountDownUtil.getCountDownSTR2(time) + "内" + getWorkerStatus);
+            } else if (time <= MINUTE_15) {
+                return "请于15分钟内" + getWorkerStatus;
+            } else if (time <= MINUTE_30) {
+                return "请于30分钟内" + getWorkerStatus;
+            } else if (time <= MINUTE_60) {
+                return "请于1小时内" + getWorkerStatus;
+            } else {
+                return "请于" + (time / MINUTE_60 + 1) + "小时内" + getWorkerStatus;
+            }
+        } else {
+            return TIMER_LOST;
+        }
+    }
+
+
+    /**
+     * 工单详情签到时间设置
+     *
+     * @param rowsBean
+     * @return
+     */
+    public static String getStrQ(Order.RowsBean rowsBean) {
+        long time24 = TimeUtil.getToday24Time();//24点时间
+        long hadTime = time24 - System.currentTimeMillis();//剩余时间
+        long nextTimes = TimeUtil.TimeToLong(rowsBean.getNext_time());
+        long nextEndTimes = TimeUtil.TimeToLong(rowsBean.getNext_time_end());
+        long currentTime = System.currentTimeMillis();
+        long time = nextEndTimes - System.currentTimeMillis();
+        String getWorkerStatus = "签到";
+        if (time > hadTime) {
+            if (time < hadTime + HOUR_24 || time == (hadTime + HOUR_24)) {
+                return "请于明天签到";
+            } else {
+                return "还剩" + ((time - hadTime) / HOUR_24 + 1) + "天" + getWorkerStatus;
+            }
+        } else {
+            if (time <= 1000) {
+                return "签到";
+            } else if (time <= MINUTE_5) {//小于15分钟
+                return ("请于" + CountDownUtil.getCountDownSTR2(time) + "之内" + getWorkerStatus);
+            } else if (time <= MINUTE_15) {
+                return "请于15分钟之内" + getWorkerStatus;
+            } else if (time <= MINUTE_30) {
+                return "请于30分钟之内" + getWorkerStatus;
+            } else if (time <= MINUTE_60) {
+                return "请于1小时之内" + getWorkerStatus;
+            } else if (currentTime < nextTimes) {
+                return "请于" + ((HOUR_24 - (time24 - nextTimes)) / MINUTE_60) + ":00之后" + getWorkerStatus;
+            } else {
+                return "请于" + ((nextEndTimes - currentTime) / MINUTE_60 + 1) + "小时之内" + getWorkerStatus;
+            }
+        }
+    }
+
+    /**
+     * 工单到货时间的时间设置
+     * 天猫单超时预警功能（于2018/06/13废除）
+     *
+     * @param rowsBean 数据对象
+     * @return
+     */
+//    private static String getSyStrD(OrderList.RowsBean rowsBean) {
+//        long time = rowsBean.getCountDown();
+//        long receive_data = TimeUtil.TimeToLong(rowsBean.getReceived_date());
+//        receive_data = receive_data + 10800*1000;
+//        String receive_last_data = TimeUtil.getHour(receive_data);
+//        if (time > 0) {
+//            return ("请于 " + receive_last_data + " 前联系");
+//        } else {
+//            long longTime = 0 - time;
+//            // 获取超市的时分秒
+//            String[] strs = CountDownUtil.getDHMS(longTime);
+//            String timeHint;
+//            // 几天
+//            if (longTime > HOUR_24) {
+//                timeHint = strs[0] + "天" + strs[1] + "小时" + strs[2] + "分钟";
+//                // 几小时
+//            } else if (longTime > MINUTE_60) {
+//                timeHint = strs[1] + "小时" + strs[2] + "分钟";
+//            } else {
+//                timeHint = strs[2] + "分钟";
+//            }
+//            return ("已超时: " + timeHint);
+//        }
+//    }
+}

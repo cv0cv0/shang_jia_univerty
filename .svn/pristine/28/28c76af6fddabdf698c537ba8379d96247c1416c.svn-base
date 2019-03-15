@@ -1,0 +1,116 @@
+package com.rubu.model;
+
+import java.util.List;
+
+/**
+ * Created by liuhaizhu on 2017/3/14.
+ */
+
+public class MsgDetailModel {
+
+    /**
+     * result : {"out_nszRtn":"查询成功！","out_Flag":0}
+     * rows : [{"msg_content":"讲的是另一个故事","create_time":1519228800000,"msg_id":2,"msg_title":"这是实例二","modify_time":1519315200000}]
+     */
+
+    private ResultBean result;
+    private List<RowsBean> rows;
+
+    public ResultBean getResult() {
+        return result;
+    }
+
+    public void setResult(ResultBean result) {
+        this.result = result;
+    }
+
+    public List<RowsBean> getRows() {
+        return rows;
+    }
+
+    public void setRows(List<RowsBean> rows) {
+        this.rows = rows;
+    }
+
+    public static class ResultBean {
+        /**
+         * out_nszRtn : 查询成功！
+         * out_Flag : 0
+         */
+
+        private String out_nszRtn;
+        private int out_Flag;
+
+        public String getOut_nszRtn() {
+            return out_nszRtn;
+        }
+
+        public void setOut_nszRtn(String out_nszRtn) {
+            this.out_nszRtn = out_nszRtn;
+        }
+
+        public int getOut_Flag() {
+            return out_Flag;
+        }
+
+        public void setOut_Flag(int out_Flag) {
+            this.out_Flag = out_Flag;
+        }
+    }
+
+    public static class RowsBean {
+        /**
+         * msg_content : 讲的是另一个故事
+         * create_time : 1519228800000
+         * msg_id : 2
+         * msg_title : 这是实例二
+         * modify_time : 1519315200000
+         */
+
+        private String msg_content;
+        private String modify_time;
+        private int msg_id;
+        private String msg_title;
+        private String user_name;
+
+        public String getMsg_content() {
+            return msg_content;
+        }
+
+        public void setMsg_content(String msg_content) {
+            this.msg_content = msg_content;
+        }
+
+        public String getModify_time() {
+            return modify_time;
+        }
+
+        public void setModify_time(String modify_time) {
+            this.modify_time = modify_time;
+        }
+
+        public int getMsg_id() {
+            return msg_id;
+        }
+
+        public void setMsg_id(int msg_id) {
+            this.msg_id = msg_id;
+        }
+
+        public String getMsg_title() {
+            return msg_title;
+        }
+
+        public void setMsg_title(String msg_title) {
+            this.msg_title = msg_title;
+        }
+
+        public String getUser_name() {
+            return user_name;
+        }
+
+        public void setUser_name(String user_name) {
+            this.user_name = user_name;
+        }
+    }
+}

@@ -1,0 +1,188 @@
+package com.rubu.ui.act;
+
+import android.content.Intent;
+import android.support.v7.widget.Toolbar;
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.rubu.R;
+import com.rubu.base.BaseActivity;
+import com.rubu.model.InfoModel;
+import com.rubu.util.StringUtil;
+
+import butterknife.BindView;
+import butterknife.OnClick;
+
+/**
+ * Created by fly on 2017/3/2.
+ */
+
+public class UserInfoAct extends BaseActivity {
+    @BindView(R.id.title_left)
+    TextView titleLeft;
+    @BindView(R.id.title)
+    TextView title;
+    @BindView(R.id.title_right_toolbar)
+    TextView titleRightToolbar;
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
+    @BindView(R.id.tv_name)
+    TextView mTvName;
+    @BindView(R.id.tv_org_name)
+    TextView mTvOrgName;
+    @BindView(R.id.tv_tel)
+    TextView mTvTel;
+    @BindView(R.id.tv_card_no)
+    TextView mTvCardNo;
+    @BindView(R.id.tv_user_account)
+    TextView mTvUserAccount;
+    @BindView(R.id.tv_living_area)
+    TextView tvLivingArea;
+    @BindView(R.id.tv_adress)
+    TextView mAdress;
+    @BindView(R.id.tv_woker_type)
+    TextView mWokerType;
+    @BindView(R.id.tv_service_ability)
+    TextView mServiceAbility;
+    @BindView(R.id.tv_bank_name)
+    TextView mBankName;
+    @BindView(R.id.ll_bank_code)
+    LinearLayout mLLBankCode;
+
+    private InfoModel model;
+
+    private final int REQUEST_BANK_CODE = 1;
+
+    @Override
+    protected int getViewId() {
+        return R.layout.activity_userinfo;
+    }
+
+    @Override
+    protected void initEvent() {
+        model = (InfoModel) getIntent().getSerializableExtra("model");
+        title.setText("个人信息");
+        titleLeft.setText("返回");
+        titleLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onBackPressed();
+            }
+        });
+        InfoModel.RowsBean rowsBean = model.getRows().get(0);
+        mTvName.setText(rowsBean.getS_user_name());
+        // 用户名字
+        if (!StringUtil.isEmpty(rowsBean.getS_org_short())) {
+            mTvOrgName.setText(rowsBean.getS_org_short());
+        } else {
+            mTvOrgName.setText(R.string.zw);
+        }
+        // 用户手机号
+        if (!StringUtil.isEmpty(rowsBean.getS_bind_tel())) {
+            String c = rowsBean.getS_bind_tel().replaceAll("(\\d{3})\\d{4}(\\d{4})", "$1****$2");
+            mTvTel.setText(c);
+        } else {
+            mTvTel.setText(R.string.zw);
+        }
+        // 用户身份证账号
+        if (!StringUtil.isEmpty(rowsBean.getS_idcard_no())) {
+            String c = rowsBean.getS_idcard_no().replaceAll("(\\d{6})\\d{8}(\\d{4})", "$1********$2");
+            mTvCardNo.setText(c);
+        } else {
+            mTvCardNo.setText(R.string.zw);
+        }
+        //
+        if (!StringUtil.isEmpty(rowsBean.getS_user_account())) {
+            String bankCode = rowsBean.getS_user_account();
+            char[] chars = bankCode.toCharArray();
+            int a = chars.length;
+            if (a == 19) {
+                bankCode = bankCode.replaceAll("(\\d{6})\\d{9}(\\d{4})", "$1*********$2");
+            }
+            if (a == 16) {
+                bankCode = bankCode.replaceAll("(\\d{6})\\d{6}(\\d{4})", "$1******$2");
+            }
+            mTvUserAccount.setText(bankCode);
+        } else {
+            mTvUserAccount.setText(R.string.zw);
+        }
+        // 用户居住区域
+        if (!StringUtil.isEmpty(rowsBean.getS_region_tag())) {
+            tvLivingArea.setText(rowsBean.getS_region_tag());
+        } else {
+            tvLivingArea.setText(R.string.zw);
+        }
+        // 用户详细地址
+        if (!StringUtil.isEmpty(rowsBean.getS_address())) {
+            mAdress.setText(rowsBean.getS_address());
+        } else {
+            mAdress.setText(R.string.zw);
+        }
+        // 工头类型
+        if (!StringUtil.isEmpty(rowsBean.getWorker_type_name())) {
+            mWokerType.setText(rowsBean.getWorker_type_name());
+        } else {
+            mWokerType.setText(R.string.zw);
+        }
+        // 服务能力
+        if (!StringUtil.isEmpty(model.getRows1().get(0).getService_ability_name())) {
+            mServiceAbility.setText(model.getRows1().get(0).getService_ability_name());
+        } else {
+            mServiceAbility.setText(R.string.zw);
+        }
+        // 开户银行
+        if (!StringUtil.isEmpty(rowsBean.getS_bank_account())) {
+            mBankName.setText(rowsBean.getS_bank_account());
+        } else {
+            mBankName.setText(R.string.zw);
+        }
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQUEST_BANK_CODE) {
+                String bankCode = data.getStringExtra("bankCode");
+                char[] chars = bankCode.toCharArray();
+                int a = chars.length;
+                if (a == 19) {
+                    bankCode = bankCode.replaceAll("(\\d{6})\\d{9}(\\d{4})", "$1*********$2");
+                }
+                if (a == 16) {
+                    bankCode = bankCode.replaceAll("(\\d{6})\\d{6}(\\d{4})", "$1******$2");
+                }
+                mTvUserAccount.setText(bankCode);
+            }
+        }
+    }
+
+    @OnClick({R.id.modify_password, R.id.ll_bank_code})
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.modify_password:
+                Intent modifyIntent = new Intent(mContext, ModifyPasswordAct.class);
+                InfoModel.RowsBean rowsBean = model.getRows().get(0);
+                if (rowsBean != null) {
+                    modifyIntent.putExtra("rowsBean", rowsBean);
+                    startActivity(modifyIntent);
+                } else {
+                    showToast("请稍候再试");
+                }
+                break;
+            case R.id.ll_bank_code:
+                Intent bankCodeIntent = new Intent(mContext, SetBankCodeAvt.class);
+                InfoModel.RowsBean rowsBean1 = model.getRows().get(0);
+                if (rowsBean1 != null) {
+                    bankCodeIntent.putExtra("rowsBean", rowsBean1);
+                    startActivityForResult(bankCodeIntent, REQUEST_BANK_CODE);
+                } else {
+                    showToast("请稍候再试");
+                }
+                break;
+        }
+    }
+}

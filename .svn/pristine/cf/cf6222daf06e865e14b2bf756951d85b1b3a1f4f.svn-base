@@ -1,0 +1,15 @@
+package com.rubu.ui.act.mine;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/11/6
+ * Vwesion 1.0
+ * Dsscription: 个人模块的点击事件
+ */
+
+public class MineAction {
+    // 刷新
+    public static final int REFRESH = 0;
+    // 加载
+    public static final int LOAD_MORE = 1;
+}

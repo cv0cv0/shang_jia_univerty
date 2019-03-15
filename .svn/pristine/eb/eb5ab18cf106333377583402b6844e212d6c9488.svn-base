@@ -1,0 +1,191 @@
+package com.rubu.ui.act;
+
+import android.content.Context;
+import android.content.Intent;
+import android.view.Gravity;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ListView;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.base.BaseActivity;
+import com.rubu.base.BaseListAdapter;
+import com.rubu.constant.Constant;
+import com.rubu.model.Base;
+import com.rubu.model.Order;
+import com.rubu.net.ApiImp;
+import com.rubu.net.Params;
+import com.rubu.net.ReqJson;
+import com.rubu.pop.PopDialog;
+import com.rubu.util.LoginUtil;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import butterknife.BindView;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
+public class QuestionCancelAct extends BaseActivity {
+    @BindView(R.id.title)
+    TextView mTitle;
+    @BindView(R.id.title_left)
+    TextView mTitleLeft;
+    @BindView(R.id.title_right_toolbar)
+    TextView titleRightToolbar;
+    @BindView(R.id.list_view)
+    ListView mListView;
+    private MyAdapter myAdapter;
+    private Order mOrder;
+    private List<String> mData = new ArrayList<>(Arrays.asList("客户自行安装", "退安装费/退货", "重单"));
+    // 取消安装
+    private PopDialog mDialogCancel;
+
+    @Override
+    protected int getViewId() {
+        return R.layout.activity_question_cancel;
+    }
+
+    @Override
+    protected void initEvent() {
+        mTitle.setText("取消安装");
+        mTitleLeft.setText(R.string.back);
+        mTitleLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+        mOrder = (Order) getIntent().getSerializableExtra("order");
+        myAdapter = new MyAdapter(mContext, mData);
+        myAdapter.setmItemOnClick(new MyAdapter.ItemOnClick() {
+            @Override
+            public void onClick(String reson) {
+                if (mDialogCancel == null) {
+                    mDialogCancel = new PopDialog(QuestionCancelAct.this);
+                    mDialogCancel.setTextContentGravity(Gravity.CENTER);
+                    mDialogCancel.setText("确认取消安装？", "原因 ：" + reson, null);
+                    mDialogCancel.setOnDialogListener(new PopDialog.OnDialogListener() {
+                        @Override
+                        public void onIsConfirm(boolean is) {
+                            if (is) {
+                                doAction("", "1", "", "", 4);
+                            }
+                            mDialogCancel = null;
+                        }
+                    });
+                }
+                mDialogCancel.show(titleRightToolbar);
+            }
+        });
+        mListView.setAdapter(myAdapter);
+    }
+
+    /**
+     * 此遇到问题，取消安装非预约工单无需安装，虽然是一样的流程
+     * @param day
+     * @param time
+     * @param reserved_result
+     * @param nextTime
+     * @param questIndex
+     */
+    private void doAction(String day, String time, String reserved_result, final String nextTime, final int questIndex) {
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_APP_ORDER_UNINSTALL_FAIL_NEW);
+        reqJson.setUser_id(LoginUtil.getUserId(mContext));
+        reqJson.setOrder_title_id(String.valueOf(mOrder.getRows1().get(0).getOrder_title_id()));
+        reqJson.setParent_biz_order_id(mOrder.getRows().get(0).getParent_biz_order_id());
+        reqJson.setService_order_id(mOrder.getRows().get(0).getService_order_id());
+        reqJson.setFail_code(String.valueOf(questIndex));
+        reqJson.setReserved_result(reserved_result);
+        reqJson.setNext_resv_time(time);
+        reqJson.setNext_resv_date(day);
+        reqJson.setWorker_name(LoginUtil.getUserName(mContext));
+        reqJson.setWorker_mobile(LoginUtil.getTel(mContext));
+        reqJson.setHas_rows("no");
+        showProgressDialog("正在取消");
+        reqJson.setCancel_launch(4);
+        mSubscription = ApiImp.get().action(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Base>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        dissmisProgressDialog();
+                        showToast("网络不给力");
+                    }
+
+                    @Override
+                    public void onNext(Base model) {
+                        dissmisProgressDialog();
+                        int flag = model.getResult().getOut_Flag();
+                        if (flag == 0) {
+                            Intent intent = new Intent(mContext, ActionResultAct.class);
+                            intent.putExtra("action", Constant.PROC_APP_ORDER_RESERVING_FAIL);
+                            intent.putExtra("id", String.valueOf(mOrder.getRows1().get(0).getOrder_title_id()));
+                            intent.putExtra("status", mOrder.getRows().get(0).getWorker_status());
+                            intent.putExtra("nextTime", nextTime);
+                            intent.putExtra("questIndex", questIndex);
+                            startActivity(intent);
+                            finish();
+                        } else {
+                            showToast(model.getResult().getOut_nszRtn());
+                        }
+                    }
+                });
+    }
+
+
+    private static class MyAdapter extends BaseListAdapter<String> {
+        private ItemOnClick mItemOnClick;
+
+        public MyAdapter(Context context, List<String> list) {
+            super(context, list);
+        }
+
+        @Override
+        public View initView(final String s, View convertView, ViewGroup parent) {
+            ViewHolder viewHolder = null;
+            if (convertView == null) {
+                viewHolder = new ViewHolder();
+                convertView = inflater.inflate(R.layout.item_string, parent, false);
+                viewHolder.content = (TextView) convertView.findViewById(R.id.tv_item);
+                convertView.setTag(viewHolder);
+            } else {
+                viewHolder = (ViewHolder) convertView.getTag();
+            }
+            viewHolder.content.setTextColor(context.getResources().getColor(R.color.c_333333));
+            viewHolder.content.setGravity(Gravity.LEFT);
+            viewHolder.content.setText(s);
+            viewHolder.content.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (mItemOnClick != null) {
+                        mItemOnClick.onClick(s);
+                    }
+                }
+            });
+            return convertView;
+        }
+
+        class ViewHolder {
+            TextView content;
+        }
+
+        private interface ItemOnClick {
+            void onClick(String reson);
+        }
+
+        public void setmItemOnClick(ItemOnClick click) {
+            this.mItemOnClick = click;
+        }
+    }
+
+}

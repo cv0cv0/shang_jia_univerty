@@ -1,0 +1,273 @@
+package com.rubu.ui.act.mine.model;
+
+import java.util.List;
+
+/**
+ * Created by 72732 on 2018/5/10.
+ */
+
+public class MsgOrderReminderModel {
+
+
+    /**
+     * result : {"out_nszRtn":"消息提醒查询成功","out_zhongtNum":0,"out_Flag":0}
+     * rows1 : [{"reminder_message_id":30,"order_title_id":927339,"b_group_id":99,"message_type":6,"lauch_source":2,"title_pc":"工单取消审核结果","title_app":"工单改派","content_app":"工单BD17228693126940已被改派其他技师,请知晓","content_pc":"工单BD17228693126940中普通坐便器*1         服务已取消,请知晓","oper_desc_pc":"取消原因:客户退款","oper_desc_app":"取消原因:客户退款  审核原因:--","oper_name":"admin","create_time":"2018-05-09 12:05:23","is_read":0,"app_is_read":0,"s_user_name":"陈红亮","s_org_short":"朝阳上家D"},{"reminder_message_id":29,"order_title_id":927339,"b_group_id":99,"message_type":4,"lauch_source":5,"title_pc":"--","title_app":"地址修正","content_app":"工单BD17301192440257实际安装地址已修正,请知晓","content_pc":"工单BD17301192440257实际安装地址已修正,请知晓","oper_desc_pc":"--","oper_desc_app":"实际地址：浙江 杭州 富阳 大源镇\\n十七号路","oper_name":"80003","create_time":"2018-05-09 15:52:33","is_read":0,"app_is_read":0,"s_user_name":"陈红亮","s_org_short":"朝阳上家D"},{"reminder_message_id":28,"order_title_id":927339,"b_group_id":99,"message_type":3,"lauch_source":4,"title_pc":"工单取消审核结果","title_app":"工单取消","content_app":"工单BD17228693126940中普通坐便器*1         服务已取消,请知晓","content_pc":"工单BD17228693126940中普通坐便器*1         服务已取消,请知晓","oper_desc_pc":"取消原因:客户退款","oper_desc_app":"取消原因:客户退款","oper_name":"非东箭天猫店铺","create_time":"2018-05-09 12:05:23","is_read":0,"app_is_read":0,"s_user_name":"陈红亮","s_org_short":"朝阳上家D"},{"reminder_message_id":27,"order_title_id":927339,"b_group_id":99,"message_type":2,"lauch_source":4,"title_pc":"工单取消审核结果","title_app":"服务调整","content_app":"工单BD17240739149579中普通坐便器*1         服务已取消,请知晓","content_pc":"工单BD17240739149579中普通坐便器*1         服务已取消,请知晓","oper_desc_pc":"取消原因:你狠","oper_desc_app":"取消原因:你狠  审核原因:--","oper_name":"非东箭天猫店铺","create_time":"2018-05-08 17:49:20","is_read":0,"app_is_read":0,"s_user_name":"陈红亮","s_org_short":"朝阳上家D"},{"reminder_message_id":14,"order_title_id":927339,"b_group_id":99,"message_type":3,"lauch_source":5,"title_pc":"工单取消审核结果","title_app":"工单取消","content_app":"工单BD17240739149579中普通坐便器*1         服务已取消,请知晓","content_pc":"工单BD17240739149579中普通坐便器*1         服务已取消,请知晓","oper_desc_pc":"取消原因:你狠","oper_desc_app":"取消原因:你狠  审核原因:--","oper_name":"非东箭天猫店铺","create_time":"2018-05-08 17:49:20","is_read":0,"app_is_read":0,"s_user_name":"陈红亮","s_org_short":"朝阳上家D"}]
+     * rows : [{"out_zhongtNum":5}]
+     */
+
+    private ResultBean result;
+    private List<Rows1Bean> rows1;
+    private List<RowsBean> rows;
+
+    public ResultBean getResult() {
+        return result;
+    }
+
+    public void setResult(ResultBean result) {
+        this.result = result;
+    }
+
+    public List<Rows1Bean> getRows1() {
+        return rows1;
+    }
+
+    public void setRows1(List<Rows1Bean> rows1) {
+        this.rows1 = rows1;
+    }
+
+    public List<RowsBean> getRows() {
+        return rows;
+    }
+
+    public void setRows(List<RowsBean> rows) {
+        this.rows = rows;
+    }
+
+    public static class ResultBean {
+        /**
+         * out_nszRtn : 消息提醒查询成功
+         * out_zhongtNum : 0
+         * out_Flag : 0
+         */
+
+        private String out_nszRtn;
+        private int out_zhongtNum;
+        private int out_Flag;
+
+        public String getOut_nszRtn() {
+            return out_nszRtn;
+        }
+
+        public void setOut_nszRtn(String out_nszRtn) {
+            this.out_nszRtn = out_nszRtn;
+        }
+
+        public int getOut_zhongtNum() {
+            return out_zhongtNum;
+        }
+
+        public void setOut_zhongtNum(int out_zhongtNum) {
+            this.out_zhongtNum = out_zhongtNum;
+        }
+
+        public int getOut_Flag() {
+            return out_Flag;
+        }
+
+        public void setOut_Flag(int out_Flag) {
+            this.out_Flag = out_Flag;
+        }
+    }
+
+    public static class Rows1Bean {
+        /**
+         * reminder_message_id : 30
+         * order_title_id : 927339
+         * b_group_id : 99
+         * message_type : 6
+         * lauch_source : 2
+         * title_pc : 工单取消审核结果
+         * title_app : 工单改派
+         * content_app : 工单BD17228693126940已被改派其他技师,请知晓
+         * content_pc : 工单BD17228693126940中普通坐便器*1         服务已取消,请知晓
+         * oper_desc_pc : 取消原因:客户退款
+         * oper_desc_app : 取消原因:客户退款  审核原因:--
+         * oper_name : admin
+         * create_time : 2018-05-09 12:05:23
+         * is_read : 0
+         * app_is_read : 0
+         * s_user_name : 陈红亮
+         * s_org_short : 朝阳上家D
+         */
+
+        private int reminder_message_id;
+        private int order_title_id;
+        private int b_group_id;
+        private int message_type;
+        private int lauch_source;
+        private String title_pc;
+        private String title_app;
+        private String content_app;
+        private String content_pc;
+        private String oper_desc_pc;
+        private String oper_desc_app;
+        private String oper_name;
+        private String create_time;
+        private int is_read;
+        private int app_is_read;
+        private String s_user_name;
+        private String s_org_short;
+
+        public int getReminder_message_id() {
+            return reminder_message_id;
+        }
+
+        public void setReminder_message_id(int reminder_message_id) {
+            this.reminder_message_id = reminder_message_id;
+        }
+
+        public int getOrder_title_id() {
+            return order_title_id;
+        }
+
+        public void setOrder_title_id(int order_title_id) {
+            this.order_title_id = order_title_id;
+        }
+
+        public int getB_group_id() {
+            return b_group_id;
+        }
+
+        public void setB_group_id(int b_group_id) {
+            this.b_group_id = b_group_id;
+        }
+
+        public int getMessage_type() {
+            return message_type;
+        }
+
+        public void setMessage_type(int message_type) {
+            this.message_type = message_type;
+        }
+
+        public int getLauch_source() {
+            return lauch_source;
+        }
+
+        public void setLauch_source(int lauch_source) {
+            this.lauch_source = lauch_source;
+        }
+
+        public String getTitle_pc() {
+            return title_pc;
+        }
+
+        public void setTitle_pc(String title_pc) {
+            this.title_pc = title_pc;
+        }
+
+        public String getTitle_app() {
+            return title_app;
+        }
+
+        public void setTitle_app(String title_app) {
+            this.title_app = title_app;
+        }
+
+        public String getContent_app() {
+            return content_app;
+        }
+
+        public void setContent_app(String content_app) {
+            this.content_app = content_app;
+        }
+
+        public String getContent_pc() {
+            return content_pc;
+        }
+
+        public void setContent_pc(String content_pc) {
+            this.content_pc = content_pc;
+        }
+
+        public String getOper_desc_pc() {
+            return oper_desc_pc;
+        }
+
+        public void setOper_desc_pc(String oper_desc_pc) {
+            this.oper_desc_pc = oper_desc_pc;
+        }
+
+        public String getOper_desc_app() {
+            return oper_desc_app;
+        }
+
+        public void setOper_desc_app(String oper_desc_app) {
+            this.oper_desc_app = oper_desc_app;
+        }
+
+        public String getOper_name() {
+            return oper_name;
+        }
+
+        public void setOper_name(String oper_name) {
+            this.oper_name = oper_name;
+        }
+
+        public String getCreate_time() {
+            return create_time;
+        }
+
+        public void setCreate_time(String create_time) {
+            this.create_time = create_time;
+        }
+
+        public int getIs_read() {
+            return is_read;
+        }
+
+        public void setIs_read(int is_read) {
+            this.is_read = is_read;
+        }
+
+        public int getApp_is_read() {
+            return app_is_read;
+        }
+
+        public void setApp_is_read(int app_is_read) {
+            this.app_is_read = app_is_read;
+        }
+
+        public String getS_user_name() {
+            return s_user_name;
+        }
+
+        public void setS_user_name(String s_user_name) {
+            this.s_user_name = s_user_name;
+        }
+
+        public String getS_org_short() {
+            return s_org_short;
+        }
+
+        public void setS_org_short(String s_org_short) {
+            this.s_org_short = s_org_short;
+        }
+    }
+
+    public static class RowsBean {
+        /**
+         * out_zhongtNum : 5
+         */
+
+        private int out_zhongtNum;
+
+        public int getOut_zhongtNum() {
+            return out_zhongtNum;
+        }
+
+        public void setOut_zhongtNum(int out_zhongtNum) {
+            this.out_zhongtNum = out_zhongtNum;
+        }
+    }
+}

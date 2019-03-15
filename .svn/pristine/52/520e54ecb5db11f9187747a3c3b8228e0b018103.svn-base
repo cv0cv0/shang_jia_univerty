@@ -1,0 +1,62 @@
+package com.rubu.adapter;
+
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.base.BaseListAdapter;
+import com.rubu.model.Order;
+import com.rubu.util.StringUtil;
+
+import java.util.List;
+
+/**
+ * Created by liuhaizhu on 2017/3/2.
+ * 附加费用适配器
+ */
+
+public class AdditionalExpensesListAdapter extends BaseListAdapter<Order.Rows3Bean> {
+    private Boolean flag;
+
+    public AdditionalExpensesListAdapter(Context context, List<Order.Rows3Bean> list,boolean flag) {
+        super(context, list);
+        this.flag = flag;
+    }
+
+    @Override
+    public View initView(Order.Rows3Bean s, View convertView, ViewGroup parent) {
+        ViewHolder holder;
+        if (convertView == null) {
+            LayoutInflater mInflater = LayoutInflater.from(parent.getContext());
+            convertView = mInflater.inflate(R.layout.item_additional_list, null);
+            holder = new ViewHolder();
+            holder.mLeftTV = (TextView) convertView.findViewById(R.id.additional_left_tv);
+            holder.mCenterTV = (TextView) convertView.findViewById(R.id.additional_center_tv);
+            holder.mRightTV = (TextView) convertView.findViewById(R.id.additional_right_tv);
+            if(flag){
+                holder.mRightTV.setVisibility(View.VISIBLE);
+            }else {
+                holder.mRightTV.setVisibility(View.INVISIBLE);
+            }
+            convertView.setTag(holder);
+        } else {
+            holder = (ViewHolder) convertView.getTag();
+        }
+//        holder.mLeftTV.setText(s.getFee_parent_name());
+//        holder.mCenterTV.setText(s.getFee_subclass_name());
+//        holder.mRightTV.setText(s.getFee());
+        holder.mLeftTV.setText((StringUtil.isEmpty(s.getFee_parent_name()))?"暂无":s.getFee_parent_name());
+        holder.mCenterTV.setText((StringUtil.isEmpty(s.getFee_subclass_name()))?"暂无":s.getFee_subclass_name());
+        holder.mRightTV.setText((StringUtil.isEmpty(s.getFee()))?"暂无":s.getFee());
+        return convertView;
+    }
+
+    class ViewHolder {
+        TextView mLeftTV;
+        TextView mCenterTV;
+        TextView mRightTV;
+    }
+}

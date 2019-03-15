@@ -1,0 +1,275 @@
+package com.rubu.model;
+
+import java.util.List;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/10/6
+ * Vwesion 1.0
+ * Dsscription:  注册覆盖能力
+ */
+
+public class AreaAbilityModel {
+
+    /**
+     * rows3 : []
+     * result : {"out_nszRtn":"查询成功！","out_Flag":0}
+     * rows1 : [{"all_num_street":334,"province":"北京","city":"北京"}]
+     * rows2 : [{"area":"","province":"北京","city":"北京","area_num_street":0},{"area":"昌平","province":"北京","city":"北京","area_num_street":22},{"area":"朝阳","province":"北京","city":"北京","area_num_street":43},{"area":"大兴","province":"北京","city":"北京","area_num_street":22},{"area":"东城","province":"北京","city":"北京","area_num_street":17},{"area":"房山","province":"北京","city":"北京","area_num_street":28},{"area":"丰台","province":"北京","city":"北京","area_num_street":21},{"area":"海淀","province":"北京","city":"北京","area_num_street":29},{"area":"怀柔","province":"北京","city":"北京","area_num_street":17},{"area":"门头沟","province":"北京","city":"北京","area_num_street":13},{"area":"密云","province":"北京","city":"北京","area_num_street":21},{"area":"平谷","province":"北京","city":"北京","area_num_street":18},{"area":"石景山","province":"北京","city":"北京","area_num_street":9},{"area":"顺义","province":"北京","city":"北京","area_num_street":25},{"area":"通州","province":"北京","city":"北京","area_num_street":15},{"area":"西城","province":"北京","city":"北京","area_num_street":15},{"area":"延庆","province":"北京","city":"北京","area_num_street":18}]
+     * rows : [{"area":"","province":"北京","city":"北京","street_id":"--","street_name":"--","region_code":"--"},{"area":"昌平","province":"北京","city":"北京","street_id":"221","street_name":"百善镇","region_code":"110114"},{"area":"昌平","province":"北京","city":"北京","street_id":"222","street_name":"北七家镇","region_code":"110114"},{"area":"昌平","province":"北京","city":"北京","street_id":"223","street_name":"城北街道","region_code":"110114"},{"area":"昌平","province":"北京","city":"北京","street_id":"224","street_name":"城南街道","region_code":"110114"},{"area":"昌平","province":"北京","city":"北京","street_id":"225","street_name":"崔村镇","region_code":"110114"},{"area":"昌平","province":"北京","city":"北京","street_id":"226","street_name":"东小口","region_code":"110114"},{"area":"昌平","province":"北京","city":"北京","street_id":"227","street_name":"回龙观","region_code":"110114"},{"area":"昌平","province":"北京","city":"北京","street_id":"228","street_name":"霍营街道","region_code":"110114"},{"area":"昌平","province":"北京","city":"北京","street_id":"229","street_name":"流村镇","region_code":"110114"},{"area":"昌平","province":"北京","city":"北京","street_id":"230","street_name":"龙泽园街道","region_code":"110114"},{"area":"昌平","province":"北京","city":"北京","street_id":"231","street_name":"马池口","region_code":"110114"},{"area":"昌平","province":"北京","city":"北京","street_id":"232","street_name":"南口","region_code":"110114"},{"area":"昌平","province":"北京","city":"北京","street_id":"233","street_name":"南邵镇","region_code":"110114"},{"area":"昌平","province":"北京","city":"北京","street_id":"234","street_name":"沙河","region_code":"110114"},{"area":"昌平","province":"北京","city":"北京","street_id":"235","street_name":"十三陵镇","region_code":"110114"},{"area":"昌平","province":"北京","city":"北京","street_id":"236","street_name":"史各庄街道","region_code":"110114"},{"area":"昌平","province":"北京","city":"北京","street_id":"237","street_name":"天通苑北街道","region_code":"110114"},{"area":"昌平","province":"北京","city":"北京","street_id":"238","street_name":"天通苑南街道","region_code":"110114"},{"area":"昌平","province":"北京","city":"北京","street_id":"239","street_name":"小汤山镇","region_code":"110114"}]
+     */
+
+    private ResultBean result;
+    // 选择的街道
+    private List<Rows3Bean> rows3;
+    // 所有街道数量
+    private List<Rows1Bean> rows1;
+    // 区域列表
+    private List<Rows2Bean> rows2;
+    // 所有街道信息
+    private List<RowsBean> rows;
+
+    public ResultBean getResult() {
+        return result;
+    }
+
+    public void setResult(ResultBean result) {
+        this.result = result;
+    }
+
+    public List<Rows3Bean> getRows3() {
+        return rows3;
+    }
+
+    public void setRows3(List<Rows3Bean> rows3) {
+        this.rows3 = rows3;
+    }
+
+    public List<Rows1Bean> getRows1() {
+        return rows1;
+    }
+
+    public void setRows1(List<Rows1Bean> rows1) {
+        this.rows1 = rows1;
+    }
+
+    public List<Rows2Bean> getRows2() {
+        return rows2;
+    }
+
+    public void setRows2(List<Rows2Bean> rows2) {
+        this.rows2 = rows2;
+    }
+
+    public List<RowsBean> getRows() {
+        return rows;
+    }
+
+    public void setRows(List<RowsBean> rows) {
+        this.rows = rows;
+    }
+
+    public static class ResultBean {
+        /**
+         * out_nszRtn : 查询成功！
+         * out_Flag : 0
+         */
+
+        private String out_nszRtn;
+        private int out_Flag;
+
+        public String getOut_nszRtn() {
+            return out_nszRtn;
+        }
+
+        public void setOut_nszRtn(String out_nszRtn) {
+            this.out_nszRtn = out_nszRtn;
+        }
+
+        public int getOut_Flag() {
+            return out_Flag;
+        }
+
+        public void setOut_Flag(int out_Flag) {
+            this.out_Flag = out_Flag;
+        }
+    }
+
+    public static class Rows1Bean {
+        /**
+         * all_num_street : 334
+         * province : 北京
+         * city : 北京
+         */
+
+        private int all_num_street;
+        private String province;
+        private String city;
+
+        public int getAll_num_street() {
+            return all_num_street;
+        }
+
+        public void setAll_num_street(int all_num_street) {
+            this.all_num_street = all_num_street;
+        }
+
+        public String getProvince() {
+            return province;
+        }
+
+        public void setProvince(String province) {
+            this.province = province;
+        }
+
+        public String getCity() {
+            return city;
+        }
+
+        public void setCity(String city) {
+            this.city = city;
+        }
+    }
+
+    public static class Rows2Bean {
+        /**
+         * area :
+         * province : 北京
+         * city : 北京
+         * area_num_street : 0
+         */
+
+        private String area;
+        private String province;
+        private String city;
+        private int area_num_street;
+
+        public String getArea() {
+            return area;
+        }
+
+        public void setArea(String area) {
+            this.area = area;
+        }
+
+        public String getProvince() {
+            return province;
+        }
+
+        public void setProvince(String province) {
+            this.province = province;
+        }
+
+        public String getCity() {
+            return city;
+        }
+
+        public void setCity(String city) {
+            this.city = city;
+        }
+
+        public int getArea_num_street() {
+            return area_num_street;
+        }
+
+        public void setArea_num_street(int area_num_street) {
+            this.area_num_street = area_num_street;
+        }
+    }
+
+    public static class RowsBean {
+        /**
+         * area :
+         * province : 北京
+         * city : 北京
+         * street_id : --
+         * street_name : --
+         * region_code : --
+         */
+
+        private String area;
+        private String province;
+        private String city;
+        private String street_id;
+        private String street_name;
+        private String region_code;
+
+        public String getArea() {
+            return area;
+        }
+
+        public void setArea(String area) {
+            this.area = area;
+        }
+
+        public String getProvince() {
+            return province;
+        }
+
+        public void setProvince(String province) {
+            this.province = province;
+        }
+
+        public String getCity() {
+            return city;
+        }
+
+        public void setCity(String city) {
+            this.city = city;
+        }
+
+        public String getStreet_id() {
+            return street_id;
+        }
+
+        public void setStreet_id(String street_id) {
+            this.street_id = street_id;
+        }
+
+        public String getStreet_name() {
+            return street_name;
+        }
+
+        public void setStreet_name(String street_name) {
+            this.street_name = street_name;
+        }
+
+        public String getRegion_code() {
+            return region_code;
+        }
+
+        public void setRegion_code(String region_code) {
+            this.region_code = region_code;
+        }
+    }
+
+    public static class Rows3Bean {
+        private String s_worker_id;
+        private String region_code_checked;
+        private String street_id_checked;
+
+        public String getS_worker_id() {
+            return s_worker_id;
+        }
+
+        public void setS_worker_id(String s_worker_id) {
+            this.s_worker_id = s_worker_id;
+        }
+
+        public String getRegion_code_checked() {
+            return region_code_checked;
+        }
+
+        public void setRegion_code_checked(String region_code_checked) {
+            this.region_code_checked = region_code_checked;
+        }
+
+        public String getStreet_id_checked() {
+            return street_id_checked;
+        }
+
+        public void setStreet_id_checked(String street_id_checked) {
+            this.street_id_checked = street_id_checked;
+        }
+    }
+}

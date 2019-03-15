@@ -1,0 +1,22 @@
+package com.rubu.model;
+
+/**
+ * Created by liuhaizhu on 2017/3/9.
+ */
+
+public class UpLoadModel {
+
+    /**
+     * filename : 1489047689925.png
+     */
+
+    private String filename;
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
+    }
+}

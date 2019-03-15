@@ -1,0 +1,32 @@
+package com.rubu.net;
+
+import com.google.gson.Gson;
+import com.rubu.util.MD5Utils;
+import com.rubu.util.TLog;
+import com.rubu.util.TimeUtil;
+
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Created by liuhaizhu on 2017/3/7.
+ */
+
+public class Params {
+    public static HashMap<String, Object> getNetWorkParams(Object jsonObject) {
+        String tsp = TimeUtil.getCurrentTime();
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("app_key", "201700306");
+        params.put("secrets", "4678445f307e1a4db80e0ed3d645889d");
+        params.put("timestamp", tsp);
+        String json = new Gson().toJson(jsonObject);
+        String code = tsp + "8512625aec7e13cfadb571ZZ3b783ec03face4d4c731efa422088624" + json;
+        code = MD5Utils.md5Password(code);
+        params.put("code", code);
+        params.put("json", json);
+        for (Map.Entry<String, Object> entry : params.entrySet()) {
+            TLog.i("Key = " + entry.getKey() + ", Value = " + entry.getValue());
+        }
+        return params;
+    }
+}

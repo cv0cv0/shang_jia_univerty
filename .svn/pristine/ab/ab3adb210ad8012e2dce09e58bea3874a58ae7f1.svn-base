@@ -1,0 +1,105 @@
+package com.rubu.util;
+
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.net.Uri;
+import android.provider.CallLog;
+import android.support.v4.app.ActivityCompat;
+import android.util.Log;
+
+import com.rubu.Bean.CallInfoBean;
+import com.rubu.model.Order;
+
+import java.sql.Time;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Created by 72732
+ * on 2018/6/2.
+ * 通话记录工具类
+ */
+
+public class TelInfoUntil {
+
+    private static final String TAG = "TelInfoUntil";
+
+    /**
+     * 初始化通话记录对象
+     *
+     * @param number 客户电话
+     * @param bean   服务器通话记录数据
+     * @return
+     */
+    public static CallInfoBean initCallInfo(String number, Order.Rows5Bean bean) {
+        CallInfoBean callInfoBean = new CallInfoBean();
+        callInfoBean.setCallNumber(number);
+        callInfoBean.setCallStartTimeChar(bean.getCall_begin_time());
+        long time = 0;
+        if (!StringUtil.isEmpty(bean.getCall_begin_time())) {
+            time = TimeUtil.TimeToLong(bean.getCall_begin_time());
+        }
+        callInfoBean.setCallStartTimeL(time);
+        callInfoBean.setDuration(0);
+        callInfoBean.setCanReser(bean.getReservable() == 0 ? false : true);
+        callInfoBean.setNeedPushService(false);
+        Log.d(TAG, "initCallInfo: oldCallInfoBean的内容: " + callInfoBean.toString());
+        return callInfoBean;
+    }
+
+    /**
+     * 获取手机中与客户的相关通话记录
+     *
+     * @param context         上下文
+     * @param oldCallInfoBean 老的通话记录信息
+     * @return
+     */
+    public static CallInfoBean getCallInfo(Context context, CallInfoBean oldCallInfoBean) {
+        CallInfoBean callInfoBean = new CallInfoBean();
+        ContentResolver contentResolver = context.getContentResolver();
+        // 查询通话记录的Uri
+        Uri uri = CallLog.Calls.CONTENT_URI;
+        // 查询通话记录的手机号,通话日期,通话时长
+        String[] project = {CallLog.Calls.NUMBER, CallLog.Calls.DATE, CallLog.Calls.DURATION};
+        // 查询条件(查询手机号)
+        String selection = "number=?";
+        // 查询条件的等于号
+        String[] selectionArgs = {oldCallInfoBean.getCallNumber()};
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.READ_CALL_LOG}, 0x976);
+        } else {
+            Cursor cursor = contentResolver.query(uri, project, selection, selectionArgs, CallLog.Calls.DEFAULT_SORT_ORDER);
+            // 没有该联系人的聊天记录
+            if (null == cursor || cursor.getColumnCount() < 1) {
+                callInfoBean.setCallNumber("");
+                callInfoBean.setCallStartTimeL(0);
+                callInfoBean.setCallStartTimeChar("");
+                callInfoBean.setDuration(0);
+            } else if (cursor.moveToFirst()) {   // 获取最新的通话记录
+                callInfoBean.setCallNumber(cursor.getString(cursor.getColumnIndex(CallLog.Calls.NUMBER)));
+                callInfoBean.setCallStartTimeL(cursor.getLong(cursor.getColumnIndex(CallLog.Calls.DATE)));
+                callInfoBean.setCallStartTimeChar(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(cursor.getLong(cursor.getColumnIndex(CallLog.Calls.DATE))));
+                callInfoBean.setDuration(cursor.getLong(cursor.getColumnIndex(CallLog.Calls.DURATION)));
+            }
+        }
+        long oldStartTime = oldCallInfoBean.getCallStartTimeL();
+        long newStartTime = callInfoBean.getCallStartTimeL();
+        // 本地时间 <= 服务器时间 取服务器通话记录(不用上传服务器)
+        if (newStartTime <= oldStartTime + 1000) {
+            callInfoBean = oldCallInfoBean;
+        } else {
+            // 本地时间 >= 服务器时间 去本地时间（并上传服务器）
+            callInfoBean.setCanReser(true);
+            callInfoBean.setNeedPushService(true);
+        }
+        Log.d(TAG, "getCallInfo: oldCallInfoBean的内容 " + oldCallInfoBean.toString());
+        Log.d(TAG, "getCallInfo: callInfoBean的内容: " + callInfoBean.toString());
+        return callInfoBean;
+    }
+}

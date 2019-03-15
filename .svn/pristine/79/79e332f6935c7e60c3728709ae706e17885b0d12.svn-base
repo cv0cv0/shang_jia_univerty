@@ -1,0 +1,81 @@
+package com.rubu.adapter;
+
+import android.content.Context;
+import android.graphics.Paint;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.base.BaseListAdapter;
+import com.rubu.constant.WorkerStatus;
+
+import java.util.List;
+
+/**
+ * Created by liuhaizhu on 2017/3/2.
+ */
+
+public class ActionsAdapter extends BaseListAdapter<String> {
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    private int status=-1;
+    private OnActionClickListener mOnActionClickListener;
+
+    public ActionsAdapter(Context context, List<String> list) {
+        super(context, list);
+    }
+
+    @Override
+    public View initView(final String s, View convertView, ViewGroup parent) {
+        ViewHolder holder;
+        if (convertView == null) {
+            LayoutInflater mInflater = LayoutInflater.from(parent.getContext());
+            convertView = mInflater.inflate(R.layout.item_actions, null);
+            holder = new ViewHolder();
+            holder.tvAction = (TextView) convertView.findViewById(R.id.tv_action);
+            convertView.setTag(holder);
+        } else {
+            holder = (ViewHolder) convertView.getTag();
+        }
+        holder.tvAction.setText(s);
+        holder.tvAction.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG); //下划线
+        holder.tvAction.getPaint().setAntiAlias(true);//抗锯齿
+        holder.tvAction.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(null!=mOnActionClickListener){
+                    mOnActionClickListener.onActions(s);
+                }
+            }
+        });
+        return convertView;
+    }
+
+    public OnActionClickListener getOnActionClickListener() {
+        return mOnActionClickListener;
+    }
+
+    public void setOnActionClickListener(OnActionClickListener onActionClickListener) {
+        mOnActionClickListener = onActionClickListener;
+    }
+
+    class ViewHolder {
+        TextView tvAction;
+    }
+
+    public interface OnActionClickListener{
+        void onActions(String action);
+    }
+
+    private String getStatusStr(int p){
+        if(status==-1){
+            return WorkerStatus.getWorkerStatus(p);
+        }else {
+            return WorkerStatus.getWorkerStatus(status);
+        }
+    }
+}

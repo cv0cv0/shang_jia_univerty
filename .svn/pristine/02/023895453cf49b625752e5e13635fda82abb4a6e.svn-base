@@ -1,0 +1,146 @@
+package com.rubu.ui.act.login.model;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/10/13
+ * Vwesion 1.0
+ * Dsscription:  技师个人信息的对象
+ */
+
+public class UserInfoModel {
+    private String service_ability_name;
+    private String service_ability_id;
+    private String s_bank_account;
+    private String s_idcard_no;
+    private String s_user_account;
+    private String s_bind_tel;
+    private String s_user_name;
+    private String worker_type_name;
+    private String s_org_short;
+    private String s_region_tag;
+    private int s_user_id;
+    private int s_is_taking;
+    private String s_address;
+    private String s_Street;
+    private String s_org_name;
+
+    public String getService_ability_name() {
+        return service_ability_name;
+    }
+
+    public void setService_ability_name(String service_ability_name) {
+        this.service_ability_name = service_ability_name;
+    }
+
+    public String getService_ability_id() {
+        return service_ability_id;
+    }
+
+    public void setService_ability_id(String service_ability_id) {
+        this.service_ability_id = service_ability_id;
+    }
+
+    public String getS_bank_account() {
+        return s_bank_account;
+    }
+
+    public void setS_bank_account(String s_bank_account) {
+        this.s_bank_account = s_bank_account;
+    }
+
+    public String getS_idcard_no() {
+        return s_idcard_no;
+    }
+
+    public void setS_idcard_no(String s_idcard_no) {
+        this.s_idcard_no = s_idcard_no;
+    }
+
+    public String getS_user_account() {
+        return s_user_account;
+    }
+
+    public void setS_user_account(String s_user_account) {
+        this.s_user_account = s_user_account;
+    }
+
+    public String getS_bind_tel() {
+        return s_bind_tel;
+    }
+
+    public void setS_bind_tel(String s_bind_tel) {
+        this.s_bind_tel = s_bind_tel;
+    }
+
+    public String getS_user_name() {
+        return s_user_name;
+    }
+
+    public void setS_user_name(String s_user_name) {
+        this.s_user_name = s_user_name;
+    }
+
+    public String getWorker_type_name() {
+        return worker_type_name;
+    }
+
+    public void setWorker_type_name(String worker_type_name) {
+        this.worker_type_name = worker_type_name;
+    }
+
+    public String getS_org_short() {
+        return s_org_short;
+    }
+
+    public void setS_org_short(String s_org_short) {
+        this.s_org_short = s_org_short;
+    }
+
+    public String getS_region_tag() {
+        return s_region_tag;
+    }
+
+    public void setS_region_tag(String s_region_tag) {
+        this.s_region_tag = s_region_tag;
+    }
+
+    public int getS_user_id() {
+        return s_user_id;
+    }
+
+    public void setS_user_id(int s_user_id) {
+        this.s_user_id = s_user_id;
+    }
+
+    public int getS_is_taking() {
+        return s_is_taking;
+    }
+
+    public void setS_is_taking(int s_is_taking) {
+        this.s_is_taking = s_is_taking;
+    }
+
+    public String getS_address() {
+        return s_address;
+    }
+
+    public void setS_address(String s_address) {
+        this.s_address = s_address;
+    }
+
+    public String getS_Street() {
+        return s_Street;
+    }
+
+    public void setS_Street(String s_Street) {
+        this.s_Street = s_Street;
+    }
+
+    public String getS_org_name() {
+        return s_org_name;
+    }
+
+    public void setS_org_name(String s_org_name) {
+        this.s_org_name = s_org_name;
+    }
+}

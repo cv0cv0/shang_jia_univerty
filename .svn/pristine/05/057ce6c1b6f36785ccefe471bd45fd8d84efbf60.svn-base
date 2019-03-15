@@ -1,0 +1,177 @@
+package com.rubu.ui.act.mine;
+
+import android.view.View;
+import android.widget.GridView;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.adapter.QuestionImgAdapter;
+import com.rubu.base.BaseActivity;
+import com.rubu.model.AlertPunishModel;
+import com.rubu.util.StringUtil;
+
+import butterknife.BindView;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/9/8
+ * Vwesion 1.0
+ * Dsscription: 处罚工单内容
+ */
+
+public class PunishOrderDetialAct extends BaseActivity {
+    @BindView(R.id.title)
+    TextView mTitle;
+    @BindView(R.id.title_left)
+    TextView mTitleLeft;
+    // 工单类型
+    @BindView(R.id.tv_order_type)
+    TextView mTVOrderType;
+    // 工单数量
+    @BindView(R.id.tv_service_num)
+    TextView mTVServiceNum;
+    // 主工单号
+    @BindView(R.id.order_Title_Id)
+    TextView mTVOrderTitleId;
+    // 客户名字
+    @BindView(R.id.name)
+    TextView mTVName;
+    // 客户电话
+    @BindView(R.id.tel)
+    TextView mTVTel;
+    // 地址省市区
+    @BindView(R.id.sheng_shi_qu)
+    TextView mTVAdressSheng;
+    // 地址详情
+    @BindView(R.id.adress)
+    TextView mTVAdress;
+    // 处罚记录布局 -----------------------
+    // 处罚原因
+    @BindView(R.id.tv_punish_reason)
+    TextView mTVPunishReson;
+    // 处罚金额
+    @BindView(R.id.tv_punish_account)
+    TextView mTVPunishAccount;
+    // 取证图片附件
+    @BindView(R.id.question_picture)
+    GridView mGDPicture;
+    // 客服名字
+    @BindView(R.id.service_name)
+    TextView mTVServiceName;
+    // 操作时间
+    @BindView(R.id.operate_time)
+    TextView mTVOperateTime;
+
+    // 取证图片加载的适配器
+    private QuestionImgAdapter mFinishImgAdapter;
+    // 处罚工单的详情对象
+    private AlertPunishModel.RowsBean mBean;
+
+
+    @Override
+    protected int getViewId() {
+        return R.layout.act_punish_detial;
+    }
+
+    @Override
+    protected void initEvent() {
+        this.mBean = (AlertPunishModel.RowsBean) getIntent().getSerializableExtra("punishModel");
+        mTitle.setText("处罚详情");
+        mTitleLeft.setText(R.string.back);
+        mTitleLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+        setBaseInfo(mBean);
+        setEvidenceRecord(mBean);
+    }
+
+    /**
+     * 设置基础信息
+     */
+    private void setBaseInfo(AlertPunishModel.RowsBean bean) {
+        // 工单类型
+        if (!StringUtil.isEmpty(bean.getParent_wk_order_type())) {
+            mTVOrderType.setText(bean.getParent_wk_order_type());
+        } else {
+            mTVOrderType.setText("");
+        }
+        // 工单数量
+        mTVServiceNum.setText("X" + bean.getOrder_sub_count());
+        // 主工单号
+        if (!StringUtil.isEmpty(String.valueOf(bean.getOrder_title_id()))) {
+            String orderId = StringUtil.addPlace(String.valueOf(bean.getOrder_title_id()));
+            mTVOrderTitleId.setText(orderId);
+        } else {
+            mTVOrderTitleId.setText("");
+        }
+        // 客户电话
+        if (!StringUtil.isEmpty(bean.getBuyer_name())) {
+            mTVName.setText(bean.getBuyer_name());
+        } else {
+            mTVName.setText("");
+        }
+        // 客户手机号
+        if (!StringUtil.isEmpty(bean.getBuyer_mobile())) {
+            mTVTel.setText(bean.getBuyer_mobile());
+        } else {
+            mTVTel.setText("");
+        }
+        // 地址省市区/详细地址
+        if (!StringUtil.isEmpty(bean.getBuyer_address())) {
+            String adresses = bean.getBuyer_address();
+            String[] adress = adresses.split(" ");
+            StringBuffer sb = new StringBuffer();
+            for (int i = 0; i < adress.length - 1; i++) {
+                sb.append(adress[i]).append(" ");
+            }
+            if (sb.length() > 1) {
+                sb.deleteCharAt(sb.length() - 1);
+            }
+            mTVAdressSheng.setText(sb);
+            mTVAdress.setText(adress[adress.length - 1]);
+        } else {
+            mTVAdressSheng.setText("");
+            mTVAdress.setText("");
+        }
+    }
+
+    /**
+     * 设置处罚记录内容
+     */
+    private void setEvidenceRecord(AlertPunishModel.RowsBean bean) {
+        // 处罚原因
+        if (!StringUtil.isEmpty(bean.getPunish_reason())) {
+            mTVPunishReson.setText(bean.getPunish_reason());
+        } else {
+            mTVPunishReson.setText("");
+        }
+        // 处罚金额
+        if (!StringUtil.isEmpty(String.valueOf(bean.getPunish_money()))) {
+            mTVPunishAccount.setText(String.valueOf(bean.getPunish_money()));
+        } else {
+            mTVPunishAccount.setText("");
+        }
+        // 处罚附件
+        if (!StringUtil.isEmpty(bean.getImg_path())) {
+            String urls = bean.getImg_path();
+            mFinishImgAdapter = new QuestionImgAdapter(mContext, urls);
+            mGDPicture.setAdapter(mFinishImgAdapter);
+        }
+        // 客服
+        if (!StringUtil.isEmpty(bean.getOpter_name())) {
+            mTVServiceName.setText(bean.getOpter_name());
+        } else {
+            mTVServiceName.setText("");
+        }
+        // 操作时间
+        if (!StringUtil.isEmpty(bean.getPunish_times())) {
+            mTVOperateTime.setText(bean.getPunish_times());
+        } else {
+            mTVOperateTime.setText("");
+        }
+    }
+
+}

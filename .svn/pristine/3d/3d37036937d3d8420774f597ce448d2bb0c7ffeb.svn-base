@@ -1,0 +1,78 @@
+package com.rubu.ui.act;
+
+import android.content.Intent;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.base.BaseActivity;
+import com.rubu.model.Order;
+import com.rubu.util.StringUtil;
+
+import butterknife.BindView;
+
+/**
+ * Created by liuhaizhu on 2017/3/6.
+ */
+
+public class CancelYuYueAct extends BaseActivity {
+    @BindView(R.id.title_left)
+    TextView mTitleLeft;
+    @BindView(R.id.title)
+    TextView mTitle;
+    @BindView(R.id.edit_remark)
+    EditText edit_remark;
+    @BindView(R.id.btn_confirm)
+    Button mBtnConfirm;
+    @BindView(R.id.btn_cancel)
+    Button mBtnCancel;
+
+    private long order_title_id;
+    private Order mOrder;
+    @Override
+    protected int getViewId() {
+        return R.layout.act_cancel_yuyue;
+    }
+
+    @Override
+    protected void initEvent() {
+        mOrder= (Order) getIntent().getSerializableExtra("order");
+        order_title_id = getIntent().getLongExtra("id", 0);
+        mTitleLeft.setText(R.string.back);
+        mTitleLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+        mTitle.setText(R.string.cancel_yu_yue);
+        mBtnConfirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String remark = edit_remark.getText().toString();
+                if (StringUtil.isEmpty(remark)) {
+                    showToast("请输入原因");
+                    return;
+                }
+                canceTMYuyue(remark);
+            }
+        });
+        mBtnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            onBackPressed();
+            }
+        });
+    }
+    //天猫单改约跳转到重新预约
+    private void canceTMYuyue(String remark) {
+        Intent intent = new Intent(mContext, ReYuyueAct.class);
+        intent.putExtra("id", order_title_id);
+        intent.putExtra("order", mOrder);
+        intent.putExtra("remark", remark);
+        startActivity(intent);
+        finish();
+    }
+}

@@ -1,0 +1,175 @@
+package com.rubu.model;
+
+import java.util.List;
+
+/**
+ * Created by 72732 on 2018/4/18.
+ */
+
+public class AuditOrderModel {
+
+    /**
+     * result : {"out_nszRtn":"","out_Flag":0}
+     * rows : [{"parent_wk_order_id":"TM17287160580281","parent_wk_order_type":"安装","buyer_name":"赵云龙","service_parent":"卫浴","auction_sku_properties":"普通坐便器","service_count":1,"order_cancel_starter_time":"2018-04-18 17:46:10","reserve_cancel_audit_status":2,"sub_order_cancel_starter_time":"2018-04-18 17:46:10","service_adjust_audit_status":1},{"parent_wk_order_id":"BD17259767399244","parent_wk_order_type":"维修","buyer_name":"张琳琳","service_parent":"卫浴","auction_sku_properties":"一体智能坐便器","service_count":1,"order_cancel_starter_time":"2018-04-18 17:33:25","reserve_cancel_audit_status":2,"sub_order_cancel_starter_time":"2018-04-18 17:33:25","service_adjust_audit_status":1}]
+     */
+
+    private ResultBean result;
+    private List<RowsBean> rows;
+
+    public ResultBean getResult() {
+        return result;
+    }
+
+    public void setResult(ResultBean result) {
+        this.result = result;
+    }
+
+    public List<RowsBean> getRows() {
+        return rows;
+    }
+
+    public void setRows(List<RowsBean> rows) {
+        this.rows = rows;
+    }
+
+    public static class ResultBean {
+        /**
+         * out_nszRtn :
+         * out_Flag : 0
+         */
+
+        private String out_nszRtn;
+        private int out_Flag;
+
+        public String getOut_nszRtn() {
+            return out_nszRtn;
+        }
+
+        public void setOut_nszRtn(String out_nszRtn) {
+            this.out_nszRtn = out_nszRtn;
+        }
+
+        public int getOut_Flag() {
+            return out_Flag;
+        }
+
+        public void setOut_Flag(int out_Flag) {
+            this.out_Flag = out_Flag;
+        }
+    }
+
+    public static class RowsBean {
+        /**
+         * parent_wk_order_id : TM17287160580281
+         * parent_wk_order_type : 安装
+         * buyer_name : 赵云龙
+         * service_parent : 卫浴
+         * auction_sku_properties : 普通坐便器
+         * service_count : 1.0
+         * order_cancel_starter_time : 2018-04-18 17:46:10
+         * reserve_cancel_audit_status : 2
+         * sub_order_cancel_starter_time : 2018-04-18 17:46:10
+         * service_adjust_audit_status : 1
+         */
+        // order_title_id
+        private String order_title_id;
+        private String parent_wk_order_id;
+        private String parent_wk_order_type;
+        private String buyer_name;
+        private String service_parent;
+        private String auction_sku_properties;
+        private double service_count;
+        private String order_cancel_starter_time;
+        private int reserve_cancel_audit_status;
+        private String sub_order_cancel_starter_time;
+        private int service_adjust_audit_status;
+
+        public String getOrder_title_id() {
+            return order_title_id;
+        }
+
+        public void setOrder_title_id(String order_title_id) {
+            this.order_title_id = order_title_id;
+        }
+
+        public String getParent_wk_order_id() {
+            return parent_wk_order_id;
+        }
+
+        public void setParent_wk_order_id(String parent_wk_order_id) {
+            this.parent_wk_order_id = parent_wk_order_id;
+        }
+
+        public String getParent_wk_order_type() {
+            return parent_wk_order_type;
+        }
+
+        public void setParent_wk_order_type(String parent_wk_order_type) {
+            this.parent_wk_order_type = parent_wk_order_type;
+        }
+
+        public String getBuyer_name() {
+            return buyer_name;
+        }
+
+        public void setBuyer_name(String buyer_name) {
+            this.buyer_name = buyer_name;
+        }
+
+        public String getService_parent() {
+            return service_parent;
+        }
+
+        public void setService_parent(String service_parent) {
+            this.service_parent = service_parent;
+        }
+
+        public String getAuction_sku_properties() {
+            return auction_sku_properties;
+        }
+
+        public void setAuction_sku_properties(String auction_sku_properties) {
+            this.auction_sku_properties = auction_sku_properties;
+        }
+
+        public double getService_count() {
+            return service_count;
+        }
+
+        public void setService_count(double service_count) {
+            this.service_count = service_count;
+        }
+
+        public String getOrder_cancel_starter_time() {
+            return order_cancel_starter_time;
+        }
+
+        public void setOrder_cancel_starter_time(String order_cancel_starter_time) {
+            this.order_cancel_starter_time = order_cancel_starter_time;
+        }
+
+        public int getReserve_cancel_audit_status() {
+            return reserve_cancel_audit_status;
+        }
+
+        public void setReserve_cancel_audit_status(int reserve_cancel_audit_status) {
+            this.reserve_cancel_audit_status = reserve_cancel_audit_status;
+        }
+
+        public String getSub_order_cancel_starter_time() {
+            return sub_order_cancel_starter_time;
+        }
+
+        public void setSub_order_cancel_starter_time(String sub_order_cancel_starter_time) {
+            this.sub_order_cancel_starter_time = sub_order_cancel_starter_time;
+        }
+
+        public int getService_adjust_audit_status() {
+            return service_adjust_audit_status;
+        }
+
+        public void setService_adjust_audit_status(int service_adjust_audit_status) {
+            this.service_adjust_audit_status = service_adjust_audit_status;
+        }
+    }
+}

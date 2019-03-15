@@ -1,0 +1,101 @@
+package com.rubu.adapter;
+
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.base.BaseListAdapter;
+import com.rubu.model.Order;
+import com.rubu.util.StringUtil;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Created by liuhaizhu on 2017/3/2.
+ */
+
+public class ChangeGoodsListAdapter extends BaseListAdapter<Order.Rows1Bean> {
+    private IsHaveSelectOrder isHaveSelectOrder;
+    private List<Order.Rows4Bean> mServiceList;
+
+
+    public ChangeGoodsListAdapter(Context context, List<Order.Rows1Bean> list, List<Order.Rows4Bean> serviceList) {
+        super(context, list);
+        mServiceList = serviceList;
+    }
+
+    @Override
+    public View initView(final Order.Rows1Bean s, View convertView, ViewGroup parent) {
+        final ViewHolder holder;
+        if (convertView == null) {
+            LayoutInflater mInflater = LayoutInflater.from(parent.getContext());
+            convertView = mInflater.inflate(R.layout.item_change_service_goods_list, null);
+            holder = new ViewHolder();
+            holder.mTvTitle = (TextView) convertView.findViewById(R.id.title);
+            holder.mTvDesc = (TextView) convertView.findViewById(R.id.desc);
+            holder.mCheckBox = (CheckBox) convertView.findViewById(R.id.cb_goods);
+            convertView.setTag(holder);
+        } else {
+            holder = (ViewHolder) convertView.getTag();
+        }
+        // 商品规格(不等于1.00就显示,默认是1.00)
+        String goodType = "";
+        if (1.00 != s.getMetering()) {
+            goodType = " * " + s.getMetering();
+        }
+        holder.mTvTitle.setText(s.getAuction_sku_properties() + "×" + (int) (s.getService_count()) + goodType);
+        String num = StringUtil.isEmpty(s.getModel_number()) ? "--" : s.getModel_number();
+        holder.mTvDesc.setText("产品型号:" + num);
+        holder.mCheckBox.setChecked(s.isCheck());
+        holder.mCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                s.setCheck(isChecked);
+                for (Order.Rows4Bean rows4 : mServiceList
+                        ) {
+                    if (rows4.getOrder_sub_id() == s.getOrder_sub_id()) {
+                        rows4.setCheck(isChecked);
+                    }
+                }
+                if (getSelectList().size() > 0) {
+                    isHaveSelectOrder.orderSelect(true);
+                } else {
+                    isHaveSelectOrder.orderSelect(false);
+                }
+            }
+        });
+        return convertView;
+    }
+
+    class ViewHolder {
+        TextView mTvTitle;
+        TextView mTvDesc;
+        CheckBox mCheckBox;
+    }
+
+    public List<Order.Rows1Bean> getSelectList() {
+        List<Order.Rows1Bean> listS = new ArrayList<>();
+        for (Order.Rows1Bean rows1Bean : list) {
+            if (rows1Bean.isCheck()) {
+                listS.add(rows1Bean);
+            }
+        }
+        return listS;
+    }
+
+    public interface IsHaveSelectOrder {
+        void orderSelect(Boolean flag);
+    }
+
+    public void onOrderSelect(IsHaveSelectOrder isHaveSelectOrder) {
+        if (isHaveSelectOrder != null) {
+            this.isHaveSelectOrder = isHaveSelectOrder;
+        }
+    }
+}

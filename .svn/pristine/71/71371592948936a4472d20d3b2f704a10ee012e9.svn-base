@@ -1,0 +1,38 @@
+package com.rubu.util;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Created by liuhaizhu on 2017/3/8.
+ */
+
+public class JsonUtil {
+    /**
+     * @param json
+     * @param clazz
+     * @return
+     */
+    public static <T> List<T> jsonToArrayList(String json, Class<T> clazz) {
+        Type type = new TypeToken<ArrayList<JsonObject>>() {
+        }.getType();
+        ArrayList<JsonObject> jsonObjects = null;
+        try {
+            jsonObjects = new Gson().fromJson(json, type);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        ArrayList<T> arrayList = new ArrayList<>();
+        for (JsonObject jsonObject : jsonObjects) {
+            arrayList.add(new Gson().fromJson(jsonObject, clazz));
+        }
+        return arrayList;
+    }
+
+}

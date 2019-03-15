@@ -1,0 +1,133 @@
+package com.rubu.ui.act.mine.model;
+
+import java.util.List;
+
+/**
+ * Created by liuhaizhu on 2017/3/14.
+ */
+
+public class MsgModel {
+
+    /**
+     * result : {"out_nszRtn":"查询成功！","out_Flag":0}
+     * rows : [{"create_time":1519228800000,"msg_id":2,"msg_title":"这是实例二"},{"create_time":1519228800000,"msg_id":3,"msg_title":"这是实力三"},{"create_time":1485014400000,"msg_id":1,"msg_title":"这是示例1"}]
+     */
+
+    private ResultBean result;
+    private List<RowsBean> rows;
+
+    public ResultBean getResult() {
+        return result;
+    }
+
+    public void setResult(ResultBean result) {
+        this.result = result;
+    }
+
+    public List<RowsBean> getRows() {
+        return rows;
+    }
+
+    public void setRows(List<RowsBean> rows) {
+        this.rows = rows;
+    }
+
+    public static class ResultBean {
+        /**
+         * out_nszRtn : 加载成功 !
+         * out_Flag : 0
+         * out_zhongtNum : 82
+         */
+
+        private String out_nszRtn;
+        private int out_Flag;
+        private int out_zhongtNum;
+
+        public String getOut_nszRtn() {
+            return out_nszRtn;
+        }
+
+        public void setOut_nszRtn(String out_nszRtn) {
+            this.out_nszRtn = out_nszRtn;
+        }
+
+        public int getOut_Flag() {
+            return out_Flag;
+        }
+
+        public void setOut_Flag(int out_Flag) {
+            this.out_Flag = out_Flag;
+        }
+
+        public int getOut_zhongtNum() {
+            return out_zhongtNum;
+        }
+
+        public void setOut_zhongtNum(int out_zhongtNum) {
+            this.out_zhongtNum = out_zhongtNum;
+        }
+    }
+
+    public static class RowsBean {
+        //         "msg_id":2017,
+//         "msg_title":"test",
+//         "modify_time":"2017-10-23 13:41:21",
+//          "user_name":"wd",
+//          "msg_content":"\n
+//          "msg_status":1
+        private int msg_id;
+        private String msg_title;
+        private String modify_time;
+        private String user_name;
+        private String msg_content;
+        private String msg_status;
+
+        public int getMsg_id() {
+            return msg_id;
+        }
+
+        public void setMsg_id(int msg_id) {
+            this.msg_id = msg_id;
+        }
+
+        public String getMsg_title() {
+            return msg_title;
+        }
+
+        public void setMsg_title(String msg_title) {
+            this.msg_title = msg_title;
+        }
+
+        public String getModify_time() {
+            return modify_time;
+        }
+
+        public void setModify_time(String modify_time) {
+            this.modify_time = modify_time;
+        }
+
+        public String getUser_name() {
+            return user_name;
+        }
+
+        public void setUser_name(String user_name) {
+            this.user_name = user_name;
+        }
+
+        public String getMsg_content() {
+            return msg_content;
+        }
+
+        public void setMsg_content(String msg_content) {
+            this.msg_content = msg_content;
+        }
+
+        public String getMsg_status() {
+            return msg_status;
+        }
+
+        public void setMsg_status(String msg_status) {
+            this.msg_status = msg_status;
+        }
+    }
+}

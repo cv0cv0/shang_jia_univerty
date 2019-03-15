@@ -1,0 +1,237 @@
+package com.rubu.ui.act;
+
+import android.graphics.Color;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.Toolbar;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.adapter.SelectTimeAdapter;
+import com.rubu.base.BaseActivity;
+import com.rubu.constant.Constant;
+import com.rubu.event.EventCode;
+import com.rubu.event.EventMessage;
+import com.rubu.model.Base;
+import com.rubu.model.Order;
+import com.rubu.net.ApiImp;
+import com.rubu.net.Params;
+import com.rubu.net.ReqJson;
+import com.rubu.pop.PopDialog;
+import com.rubu.util.LoginUtil;
+import com.rubu.util.StringUtil;
+import com.rubu.util.TLog;
+import com.rubu.util.TimeUtil;
+import com.rubu.view.AutoGridView;
+import com.rubu.view.datepick.TimeSelector;
+
+import org.greenrobot.eventbus.EventBus;
+
+import butterknife.BindView;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
+/**
+ * Created by liuhaizhu on 2017/3/6.
+ */
+
+public class ReYuyueAct extends BaseActivity {
+    @BindView(R.id.title_left)
+    TextView mTitleLeft;
+    @BindView(R.id.title)
+    TextView mTitle;
+    @BindView(R.id.title_right_toolbar)
+    TextView mTitleRightToolbar;
+    @BindView(R.id.toolbar)
+    Toolbar mToolbar;
+    @BindView(R.id.tv_action)
+    TextView mTvAction;
+    @BindView(R.id.tv_service_today_time)
+    TextView mTvServiceTodayTime;
+    @BindView(R.id.tv_select_day)
+    TextView mTvSelectDay;
+    @BindView(R.id.grid_select_service_time)
+    AutoGridView mGridSelectServiceTime;
+
+    @BindView(R.id.btn_confirm)
+    Button mBtnConfirm;
+    TimeSelector mTimeSelector;
+    private long order_title_id;
+    private PopDialog mPopDialog;
+    private Order mOrder;
+    private String remark;
+
+    @Override
+    protected int getViewId() {
+        return R.layout.act_re_yuyue;
+    }
+
+    @Override
+    protected void initEvent() {
+        mOrder = (Order) getIntent().getSerializableExtra("order");
+        order_title_id = getIntent().getLongExtra("id", 0);
+        remark = getIntent().getStringExtra("remark");
+        mTitle.setText(R.string.re_yuyue);
+        mTitleLeft.setText(R.string.back);
+        mTitleLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+        setServiceTime();
+        mBtnConfirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (StringUtil.isEmpty(mSelectDay)) {
+                    showToast("请选择日期");
+                    return;
+                }
+                if (selectTime == -1) {
+                    showToast("请选择时间段");
+                    return;
+                }
+
+                final String time = TimeUtil.castTimeEdit(mSelectDay);
+                TLog.i("预约" + time);
+                mPopDialog = new PopDialog(ReYuyueAct.this);
+                mPopDialog.setText(null, "确认下次上门服务时间为：", time + selectTimeStr + "  " + SELECT_TIMES_AREA[selectTime]);
+                mPopDialog.setOnDialogListener(new PopDialog.OnDialogListener() {
+                    @Override
+                    public void onIsConfirm(boolean is) {
+                        if (is)
+                            cancel(remark, time, selectTime);
+                    }
+                });
+                mPopDialog.show(mBtnConfirm);
+            }
+        });
+    }
+
+
+    //预约
+    private void cancel(String reserv_memo, String day, int resv_time) {
+        Order.RowsBean rowsBean = mOrder.getRows().get(0);
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_APP_ORDER_RESERVING_AGAIN);
+        reqJson.setUser_id(LoginUtil.getUserId(mContext));
+        reqJson.setReserv_memo(reserv_memo);
+        reqJson.setOrder_title_id(String.valueOf(order_title_id));
+        reqJson.setParent_biz_order_id(rowsBean.getParent_biz_order_id());
+        reqJson.setService_order_id(getServiceOrderId());
+        reqJson.setResv_time(String.valueOf(resv_time));
+        reqJson.setResv_date(day);
+        reqJson.setWorker_name(LoginUtil.getUserName(mContext));
+        reqJson.setWorker_mobile(LoginUtil.getTel(mContext));
+        reqJson.setHas_rows("no");
+        showProgressDialog("正在改约");
+        action(reqJson);
+    }
+
+    private String getServiceOrderId() {
+        String serviceOrderId = mOrder.getRows().get(0).getService_order_id();
+//        List<Order.Rows1Bean> list = mOrder.getRows1();
+//        StringBuilder sb = new StringBuilder();
+//        for (Order.Rows1Bean bean : list) {
+//            sb.append(bean.getService_order_id()).append(",");
+//        }
+//        if (sb.length() > 0) {
+//            sb.deleteCharAt(sb.length() - 1);
+//        }
+        return serviceOrderId;
+    }
+
+    private void action(ReqJson reqJson) {
+        mSubscription = ApiImp.get().action(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Base>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        dissmisProgressDialog();
+                        showToast("网络不给力");
+                    }
+
+                    @Override
+                    public void onNext(Base model) {
+                        dissmisProgressDialog();
+                        showToast(model.getResult().getOut_nszRtn());
+                        int flag = model.getResult().getOut_Flag();
+                        if (flag == 0) {
+                            EventMessage eventMessage = new EventMessage(EventCode.EVENT_ORDER_CHANGE, "");
+                            EventBus.getDefault().post(eventMessage);
+                            finish();
+                        }else {
+                            showToast(model.getResult().getOut_nszRtn());
+                        }
+                    }
+                });
+    }
+
+    private String mSelectDay;
+    private String mWeek;
+
+    private void setSelectBtn() {
+        if (!StringUtil.isEmpty(mSelectDay)) {
+            mTvSelectDay.setBackgroundResource(R.drawable.bg_login_btn_shape);
+            mTvSelectDay.setTextColor(Color.WHITE);
+            mTvSelectDay.setText(mSelectDay + " " + mWeek);
+        } else {
+            mTvSelectDay.setBackgroundResource(R.drawable.bg_login_edit_shape);
+            mTvSelectDay.setTextColor(ContextCompat.getColor(mContext, R.color.black));
+            mTvSelectDay.setText(R.string.pls_select_time);
+        }
+    }
+
+    private void setTimes() {
+        SelectTimeAdapter selectTimeAdapter = new SelectTimeAdapter(mContext);
+        mGridSelectServiceTime.setAdapter(selectTimeAdapter);
+    }
+
+    //上午  ：2017-09-08      下午：2017-09-08    晚上 2017-09-08
+    private final String[] SELECT_TIMES = {"09:00:00", "15:00:00", "21:00:00"};
+    //07：10─────12：59 \n下午   13：00─────18：59\n晚上   19：00─────23：59
+    private final String[] SELECT_TIMES_AREA = {"07：10─12：59", "13：00─18：59", "19：00─23：59"};
+    private int selectTime = -1;
+    private String selectTimeStr;
+
+    /**
+     * /**
+     * 预约时间段
+     */
+    private void setServiceTime() {
+        mTvServiceTodayTime.setText("今天是" + TimeUtil.getDayAndWeek());
+        SelectTimeAdapter selectTimeAdapter = new SelectTimeAdapter(mContext);
+        selectTimeAdapter.setOnSelectTimeListener(new SelectTimeAdapter.OnSelectTimeListener() {
+            @Override
+            public void onSelectTime(int p, String text) {
+                selectTime = p;
+                selectTimeStr = text;
+            }
+        });
+        mGridSelectServiceTime.setAdapter(selectTimeAdapter);
+
+        mTvSelectDay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mTimeSelector == null) {
+                    mTimeSelector = new TimeSelector(ReYuyueAct.this, new TimeSelector.ResultHandler() {
+                        @Override
+                        public void handle(String time,String week) {
+                            mSelectDay = time;
+                            mWeek = week;
+                            setSelectBtn();
+                        }
+                    }, TimeUtil.getAfterDay(), TimeUtil.getDayCNNextYear());
+                }
+                mTimeSelector.show(mTvSelectDay);
+            }
+        });
+    }
+}

@@ -1,0 +1,486 @@
+package com.rubu.ui.act;
+
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
+import android.app.Activity;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import android.os.Handler;
+import android.os.Message;
+import android.os.SystemClock;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewPager;
+import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.Gravity;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+import android.widget.TextSwitcher;
+import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.ViewSwitcher;
+
+import com.rubu.R;
+import com.rubu.base.BaseActivity;
+import com.rubu.base.TabFragAdapter;
+import com.rubu.constant.Constant;
+import com.rubu.constant.SharePerenceCode;
+import com.rubu.model.ExamModel;
+import com.rubu.model.VersionModel;
+import com.rubu.net.ApiImp;
+import com.rubu.net.Params;
+import com.rubu.net.ReqJson;
+import com.rubu.pop.dialog.MyAlertDialog;
+import com.rubu.ui.act.mine.MineAct;
+import com.rubu.ui.act.mine.MsgAct;
+import com.rubu.ui.act.mine.model.MsgOrderReminderModel;
+import com.rubu.ui.fragment.FmUtil;
+import com.rubu.util.AppClassManager;
+import com.rubu.util.LoginUtil;
+import com.rubu.util.SPUtils;
+import com.rubu.util.UpdateUtils;
+import com.rubu.util.UserInfoUtil;
+import com.rubu.view.commontablayout.SlidingTabLayout;
+import com.umeng.analytics.MobclickAgent;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import butterknife.BindView;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
+/**
+ * Created by liuhaizhu on 2017/3/1.
+ */
+
+public class HomeAct extends BaseActivity {
+    private static final int PERMISSON_STORGE = 0x978;
+
+    private VersionModel mModel;
+
+    @BindView(R.id.title_left)
+    TextView mTitleLeft;
+    @BindView(R.id.title)
+    TextView mTitle;
+    @BindView(R.id.title_right_toolbar)
+    TextView mTitleRightToolbar;
+    @BindView(R.id.toolbar)
+    Toolbar mToolbar;
+    @BindView(R.id.ll_msg_notice)
+    LinearLayout mLLMsgNotice;
+    @BindView(R.id.ts_msg_notice)
+    TextSwitcher mTSMsgNotice;
+    @BindView(R.id.tab_layout)
+    SlidingTabLayout mTabLayout;
+    @BindView(R.id.view_pager)
+    ViewPager mViewPager;
+    private MyAlertDialog myAlertDialog;
+
+    private final String[] mTitles = {"今日需预约", "今日需上门", "明日需上门"};
+    private List<Fragment> mFragments;
+
+    private int mWokerInfoState = 0;
+    private int mUpdateFlag;
+
+    private final static String TAG = "HomeAct";
+    private String isupDate = "false";
+
+    private String[] news;
+    private int index = 0;//textview上下滚动下标
+    public static final int NEWS_MESSAGE_TEXTVIEW = 100;//通知公告信息
+    private MsgNoticeThread mMsgThread;
+    // 线程是否随Activity的Stop而关闭
+    private AtomicBoolean mIsMsgThreadDestory = new AtomicBoolean(false);
+
+    //    /**
+//     * 轮播图的消息处理
+//     */
+    @SuppressLint("HandlerLeak")
+    Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case NEWS_MESSAGE_TEXTVIEW:
+                    index++;
+                    //返回值为0，visible；返回值为4，invisible；返回值为8，gone。
+                    if ((mLLMsgNotice.getVisibility()) != 0 && (!mIsMsgThreadDestory.get())) {
+                        Log.d(TAG, "handleMessage: mLLMsgNotice.setVisibility(View.VISIBLE)");
+                        mLLMsgNotice.setVisibility(View.VISIBLE);
+                    }
+                    Log.d(TAG, "handleMessage: PROC_REMINDER_MESSAGE_LOAD" + mIsMsgThreadDestory.get());
+                    mTSMsgNotice.setText(news[index % news.length]);
+                    if (index == news.length) {
+                        index = 0;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
+
+    @Override
+    protected int getViewId() {
+        return R.layout.act_home;
+    }
+
+    @Override
+    protected void initEvent() {
+        mUpdateFlag = (int) SPUtils.get(mContext, "updateFlag", 1);
+        initFragments();
+        mTitleLeft.setText(R.string.work_order);
+        mTitleRightToolbar.setText(R.string.me);
+        mTitleLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                gotoNewAty(WorkOrderAct.class);
+            }
+        });
+        mTitleRightToolbar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                gotoNewAty(MineAct.class);
+            }
+        });
+        if (news != null) {
+            news = null;
+        }
+        initMsgNotice();
+        newsMessage();
+        // 版本更新功能
+        if (mUpdateFlag == 0) {
+            getVersion();
+        }
+        // 检查用户信息
+        checkUserInfo();
+    }
+
+
+    // 加载通知时间
+    private long mCurrentMsgTime = 0;
+
+    //    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d(TAG, "onStart: PROC_REMINDER_MESSAGE_LOAD onStart()");
+    }
+
+    @Override
+    protected void onResume() {
+        Log.d(TAG, "onResume: PROC_REMINDER_MESSAGE_LOAD onResume()");
+//        if (mCurrentMsgTime == 0 || System.currentTimeMillis() - mCurrentMsgTime > 1000) {
+        mCurrentMsgTime = System.currentTimeMillis();
+        mIsMsgThreadDestory.set(false);
+        Log.d(TAG, "onResume:  mIsMsgThreadDestory.set(false);");
+        loadOrderReminderData();
+//        } else {
+//            mCurrentMsgTime = System.currentTimeMillis();
+//        }
+        super.onResume();
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Log.d(TAG, "onRestart: PROC_REMINDER_MESSAGE_LOAD onRestart()");
+    }
+
+    @Override
+    protected void onPause() {
+        Log.d(TAG, "onPause: PROC_REMINDER_MESSAGE_LOAD onPause()");
+        mIsMsgThreadDestory.set(true);
+        mLLMsgNotice.setVisibility(View.GONE);
+        super.onPause();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d(TAG, "onStop: PROC_REMINDER_MESSAGE_LOAD onStop()");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy: PROC_REMINDER_MESSAGE_LOAD onDestroy()");
+    }
+
+    /**
+     * 初始化fragment
+     */
+    private void initFragments() {
+        mViewPager.setOffscreenPageLimit(0);
+        mFragments = new ArrayList<>();
+        mFragments.add(FmUtil.getFrag(1, 0));
+        mFragments.add(FmUtil.getFrag(10, 0));
+//        mFragments.add(FmUtil.getFrag(2, 0));
+        mFragments.add(FmUtil.getFrag(11, 0));
+        TabFragAdapter mTabFragAdapter = new TabFragAdapter(getSupportFragmentManager(), mTitles, mFragments);
+        mViewPager.setAdapter(mTabFragAdapter);
+        mTabLayout.setViewPager(mViewPager);
+        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+//                if (position == 0 || position == 1) {
+//                    mTitle.setText("今日任务");
+//                } else {
+//                    mTitle.setText("明日任务");
+//                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+    }
+
+    /**
+     * 轮播图操作
+     */
+    private void initMsgNotice() {
+        mTSMsgNotice.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(mContext, MsgAct.class);
+                intent.putExtra("MsgType", 2);
+                startActivity(intent);
+            }
+        });
+
+    }
+
+    /**
+     * 设置TextSwither的字体字号颜色
+     */
+    private void newsMessage() {
+        mTSMsgNotice.setFactory(new ViewSwitcher.ViewFactory() {
+            @Override
+            public View makeView() {
+                TextView textView = new TextView(mContext);
+                textView.setSingleLine();
+                textView.setEllipsize(TextUtils.TruncateAt.END);
+                textView.setTextSize(16);
+                textView.setTextColor(mContext.getResources().getColor(R.color.colorPrimary));
+                textView.setGravity(Gravity.CENTER_VERTICAL);
+                FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                params.gravity = Gravity.CENTER_VERTICAL;
+                textView.setLayoutParams(params);
+                return textView;
+            }
+        });
+    }
+
+    /**
+     * 消息通知的Thread启动
+     */
+    private class MsgNoticeThread extends Thread {
+        @Override
+        public void run() {
+            while (index < news.length && (!mIsMsgThreadDestory.get())) {
+                Log.d(TAG, "run: 执行发送空的消息");
+                handler.sendEmptyMessage(NEWS_MESSAGE_TEXTVIEW);
+                SystemClock.sleep(4000);//每隔4秒滚动一次111111
+            }
+        }
+    }
+
+    /**
+     * 加载消息通知信息列表
+     * reqJson的参数说明见Rejson对象
+     */
+    private void loadOrderReminderData() {
+        Log.d(TAG, "onNext: 网络请求请求执行");
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_GET_MSG_ORDER_REMINDER_LIST);
+        reqJson.setB_group_id(0);
+        reqJson.setS_worker_id(LoginUtil.getUserId(mContext));
+        reqJson.setMessage_type("(2,3,4,5,6)");
+        reqJson.setLauch_source("");
+        reqJson.setIs_read(-1);
+        reqJson.setApp_is_read(-1);
+        reqJson.setOrder_by("");
+        reqJson.setFetch_latest(1);
+        reqJson.setCurrentPage(1);
+        reqJson.setPageSize(Integer.MAX_VALUE);
+        reqJson.setHas_rows("yes");
+        mSubscription = ApiImp.get().getMsgOrderReminder(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<MsgOrderReminderModel>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onNext(MsgOrderReminderModel model) {
+                        Log.d(TAG, "onNext: 网络请求请求成功");
+                        if (model.getResult().getOut_Flag() == 0) {
+                            Log.d(TAG, "onNext: getOut_Flag() == 0");
+                            if (model.getRows() != null) {
+                                List<MsgOrderReminderModel.Rows1Bean> list = model.getRows1();
+                                news = new String[list.size()];
+                                for (int i = 0; i < list.size(); i++) {
+                                    MsgOrderReminderModel.Rows1Bean bean = list.get(i);
+                                    news[i] = bean.getContent_app();
+                                }
+                                mMsgThread = new MsgNoticeThread();
+                                Log.d(TAG, "onNext: 执行网络线程");
+                                mMsgThread.start();
+                            }
+                        } else {
+                            Toast.makeText(mContext, model.getResult().getOut_nszRtn(), Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, "onNext: model 错误" + model.getResult().getOut_nszRtn());
+                        }
+                    }
+                });
+    }
+
+    /**
+     * 检查用户(审核信息)
+     */
+    private void checkUserInfo() {
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_CHECK_USER_INFO);
+        reqJson.setS_user_id(LoginUtil.getUserId(mContext));
+        mSubscription = ApiImp.get().checkUserInfo(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<ExamModel>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.i(TAG, e.toString());
+                    }
+
+                    @Override
+                    public void onNext(ExamModel examModel) {
+                        int is_examineNum = examModel.getRowsX().get(0).getIs_examine();
+                        int examine_sumsNum = examModel.getRowsX().get(0).getExamine_sums();
+                        Log.d(TAG, "onNext: is_examineNum" + is_examineNum);
+                        Log.d(TAG, "onNext: examine_sumsNum" + examine_sumsNum);
+                        SPUtils.put(mContext, SharePerenceCode.SP_USER_EXAM_STATUE, true);
+                        // 审核不通过状态
+                        if (is_examineNum == 1 && examine_sumsNum != 0) {
+                            myAlertDialog = new MyAlertDialog.Builder(mContext)
+                                    .setContentView(R.layout.pop_complete_info_no_cancel)
+                                    .setCancelable(false)
+                                    .setDefaultAnimation()
+                                    .setClick(R.id.confirm, new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            SPUtils.put(mContext, SharePerenceCode.SP_USER_EXAM_STATUE, false);
+                                            // 跳转到我的页面
+                                            Intent intent = new Intent(mContext, MineAct.class);
+                                            startActivity(intent);
+                                            myAlertDialog.dismiss();
+                                        }
+                                    }).show();
+                            // 清除本地的数据
+                            UserInfoUtil.clearInfo();
+                            Log.d("审核不通过", "清除本地数据");
+                        }
+                    }
+                });
+    }
+
+    // 版本更新
+    private void getVersion() {
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_DATA_APP_VERSION_UPDATE);
+        mSubscription = ApiImp.get().getVersion(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<VersionModel>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.i(TAG, e.toString());
+                    }
+
+                    @Override
+                    public void onNext(VersionModel model) {
+                        SPUtils.put(mContext, "updateFlag", 1);
+                        if (model.getResult().getOut_Flag() == 0) {
+                            mModel = model;
+//                            String version = PackInfoUtil.getVersion(mContext);
+                            String version = Constant.APP_VERSION;
+                            if (!version.equals(model.getRows().get(0).getVersion())) {
+                                checkPermission();
+                            }
+                        } else {
+                            showToast(model.getResult().getOut_nszRtn());
+                        }
+                    }
+                });
+    }
+
+    private long mCurrentTime;
+
+    @Override
+    public void onBackPressed() {
+        if (mCurrentTime == 0 || System.currentTimeMillis() - mCurrentTime > 1500) {
+            mCurrentTime = System.currentTimeMillis();
+            showToast("再按一次退出应用");
+        } else {
+            mCurrentTime = System.currentTimeMillis();
+            /**
+             * 友盟保存用户推出进程的数据
+             */
+            MobclickAgent.onKillProcess(mContext);
+            AppClassManager.getAppManager().closeAppClassManager();
+            finish();
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    private void checkPermission() {
+        if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            //应用还未获取读取本地文件 的权限，询问是否允许
+            ActivityCompat.requestPermissions((Activity) mContext, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSON_STORGE);
+        } else {
+            UpdateUtils.alertDownload(mContext, mModel.getRows().get(0), mWokerInfoState);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSON_STORGE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                UpdateUtils.alertDownload(mContext, mModel.getRows().get(0), mWokerInfoState);
+            } else {
+                showToast("权限被禁止");
+            }
+        }
+    }
+
+}

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tl="http://schemas.android.com/apk/res-auto"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:gravity="center_horizontal"
+              android:background="@android:color/white"
+              android:orientation="vertical">
+
+    <include layout="@layout/toolbar"/>
+
+    <com.rubu.view.commontablayout.SlidingTabLayout
+        android:id="@+id/tab_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:background="@android:color/white"
+        tl:tl_textSelectColor="@color/colorPrimaryDark"
+        tl:tl_textUnselectColor="@color/gray_dark"
+        tl:tl_indicator_gravity="BOTTOM"
+        tl:tl_indicator_color="@color/colorAccent"
+        tl:tl_underline_height="1dp"/>
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+</LinearLayout>

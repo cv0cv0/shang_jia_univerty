@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#f7f7f7"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/ll_time"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_36"
+        android:layout_marginTop="@dimen/dp_8"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/tv_select_start_day"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/bg_login_edit_shape"
+            android:gravity="center"
+            android:text="@string/pls_select_start_time"
+            android:textSize="@dimen/text_medium" />
+
+        <TextView
+            android:id="@+id/tv_select_end_day"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="@dimen/dp_10"
+            android:layout_weight="1"
+            android:background="@drawable/bg_login_edit_shape"
+            android:gravity="center"
+            android:text="@string/pls_select_end_time"
+            android:textSize="@dimen/text_medium" />
+
+        <TextView
+            android:id="@+id/confirm"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="@dimen/dp_10"
+            android:background="@drawable/bg_login_btn_shape"
+            android:gravity="center"
+            android:paddingLeft="@dimen/dp_10"
+            android:paddingRight="@dimen/dp_10"
+            android:text="确定"
+            android:textColor="@color/white" />
+
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="@dimen/dp_4">
+
+        <com.scwang.smartrefresh.layout.SmartRefreshLayout
+            android:id="@+id/smare_fa_sha"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.scwang.smartrefresh.layout.header.ClassicsHeader
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recycle_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+            </android.support.v7.widget.RecyclerView>
+
+            <com.scwang.smartrefresh.layout.footer.ClassicsFooter
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </com.scwang.smartrefresh.layout.SmartRefreshLayout>
+
+        <TextView
+            android:id="@+id/tv_refresh_hint"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="暂无相关工单(点击刷新)"
+            android:visibility="gone">
+
+        </TextView>
+    </FrameLayout>
+
+
+</LinearLayout>

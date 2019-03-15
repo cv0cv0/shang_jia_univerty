@@ -1,0 +1,266 @@
+package com.rubu.model;
+
+import java.io.Serializable;
+import java.util.List;
+
+/**
+ * Created by liuhaizhu on 2017/3/10.
+ */
+
+public class InfoModel  implements Serializable{
+
+    /**
+     * result : {"out_nszRtn":"查询成功！","out_Flag":0}
+     * rows : [{"s_user_account":null,"s_idcard_no":"","s_user_incometype":null,"s_user_id":2155,"s_org_name":null,"s_bind_tel":"17682305898","s_user_name":"lhz"}]
+     */
+
+    private ResultBean result;
+    private List<RowsBean> rows;
+    private List<Rows1Bean> rows1;
+
+    public ResultBean getResult() {
+        return result;
+    }
+
+    public void setResult(ResultBean result) {
+        this.result = result;
+    }
+
+    public List<RowsBean> getRows() {
+        return rows;
+    }
+
+    public void setRows(List<RowsBean> rows) {
+        this.rows = rows;
+    }
+
+    public List<Rows1Bean> getRows1() {
+        return rows1;
+    }
+
+    public void setRows1(List<Rows1Bean> rows1) {
+        this.rows1 = rows1;
+    }
+
+    public static class ResultBean  implements Serializable{
+        /**
+         * out_nszRtn : 查询成功！
+         * out_Flag : 0
+         */
+
+        private String out_nszRtn;
+        private int out_Flag;
+
+        public String getOut_nszRtn() {
+            return out_nszRtn;
+        }
+
+        public void setOut_nszRtn(String out_nszRtn) {
+            this.out_nszRtn = out_nszRtn;
+        }
+
+        public int getOut_Flag() {
+            return out_Flag;
+        }
+
+        public void setOut_Flag(int out_Flag) {
+            this.out_Flag = out_Flag;
+        }
+    }
+
+    public static class Rows1Bean implements Serializable{
+        private String service_ability_name;
+        private String service_ability_id;
+
+        public String getService_ability_name() {
+            return service_ability_name;
+        }
+
+        public void setService_ability_name(String service_ability_name) {
+            this.service_ability_name = service_ability_name;
+        }
+
+        public String getService_ability_id() {
+            return service_ability_id;
+        }
+
+        public void setService_ability_id(String service_ability_id) {
+            this.service_ability_id = service_ability_id;
+        }
+    }
+
+    public static class RowsBean  implements Serializable{
+        /**
+         * s_user_account : null
+         * s_idcard_no :
+         * s_user_incometype : null
+         * s_user_id : 2155
+         * s_org_name : null
+         * s_bind_tel : 17682305898
+         * s_user_name : lhz
+         */
+
+        private String s_user_account;
+        private String s_idcard_no;
+        private String s_user_incometype;
+        private int s_user_id;
+        private String s_org_name;
+        private String s_org_short;
+        private String s_bind_tel;
+        private String s_user_name;
+        private String street_name;
+        private String  s_region_tag;
+        private String s_address;
+        private String worker_type_name;
+        private String service_ability_name;
+        private String s_bank_account;
+        private float total_fee;
+        private int s_status;
+        private int s_is_taking;
+        private String s_org_show_status;
+
+        public String getS_region_tag() {
+            return s_region_tag;
+        }
+
+        public void setS_region_tag(String s_region_tag) {
+            this.s_region_tag = s_region_tag;
+        }
+
+        public String getS_address() {
+            return s_address;
+        }
+
+        public void setS_address(String s_address) {
+            this.s_address = s_address;
+        }
+
+        public String getWorker_type_name() {
+            return worker_type_name;
+        }
+
+        public void setWorker_type_name(String worker_type_name) {
+            this.worker_type_name = worker_type_name;
+        }
+
+        public String getService_ability_name() {
+            return service_ability_name;
+        }
+
+        public void setService_ability_name(String service_ability_name) {
+            this.service_ability_name = service_ability_name;
+        }
+
+        public String getS_bank_account() {
+            return s_bank_account;
+        }
+
+        public void setS_bank_account(String s_bank_account) {
+            this.s_bank_account = s_bank_account;
+        }
+
+        public int getS_is_taking() {
+            return s_is_taking;
+        }
+
+        public void setS_is_taking(int s_is_taking) {
+            this.s_is_taking = s_is_taking;
+        }
+
+        public int getS_status() {
+            return s_status;
+        }
+
+        public void setS_status(int s_status) {
+            this.s_status = s_status;
+        }
+
+        public String getS_user_account() {
+            return s_user_account;
+        }
+
+        public void setS_user_account(String s_user_account) {
+            this.s_user_account = s_user_account;
+        }
+
+        public String getS_org_short() {
+            return s_org_short;
+        }
+
+        public void setS_org_short(String s_org_short) {
+            this.s_org_short = s_org_short;
+        }
+
+        public String getS_idcard_no() {
+            return s_idcard_no;
+        }
+
+        public void setS_idcard_no(String s_idcard_no) {
+            this.s_idcard_no = s_idcard_no;
+        }
+
+        public String getS_user_incometype() {
+            return s_user_incometype;
+        }
+
+        public void setS_user_incometype(String s_user_incometype) {
+            this.s_user_incometype = s_user_incometype;
+        }
+
+        public int getS_user_id() {
+            return s_user_id;
+        }
+
+        public void setS_user_id(int s_user_id) {
+            this.s_user_id = s_user_id;
+        }
+
+        public String getS_org_name() {
+            return s_org_name;
+        }
+
+        public void setS_org_name(String s_org_name) {
+            this.s_org_name = s_org_name;
+        }
+
+        public String getS_bind_tel() {
+            return s_bind_tel;
+        }
+
+        public void setS_bind_tel(String s_bind_tel) {
+            this.s_bind_tel = s_bind_tel;
+        }
+
+        public String getS_user_name() {
+            return s_user_name;
+        }
+
+        public void setS_user_name(String s_user_name) {
+            this.s_user_name = s_user_name;
+        }
+
+        public String getStreet_name() {
+            return street_name;
+        }
+
+        public void setStreet_name(String street_name) {
+            this.street_name = street_name;
+        }
+
+        public float getTotal_fee() {
+            return total_fee;
+        }
+
+        public void setTotal_fee(float total_fee) {
+            this.total_fee = total_fee;
+        }
+
+        public String getS_org_show_status() {
+            return s_org_show_status;
+        }
+
+        public void setS_org_show_status(String s_org_show_status) {
+            this.s_org_show_status = s_org_show_status;
+        }
+    }
+}

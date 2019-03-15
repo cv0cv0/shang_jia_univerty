@@ -1,0 +1,317 @@
+package com.rubu.net;
+
+import com.rubu.model.AdvertisementModel;
+import com.rubu.model.AlertPunishModel;
+import com.rubu.model.AlertReminderModel;
+import com.rubu.model.AreaAbilityModel;
+import com.rubu.model.AuditOrderModel;
+import com.rubu.model.Base;
+import com.rubu.model.ExamModel;
+import com.rubu.model.FenModel;
+import com.rubu.model.FinishOrderModel;
+import com.rubu.model.InfoModel;
+import com.rubu.model.MsgDetailModel;
+import com.rubu.model.RegisterPersonalModel;
+import com.rubu.ui.act.mine.model.MsgModel;
+import com.rubu.model.Order;
+import com.rubu.model.OrderList;
+import com.rubu.model.OrderNumModel;
+import com.rubu.model.QuestionDetialModel;
+import com.rubu.model.QuestionListModel;
+import com.rubu.model.QuestionOrderCountModel;
+import com.rubu.model.RegisterModel;
+import com.rubu.model.ReminderDetailModel;
+import com.rubu.model.ServiceAbilityModel;
+import com.rubu.model.SiteNameModel;
+import com.rubu.model.StreetInfoModel;
+import com.rubu.model.UnusualModel;
+import com.rubu.model.UpLoadModel;
+import com.rubu.model.VersionModel;
+import com.rubu.model.YCModel;
+import com.rubu.ui.act.mine.model.DetialAccountModel;
+import com.rubu.ui.act.mine.model.MsgOrderReminderModel;
+
+import java.util.Map;
+
+import okhttp3.MultipartBody;
+import retrofit2.http.FieldMap;
+import rx.Observable;
+
+/**
+ * 类描述：
+ * 创建人：admin
+ * 创建时间：2016/5/27 10:35
+ * 修改人：admin
+ * 修改时间：2016/5/27 10:35
+ * 修改备注：
+ */
+public class ApiImp implements Api {
+    private static ApiImp mApiImp;
+
+    public static ApiImp get() {
+        if (null == mApiImp) {
+            mApiImp = new ApiImp();
+        }
+        return mApiImp;
+    }
+
+    private Api genApi() {
+        return HttpService.instance().getApi();
+    }
+
+
+    @Override
+    public Observable<Base> login(Map<String, Object> params) {
+        return genApi().login(params);
+    }
+
+    /**
+     * 修改密码
+     */
+    @Override
+    public Observable<Base> modifyPsw(Map<String, Object> params) {
+        return genApi().modifyPsw(params);
+    }
+
+    @Override
+    public Observable<RegisterModel> register(@FieldMap Map<String, Object> params) {
+        return genApi().register(params);
+    }
+
+    @Override
+    public Observable<Base> registerSetServiceAbility(@FieldMap Map<String, Object> params) {
+        return genApi().registerSetServiceAbility(params);
+    }
+
+    @Override
+    public Observable<Base> registerSetBaseInfoAbility(@FieldMap Map<String, Object> params) {
+        return genApi().registerSetBaseInfoAbility(params);
+    }
+
+    @Override
+    public Observable<ServiceAbilityModel> getRegisterServiceAbility(@FieldMap Map<String, Object> params) {
+        return genApi().getRegisterServiceAbility(params);
+    }
+
+    @Override
+    public Observable<RegisterPersonalModel> setRegisterServiceAbility(@FieldMap Map<String, Object> params) {
+        return genApi().setRegisterServiceAbility(params);
+    }
+
+    @Override
+    public Observable<AreaAbilityModel> getRegisterAreaAbility(@FieldMap Map<String, Object> params) {
+        return genApi().getRegisterAreaAbility(params);
+    }
+
+    @Override
+    public Observable<RegisterPersonalModel> setRegisterAreaAbility(@FieldMap Map<String, Object> params) {
+        return genApi().setRegisterAreaAbility(params);
+    }
+
+    @Override
+    public Observable<Base> modifyAddress(@FieldMap Map<String, Object> params) {
+        return genApi().modifyAddress(params);
+    }
+
+    @Override
+    public Observable<DetialAccountModel> getDetialAccount(@FieldMap Map<String, Object> params) {
+        return genApi().getDetialAccount(params);
+    }
+
+    @Override
+    public Observable<FinishOrderModel> getFinishOrder(@FieldMap Map<String, Object> params) {
+        return genApi().getFinishOrder(params);
+    }
+
+    @Override
+    public Observable<Base> setRedDot(@FieldMap Map<String, Object> params) {
+        return genApi().setRedDot(params);
+    }
+
+    /**
+     * 设置工商账号
+     */
+    @Override
+    public Observable<Base> setBankCode(Map<String, Object> params) {
+        return genApi().modifyPsw(params);
+    }
+
+    /**
+     * 获取考试培训地址的内容
+     *
+     * @param params
+     * @return
+     */
+    @Override
+    public Observable<Base> getExamUrl(@FieldMap Map<String, Object> params) {
+        return genApi().getExamUrl(params);
+    }
+
+    /**
+     * 获取催单列表的数据
+     *
+     * @param params
+     * @return
+     */
+    @Override
+    public Observable<UnusualModel> getUnusualList(@FieldMap Map<String, Object> params) {
+        return genApi().getUnusualList(params);
+    }
+
+
+    /**
+     * 获取催单列表的信息
+     *
+     * @param params
+     * @return
+     */
+    @Override
+    public Observable<AlertReminderModel> getReminderList(@FieldMap Map<String, Object> params) {
+        return genApi().getReminderList(params);
+    }
+
+    /**
+     * 获取处罚提醒列表
+     *
+     * @param params
+     * @return
+     */
+    @Override
+    public Observable<AlertPunishModel> getPunishReminderList(@FieldMap Map<String, Object> params) {
+        return genApi().getPunishReminderList(params);
+    }
+
+    /**
+     * 获取催单详情
+     *
+     * @param params
+     * @return
+     */
+    @Override
+    public Observable<ReminderDetailModel> getReminderDetial(@FieldMap Map<String, Object> params) {
+        return genApi().getReminderDetial(params);
+    }
+
+    /**
+     * 获取催单详情
+     *
+     * @param params
+     * @return
+     */
+    @Override
+    public Observable<AuditOrderModel> getAuditOrderList(@FieldMap Map<String, Object> params) {
+        return genApi().getAuditOrderList(params);
+    }
+
+    @Override
+    public Observable<OrderList> getOrderList(@FieldMap Map<String, Object> params) {
+        return genApi().getOrderList(params);
+    }
+
+    @Override
+    public Observable<Order> getDetail(@FieldMap Map<String, Object> params) {
+        return genApi().getDetail(params);
+    }
+
+    @Override
+    public Observable<Base> action(@FieldMap Map<String, Object> params) {
+        return genApi().action(params);
+    }
+
+    @Override
+    public Observable<UpLoadModel> uploadCardImg(MultipartBody.Part part) {
+        return genApi().uploadCardImg(part);
+    }
+
+    @Override
+    public Observable<UpLoadModel> uploadWorkImg(MultipartBody.Part photo) {
+        return genApi().uploadWorkImg(photo);
+    }
+
+    @Override
+    public Observable<UpLoadModel> uploadQuestion(MultipartBody.Part photo) {
+        return genApi().uploadQuestion(photo);
+    }
+
+
+    @Override
+    public Observable<InfoModel> info(@FieldMap Map<String, Object> params) {
+        return genApi().info(params);
+    }
+
+    @Override
+    public Observable<QuestionListModel> getQuestionTitle(@FieldMap Map<String, Object> params) {
+        return genApi().getQuestionTitle(params);
+    }
+
+    @Override
+    public Observable<QuestionDetialModel> getQuestionDetial(@FieldMap Map<String, Object> params) {
+        return genApi().getQuestionDetial(params);
+    }
+
+    @Override
+    public Observable<MsgModel> getMsg(@FieldMap Map<String, Object> params) {
+        return genApi().getMsg(params);
+    }
+
+    @Override
+    public Observable<MsgOrderReminderModel> getMsgOrderReminder(@FieldMap Map<String, Object> params) {
+        return genApi().getMsgOrderReminder(params);
+    }
+
+    @Override
+    public Observable<MsgDetailModel> getMsgDetail(@FieldMap Map<String, Object> params) {
+        return genApi().getMsgDetail(params);
+    }
+
+    @Override
+    public Observable<OrderNumModel> getOrderNum(@FieldMap Map<String, Object> params) {
+        return genApi().getOrderNum(params);
+    }
+
+    @Override
+    public Observable<QuestionOrderCountModel> getQuestionOrderNum(@FieldMap Map<String, Object> params) {
+        return genApi().getQuestionOrderNum(params);
+    }
+
+    @Override
+    public Observable<YCModel> getYiChangeResult(@FieldMap Map<String, Object> params) {
+        return genApi().getYiChangeResult(params);
+    }
+
+    @Override
+    public Observable<VersionModel> getVersion(@FieldMap Map<String, Object> params) {
+        return genApi().getVersion(params);
+    }
+
+    @Override
+    public Observable<ExamModel> checkUserInfo(@FieldMap Map<String, Object> params) {
+        return genApi().checkUserInfo(params);
+    }
+
+    @Override
+    public Observable<AdvertisementModel> getAdvertisement(@FieldMap Map<String, Object> params) {
+        return genApi().getAdvertisement(params);
+    }
+
+    @Override
+    public Observable<FenModel> getFen(@FieldMap Map<String, Object> params) {
+        return genApi().getFen(params);
+    }
+
+    @Override
+    public Observable<SiteNameModel> getSiteInfo(@FieldMap Map<String, Object> params) {
+        return genApi().getSiteInfo(params);
+    }
+
+    @Override
+    public Observable<StreetInfoModel> getStreetInfo(@FieldMap Map<String, Object> params) {
+        return genApi().getStreetInfo(params);
+    }
+
+    @Override
+    public Observable<StreetInfoModel> setTelMsg(@FieldMap Map<String, Object> params) {
+        return genApi().setTelMsg(params);
+    }
+
+}

@@ -1,0 +1,395 @@
+package com.rubu.ui.act.register.adapter;
+
+import android.content.Context;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.ui.act.register.model.AreaChildModel;
+import com.rubu.ui.act.register.model.AreaGroupModel;
+import com.rubu.ui.act.register.model.AreaParentModel;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/10/12
+ * Vwesion 1.0
+ * Dsscription:
+ */
+
+public class RegisterAreaAbilityAdapter extends RecyclerView.Adapter<RegisterAreaAbilityAdapter.BaseViewHolder> {
+    // 父的数据
+    List<AreaGroupModel> groupList;
+    // 打开的集合的内容
+    List<AreaGroupModel> openedList = new ArrayList<>();
+    // 选择的集合的内容
+    List<AreaGroupModel> selectList = new ArrayList<>();
+    // 分组的展开和收起
+    private ISelectListener selectlistener;
+    // 需要拿来展示的数据
+    private List<Object> expandList;
+    // 转进来需要显示数据的recycleView
+    RecyclerView recyclerView;
+    // 返回点击的数量
+    private int mSelectCounts = 0;
+    // 上下文
+    private Context mContext;
+
+    public RegisterAreaAbilityAdapter(List<AreaGroupModel> groupList, Context context, int selectCounts) {
+        this.groupList = groupList;
+        this.mContext = context;
+        this.mSelectCounts = selectCounts;
+        calculateList();
+    }
+
+    @Override
+    public BaseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        // 返回火的
+        if (viewType == 1) {
+            return new ParentHolder(LayoutInflater.from(mContext).inflate(R.layout.item_register_area_ability_parent, parent, false));
+        } else if (viewType == 2) {
+            return new ChildHolder(LayoutInflater.from(mContext).inflate(R.layout.item_register_area_ability_child, parent, false));
+        } else {
+            return new ChildHolder(LayoutInflater.from(mContext).inflate(R.layout.item_register_area_ability_child, parent, false));
+        }
+    }
+
+    @Override
+    public void onBindViewHolder(BaseViewHolder holder, int position) {
+        // 设置父布局的数据
+        if (holder.getClass().equals(ParentHolder.class)) {
+            bindParentView((ParentHolder) holder, position);
+            // 设置子布局的数据
+        } else if (holder.getClass().equals(ChildHolder
+                .class)) {
+            bindChildView((ChildHolder) holder, position);
+        }
+    }
+
+    @Override
+    public int getItemCount() {
+        return null != expandList ? expandList.size() : 0;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        int type = 0;
+        Object item = expandList.get(position);
+        if (item.getClass().equals(AreaParentModel.class)) {
+            type = 1;
+        } else if (item.getClass().equals(AreaChildModel.class)) {
+            type = 2;
+        }
+        return type;
+    }
+
+    /**
+     * 父的布局
+     */
+    public class ParentHolder extends BaseViewHolder {
+        // 选择
+        CheckBox checkBox;
+        // 父的选择title
+        TextView parentTitle;
+        // 显示的点击事件
+        RelativeLayout rl;
+        // 显示之后的事件
+        ImageView ivShowGroup;
+
+        public ParentHolder(View itemView) {
+            super(itemView);
+            checkBox = (CheckBox) itemView.findViewById(R.id.cb_area_check);
+            parentTitle = (TextView) itemView.findViewById(R.id.group_name);
+            rl = (RelativeLayout) itemView.findViewById(R.id.rl_group);
+            ivShowGroup = (ImageView) itemView.findViewById(R.id.tv_show_group);
+        }
+    }
+
+    /**
+     * 设置父布局
+     *
+     * @param holder
+     * @param position
+     */
+    public void bindParentView(final ParentHolder holder, final int position) {
+        final AreaParentModel model = (AreaParentModel) expandList.get(position);
+        // 设置是否选择
+        if (model.isSelect()) {
+            holder.checkBox.setChecked(true);
+        } else {
+            holder.checkBox.setChecked(false);
+        }
+        // 设置标题
+        holder.parentTitle.setText(model.getArea() + model.getSlectStreetCounts() + "/" + model.getAllStreetCounts());
+        // 设置是否展开
+        if (model.isShowGroup()) {
+            holder.ivShowGroup.setImageResource(R.drawable.down);
+        } else {
+            holder.ivShowGroup.setImageResource(R.drawable.right);
+        }
+        // 点开的触发事件
+        holder.rl.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                expandOrShrikGroup(model, position);
+            }
+        });
+        holder.checkBox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (holder.checkBox.isChecked()) {
+                    parentOperate(model, position, true);
+                } else {
+                    parentOperate(model, position, false);
+                }
+            }
+        });
+    }
+
+    /**
+     * 子的布局
+     */
+    public class ChildHolder extends BaseViewHolder {
+        CheckBox checkBox;
+        TextView childName;
+
+        public ChildHolder(View itemView) {
+            super(itemView);
+            checkBox = (CheckBox) itemView.findViewById(R.id.check_box);
+            childName = (TextView) itemView.findViewById(R.id.tv_site_name);
+        }
+    }
+
+    /**
+     * 设置子布局
+     *
+     * @param holder
+     * @param position
+     */
+    public void bindChildView(final ChildHolder holder, final int position) {
+        final AreaChildModel model = (AreaChildModel) expandList.get(position);
+        // 设置是否选择
+        if (model.isSelect()) {
+            holder.checkBox.setChecked(true);
+        } else {
+            holder.checkBox.setChecked(false);
+        }
+        // 设置名字
+        holder.childName.setText(model.getStreet_name());
+        // 子的选择事件
+        holder.checkBox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (holder.checkBox.isChecked()) {
+                    childOperate(model, position, true);
+                } else {
+                    childOperate(model, position, false);
+                }
+            }
+        });
+    }
+
+    // 数据填充
+    private void calculateList() {
+        // 判断基础数据是否初始化
+        if (expandList == null) {
+            expandList = new ArrayList<>();
+        }
+        expandList.clear();
+        // 对象的适配
+        AreaGroupModel objAreaGroupModel;
+        // 是否添加子内容（打没打开）  false = 没打开 ,
+        boolean isEqual = false;
+        lableBreak:
+        // 循环设置父的内容
+        for (int j = 0; j < groupList.size(); j++) {
+            // 判断是否打开
+            isEqual = false;
+            // 获取到每一个布局的数据
+            objAreaGroupModel = groupList.get(j);
+            // 用来循环判断数据中的item是否被展开
+            for (int i = 0; i < openedList.size(); i++) {
+                // 在打开的list中存在，则需要添加到子
+                if (objAreaGroupModel.equalParent(openedList.get(i).parent)) {
+                    isEqual = true;
+                    break;
+                }
+            }
+            // 添加分组的parent
+            if (objAreaGroupModel.hasHeader()) {
+                expandList.add(objAreaGroupModel.parent);
+            }
+            // 将需要添加的子添加到数组中
+            if (isEqual) {
+                objAreaGroupModel.parent.setShowGroup(true);
+                if (objAreaGroupModel.getChildrenCount() > 0) {
+                    expandList.addAll(objAreaGroupModel.children);
+                }
+            } else {
+                objAreaGroupModel.parent.setShowGroup(false);
+            }
+        }
+    }
+
+    /**
+     * 展开（收拢数据）数据
+     *
+     * @param o
+     * @param position
+     */
+    private void expandOrShrikGroup(Object o, int position) {
+        boolean needopen = true;
+        for (AreaGroupModel areaGroupModel : openedList) {
+            if (areaGroupModel.equalParent(o)) {
+                Log.i("点击事件", "关闭数据");
+                needopen = false;
+                openedList.remove(areaGroupModel);
+                break;
+            }
+        }
+        // 需要展开
+        if (needopen) {
+            for (AreaGroupModel needAddGroupStrure : groupList) {
+                if (needAddGroupStrure.equalParent(o)) {
+                    openedList.add(needAddGroupStrure);
+                    if (needAddGroupStrure.getChildrenCount() > 0) {
+                        calculateList();
+                        notifyDataSetChanged();
+                    }
+                    break;
+                }
+            }
+        } else {
+            calculateList();
+            notifyDataSetChanged();
+        }
+    }
+
+    /**
+     * 判断父的操作
+     *
+     * @param o        点击的名字
+     * @param position 所在的位置
+     */
+    private void parentOperate(AreaParentModel o, int position, boolean isSelect) {
+        // 循环找到哪一个内容
+        for (int i = 0; i < groupList.size(); i++) {
+            AreaGroupModel parentSelectModel = groupList.get(i);
+            if (parentSelectModel.equalParent(o)) {
+                parentSelectModel.parent.setSelect(isSelect);
+                for (AreaChildModel child : parentSelectModel.children) {
+                    if (isSelect) {
+                        child.setSelect(true);
+                    } else {
+                        child.setSelect(false);
+                    }
+                }
+                // 动态改变选择的数量
+                if (isSelect) {
+                    this.mSelectCounts = this.mSelectCounts + parentSelectModel.children.size() - parentSelectModel.parent.getSlectStreetCounts();
+                    parentSelectModel.parent.setSlectStreetCounts(parentSelectModel.children.size());
+                } else {
+                    this.mSelectCounts = this.mSelectCounts - parentSelectModel.parent.getSlectStreetCounts();
+                    parentSelectModel.parent.setSlectStreetCounts(0);
+                }
+            }
+        }
+        if (selectlistener != null) {
+            selectlistener.onSelect(groupList, mSelectCounts);
+        }
+        calculateList();
+        notifyDataSetChanged();
+    }
+
+    /**
+     * 判断父的操作
+     *
+     * @param o        点击的名字
+     * @param position 所在的位置
+     */
+    private void childOperate(AreaChildModel o, int position, boolean isSelect) {
+        // 循环找到哪一个内容
+        for (int i = 0; i < groupList.size(); i++) {
+            AreaGroupModel parentSelectModel = groupList.get(i);
+            List<AreaChildModel> childList = parentSelectModel.children;
+            for (AreaChildModel model : childList) {
+                if (model.equals(o)) {
+                    // 子item的点击触发标题的数量
+                    if (isSelect) {
+                        parentSelectModel.parent.setSelect(isSelect);
+                        int parentSelectCounts = parentSelectModel.parent.getSlectStreetCounts() + 1;
+                        parentSelectModel.parent.setSlectStreetCounts(parentSelectCounts);
+                        this.mSelectCounts = this.mSelectCounts + 1;
+                        model.setSelect(true);
+                    } else {
+                        int parentSelectCounts = parentSelectModel.parent.getSlectStreetCounts() - 1;
+                        parentSelectModel.parent.setSlectStreetCounts(parentSelectCounts);
+                        if (parentSelectCounts == 0) {
+                            parentSelectModel.parent.setSelect(false);
+                        } else {
+                            parentSelectModel.parent.setSelect(true);
+                        }
+                        this.mSelectCounts = this.mSelectCounts - 1;
+                        model.setSelect(false);
+                    }
+                }
+            }
+        }
+        if (selectlistener != null) {
+            selectlistener.onSelect(groupList, mSelectCounts);
+        }
+        calculateList();
+        notifyDataSetChanged();
+    }
+
+    /**
+     * 原始的视图布局
+     */
+    public class BaseViewHolder extends RecyclerView.ViewHolder {
+        private Map<Integer, View> viewMap;
+
+        public BaseViewHolder(View itemView) {
+            super(itemView);
+            viewMap = new HashMap<>();
+        }
+
+        /**
+         * 获取设置的view
+         *
+         * @param id
+         * @return
+         */
+        public View getView(int id) {
+            View view = viewMap.get(id);
+            if (view == null) {
+                view = itemView.findViewById(id);
+                viewMap.put(id, view);
+            }
+            return view;
+        }
+    }
+
+    public void setSelectlistener(ISelectListener listener) {
+        this.selectlistener = listener;
+    }
+
+    /**
+     * 选择的事件回调
+     */
+    public interface ISelectListener {
+        // 展开
+        void onSelect(List<AreaGroupModel> list, int selectCounts);
+
+    }
+}

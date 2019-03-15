@@ -1,0 +1,60 @@
+package com.rubu.adapter;
+
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.base.BaseListAdapter;
+import com.rubu.model.Order;
+import com.rubu.util.StringUtil;
+
+import java.util.List;
+
+/**
+ * Created by liuhaizhu on 2017/3/2.
+ * 服务调整的附加服务的适配器
+ */
+
+public class AdditionalservicesListAdapter extends BaseListAdapter<Order.Rows4Bean> {
+
+    public AdditionalservicesListAdapter(Context context, List<Order.Rows4Bean> list) {
+        super(context, list);
+    }
+
+    @Override
+    public View initView(Order.Rows4Bean s, View convertView, ViewGroup parent) {
+        final ViewHolder holder;
+        if (convertView == null) {
+            LayoutInflater mInflater = LayoutInflater.from(parent.getContext());
+            convertView = mInflater.inflate(R.layout.item_additional_services_list, null);
+            holder = new ViewHolder();
+            holder.mTvTitle = (TextView) convertView.findViewById(R.id.title);
+            holder.mCheckBox = (CheckBox) convertView.findViewById(R.id.cb_goods);
+            holder.mTvNum = (TextView) convertView.findViewById(R.id.num);
+            convertView.setTag(holder);
+        } else {
+            holder = (ViewHolder) convertView.getTag();
+        }
+        holder.mTvTitle.setText(s.getService_name());
+        holder.mTvNum.setText((StringUtil.isEmpty(s.getService_num() + "")) ? "×1" : "×" + s.getService_num());
+        if (s.isCheck()) {
+            // TODO: 2017/7/19 空跑费用默认不选中,不管点不点,弹出的dialog 默认不显示附加服务列表
+            // TODO: 2017/7/19 空跑费用的框框,不显示
+            // TODO: 2017/7/19 默认把附加服务的checkBox隐藏掉了
+            holder.mCheckBox.setChecked(false);
+        } else {
+            holder.mCheckBox.setChecked(false);
+        }
+        return convertView;
+    }
+
+    class ViewHolder {
+        TextView mTvTitle;
+        TextView mTvNum;
+        CheckBox mCheckBox;
+    }
+}

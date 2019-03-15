@@ -1,0 +1,299 @@
+package com.rubu.util;
+
+import android.content.Context;
+import android.content.SharedPreferences;
+
+import com.google.gson.Gson;
+import com.rubu.ui.act.login.model.UserInfoModel;
+
+/**
+ * 类描述：
+ * 创建人：admin
+ * 创建时间：2016/5/10 16:14
+ * 修改人：admin
+ * 修改时间：2016/5/10 16:14
+ * 修改备注：
+ */
+public class UserInfoUtil {
+
+    private static String SP_NAME = "shangjia";
+    private static String KEY = "userInfo";
+    public static UserInfoModel info;
+
+    /**
+     * 获取用户Id
+     *
+     * @param context
+     * @return
+     */
+    public static String getUserId(Context context) {
+        if (info == null) {
+            info = getInfo(context);
+        }
+        if (info == null) {
+            return "";
+        } else {
+            return String.valueOf(info.getS_user_id());
+        }
+    }
+
+    /**
+     * 获取用户名字
+     *
+     * @param context
+     * @return
+     */
+    public static String getUserName(Context context) {
+        if (info == null) {
+            info = getInfo(context);
+        }
+        if (info == null) {
+            return "";
+        } else {
+            return String.valueOf(info.getS_user_name());
+        }
+    }
+
+    /**
+     * 获取用户手机号
+     *
+     * @param context
+     * @return
+     */
+    public static String getTel(Context context) {
+        if (info == null) {
+            info = getInfo(context);
+        }
+        if (info == null) {
+            return "";
+        } else {
+            return String.valueOf(info.getS_bind_tel());
+        }
+    }
+
+    /**
+     * 获取用户身份证账号
+     *
+     * @param context
+     * @return
+     */
+    public static String getIdCard(Context context) {
+        if (info == null) {
+            info = getInfo(context);
+        }
+        if (info == null) {
+            return "";
+        } else {
+            return String.valueOf(info.getS_idcard_no());
+        }
+    }
+
+    /**
+     * 获取用户城市区域
+     *
+     * @param context
+     * @return
+     */
+    public static String getRegionTag(Context context) {
+        if (info == null) {
+            info = getInfo(context);
+        }
+        if (info == null) {
+            return "";
+        } else {
+            return String.valueOf(info.getS_region_tag());
+        }
+    }
+
+    /**
+     * 获取用户街道
+     *
+     * @param context
+     * @return
+     */
+    public static String getStreetName(Context context) {
+        if (info == null) {
+            info = getInfo(context);
+        }
+        if (info == null) {
+            return "";
+        } else {
+            return String.valueOf(info.getS_Street());
+        }
+    }
+
+    /**
+     * 获取用户街道
+     *
+     * @param context
+     * @return
+     */
+    public static String getAdress(Context context) {
+        if (info == null) {
+            info = getInfo(context);
+        }
+        if (info == null) {
+            return "";
+        } else {
+            return String.valueOf(info.getS_address());
+        }
+    }
+
+    /**
+     * 获取用户分站信息
+     *
+     * @param context
+     * @return
+     */
+    public static String getOrgName(Context context) {
+        if (info == null) {
+            info = getInfo(context);
+        }
+        if (info == null) {
+            return "";
+        } else {
+            return String.valueOf(info.getS_org_name());
+        }
+    }
+
+    /**
+     * 获取用户银行名字
+     *
+     * @param context
+     * @return
+     */
+    public static String getBankName(Context context) {
+        if (info == null) {
+            info = getInfo(context);
+        }
+        if (info == null) {
+            return "";
+        } else {
+            return String.valueOf(info.getS_bank_account());
+        }
+    }
+
+    /**
+     * 获取用户银行卡号
+     *
+     * @param context
+     * @return
+     */
+    public static String getBankCard(Context context) {
+        if (info == null) {
+            info = getInfo(context);
+        }
+        if (info == null) {
+            return "";
+        } else {
+            return String.valueOf(info.getS_user_account());
+        }
+    }
+
+    /**
+     * 获取用户（天猫）服务能力
+     *
+     * @param context
+     * @return
+     */
+    public static String getTainMaoServiceAbility(Context context) {
+        if (info == null) {
+            info = getInfo(context);
+        }
+        if (info == null) {
+            return "";
+        } else {
+            return String.valueOf(info.getService_ability_name());
+        }
+    }
+
+    /**
+     * 获取用户是否接单
+     *
+     * @param context
+     * @return
+     */
+    public static int getIsTaking(Context context) {
+        if (info == null) {
+            info = getInfo(context);
+        }
+        if (info == null) {
+            return -1;
+        } else {
+            return info.getS_is_taking();
+        }
+    }
+
+
+    public static void clearInfo() {
+        info = null;
+    }
+
+    /**
+     * 保存登录信息
+     *
+     * @param mContext
+     * @param info
+     */
+    public static void saveInfo(Context mContext, UserInfoModel info) {
+        Gson gson = new Gson();
+        String gsonInfo = gson.toJson(info);
+        gsonInfo = AESUtils.encode(gsonInfo);
+        savaUser(mContext, gsonInfo);
+    }
+
+    /**
+     * 获取登录信息
+     *
+     * @param mContext
+     */
+    public static UserInfoModel getInfo(Context mContext) {
+        Gson gson = new Gson();
+        String gsonInfo = getInfoStr(mContext);
+        if (StringUtil.isEmpty(gsonInfo)) return null;
+        return gson.fromJson(gsonInfo, UserInfoModel.class);
+    }
+
+    /**
+     * 是否登录
+     *
+     * @param context context
+     * @return 是否登录
+     */
+    public static boolean isLogin(Context context) {
+        return null != getInfo(context);
+    }
+
+    /**
+     * 清空登录信息
+     *
+     * @param mContext
+     */
+    public static void clearInfo(Context mContext) {
+        SharedPreferences sp = mContext.getApplicationContext().getSharedPreferences(SP_NAME, Context.MODE_PRIVATE);
+        sp.edit().clear().apply();
+    }
+
+    private static void savaUser(Context mContext, String info) {
+        SharedPreferences sp = mContext.getApplicationContext().getSharedPreferences(SP_NAME, Context.MODE_PRIVATE);
+        try {
+            sp.edit().putString(KEY, info).apply();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static String getInfoStr(Context mContext) {
+        SharedPreferences sp = mContext.getApplicationContext().getSharedPreferences(SP_NAME, Context.MODE_PRIVATE);
+        String info = sp.getString(KEY, "");
+        if (!StringUtil.isEmpty(info)) {
+            try {
+                return AESUtils.decode(info);
+            } catch (Exception e) {
+                return "";
+            }
+        }
+        return "";
+    }
+
+}

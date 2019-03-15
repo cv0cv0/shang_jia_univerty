@@ -1,0 +1,64 @@
+package com.rubu.ui.act;
+
+import android.view.View;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.base.BaseActivity;
+import com.rubu.ui.act.mine.MineAct;
+import com.rubu.ui.act.register.RegisterAct;
+
+import butterknife.BindView;
+import butterknife.OnClick;
+
+/**
+ * Created by liuhaizhu on 2017/3/18.
+ */
+
+public class XYAct extends BaseActivity {
+    @BindView(R.id.title_left)
+    TextView titleLeft;
+    @BindView(R.id.title)
+    TextView title;
+    @BindView(R.id.btn_next)
+    TextView mTXNext;
+    private int mFlag = 0;
+
+    @Override
+    protected int getViewId() {
+        return R.layout.act_xy;
+    }
+
+    @OnClick({R.id.btn_next})
+    public void onClick(View view) {
+        switch (view.getId()) {
+            // 手机验证
+            case R.id.btn_next:
+                gotoNewAty(RegisterAct.class);
+                finish();
+                break;
+        }
+    }
+
+    @Override
+    protected void initEvent() {
+        mFlag = getIntent().getIntExtra("register", 0);
+        title.setText("上家服务");
+        if (mFlag == 0) {
+            mTXNext.setVisibility(View.GONE);
+            titleLeft.setText("返回");
+            titleLeft.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onBackPressed();
+                }
+            });
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+       finish();
+    }
+}

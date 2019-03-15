@@ -1,0 +1,229 @@
+package com.rubu.ui.act;
+
+import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
+import android.support.v7.widget.Toolbar;
+import android.view.View;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.base.BaseActivity;
+import com.rubu.base.TabFragAdapter;
+import com.rubu.constant.Constant;
+import com.rubu.constant.WorkerStatus;
+import com.rubu.event.EventCode;
+import com.rubu.event.EventMessage;
+import com.rubu.model.OrderNumModel;
+import com.rubu.net.ApiImp;
+import com.rubu.net.Params;
+import com.rubu.net.ReqJson;
+import com.rubu.ui.act.mine.MineAct;
+import com.rubu.ui.fragment.FmUtil;
+import com.rubu.util.LoginUtil;
+import com.rubu.view.commontablayout.CommonTabLayout;
+import com.rubu.view.commontablayout.CustomTabEntity;
+import com.rubu.view.commontablayout.OnTabSelectListener;
+import com.rubu.view.commontablayout.TabEntity;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import butterknife.BindView;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
+/**
+ * Created by liuhaizhu on 2017/3/1.
+ */
+public class WorkOrderAct extends BaseActivity {
+    @BindView(R.id.title_left)
+    TextView mTitleLeft;
+    @BindView(R.id.title)
+    TextView mTitle;
+    @BindView(R.id.title_right_toolbar)
+    TextView mTitleRightToolbar;
+    @BindView(R.id.toolbar)
+    Toolbar mToolbar;
+    @BindView(R.id.tab_layout)
+    CommonTabLayout mTabLayout;
+    @BindView(R.id.view_pager)
+    ViewPager mViewPager;
+
+    private String[] mTitles = {"全部\n ", "待接单\n ", "待预约\n ", "待签到\n ", "待完工\n "};
+    private List<Fragment> mFragments;
+
+    @Override
+    protected int getViewId() {
+        return R.layout.act_work_order;
+    }
+
+    @Override
+    protected void initEvent() {
+        initFragments();
+        mTitle.setText(R.string.work_order_manage);
+        mTitleRightToolbar.setText(R.string.me);
+        mTitleLeft.setText(R.string.today_task);
+        mTitleLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                gotoNewAty(HomeAct.class);
+            }
+        });
+        mTitleRightToolbar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                gotoNewAty(MineAct.class);
+            }
+        });
+        mTabLayout.setTabData(genTabEntity());
+        mTabLayout.setCurrentTab(0);
+        mViewPager.setOffscreenPageLimit(0);
+        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                mTabLayout.setCurrentTab(position);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+        mTabLayout.setOnTabSelectListener(new OnTabSelectListener() {
+            @Override
+            public void onTabSelect(int position) {
+                mViewPager.setCurrentItem(position);
+            }
+
+            @Override
+            public void onTabReselect(int position) {
+
+            }
+        });
+
+    }
+
+    /**
+     * 初始化fragment
+     */
+    //    待接单	44
+    //    待预约	55
+    //    待签到	56
+    //    待完工	57
+    //    以状态区分单据 1 今日工单 2 明日工单  3 异常处理中 4 异常已处理 5 全部工单 */
+    private TabFragAdapter mTabFragAdapter;
+
+    private void initFragments() {
+        mFragments = new ArrayList<>();
+        mFragments.add(FmUtil.getFrag(5, WorkerStatus.R_ALL, Constant.FROM_GONG));
+        mFragments.add(FmUtil.getFrag(0, WorkerStatus.R_J, Constant.FROM_GONG));
+        mFragments.add(FmUtil.getFrag(0, WorkerStatus.R_Y, Constant.FROM_GONG));
+        mFragments.add(FmUtil.getFrag(0, WorkerStatus.R_Q, Constant.FROM_GONG));
+        mFragments.add(FmUtil.getFrag(0, WorkerStatus.R_W, Constant.FROM_GONG));
+        mTabFragAdapter = new TabFragAdapter(getSupportFragmentManager(), mTitles, mFragments);
+        mViewPager.setAdapter(mTabFragAdapter);
+    }
+
+    private boolean isOrderStatusChange = false;//订单状态变化,数量显示
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        getOrderNum();
+    }
+
+    private ArrayList<CustomTabEntity> genTabEntity() {
+        ArrayList<CustomTabEntity> mTabEntities = new ArrayList<>();
+        for (int i = 0; i < mTitles.length; i++) {
+            mTabEntities.add(new TabEntity(mTitles[i], 0, 0));
+        }
+        return mTabEntities;
+    }
+
+    //"全部\n ", "待接单\n ", "待预约\n ", "待签到\n ", "待完工\n "
+    @Override
+    public void onEventMainThread(EventMessage event) {
+        super.onEventMainThread(event);
+        //数量变化
+        if (EventCode.EVENT_ORDER_STATUS_CHANGE == event.action) {
+            isOrderStatusChange = true;
+            return;
+        }
+        if (event.action == EventCode.EVENT_ORDER_NUM_CHANGE) {
+            switch (event.flag) {
+                case WorkerStatus.R_ALL:
+                    mTitles[0] = "全部\n " + event.num;
+                    setTextTitle(0);
+                    break;
+                case WorkerStatus.R_J:
+                    mTitles[1] = "待接单\n " + event.num;
+                    setTextTitle(1);
+                    break;
+                case WorkerStatus.R_Y:
+                    mTitles[2] = "待预约\n " + event.num;
+                    setTextTitle(2);
+                    break;
+                case WorkerStatus.R_Q:
+                    mTitles[3] = "待签到\n " + event.num;
+                    setTextTitle(3);
+                    break;
+                case WorkerStatus.R_W:
+                    mTitles[4] = "待完工\n " + event.num;
+                    setTextTitle(4);
+                    break;
+            }
+        }
+    }
+
+    private void setTextTitle(int pos) {
+        mTabLayout.getTitleView(pos).setText(mTitles[pos]);
+    }
+
+    /*
+    * 获取工单数量
+    * */
+    private void getOrderNum() {
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_APP_ORDER_COUNT_LOAD);
+        reqJson.setUser_id(LoginUtil.getUserId(mContext));
+        reqJson.setHas_rows("yes");
+        mSubscription = ApiImp.get().getOrderNum(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<OrderNumModel>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onNext(OrderNumModel model) {
+                        if (model.getResult().getOut_Flag() == 0) {
+                            OrderNumModel.RowsBean bean = model.getRows().get(0);
+                            mTitles[0] = "全部\n " + bean.getCount_all();
+                            setTextTitle(0);
+                            mTitles[1] = "待接单\n " + bean.getCount_44();
+                            setTextTitle(1);
+                            mTitles[2] = "待预约\n " + bean.getCount_55();
+                            setTextTitle(2);
+                            mTitles[3] = "待签到\n " + bean.getCount_56();
+                            setTextTitle(3);
+                            mTitles[4] = "待完工\n " + bean.getCount_57();
+                            setTextTitle(4);
+                        }
+                    }
+                });
+    }
+
+
+}

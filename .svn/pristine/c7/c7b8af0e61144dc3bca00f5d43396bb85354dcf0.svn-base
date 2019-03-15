@@ -1,0 +1,31 @@
+package com.rubu.ui.act.mine.model;
+
+/**
+ * Created by 72732 on 2018/4/19.
+ */
+
+public class AuditModel {
+    String name;
+    boolean isSelect;
+
+    public AuditModel(String name, boolean isSelect) {
+        this.name = name;
+        this.isSelect = isSelect;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public boolean isSelect() {
+        return isSelect;
+    }
+
+    public void setSelect(boolean select) {
+        isSelect = select;
+    }
+}

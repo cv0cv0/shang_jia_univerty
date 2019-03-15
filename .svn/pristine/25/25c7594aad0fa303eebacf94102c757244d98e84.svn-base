@@ -1,0 +1,159 @@
+package com.rubu.ui.act;
+
+import android.content.Intent;
+import android.os.CountDownTimer;
+import android.support.v7.widget.Toolbar;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.base.BaseActivity;
+import com.rubu.constant.Constant;
+import com.rubu.constant.WorkerStatus;
+import com.rubu.event.EventCode;
+import com.rubu.event.EventMessage;
+import com.rubu.ui.act.login.LoginAct;
+import com.rubu.ui.act.register.RegisterPersonalAbility;
+import com.rubu.ui.act.register.RegisterTianMaoServiceTypeAct;
+import com.rubu.util.AppClassManager;
+
+import org.greenrobot.eventbus.EventBus;
+
+import butterknife.BindView;
+import butterknife.OnClick;
+
+/**
+ * Created by liuhaizhu on 2017/3/6.
+ */
+
+public class ActionResultAct extends BaseActivity {
+    @BindView(R.id.title_left)
+    TextView mTitleLeft;
+    @BindView(R.id.title)
+    TextView mTitle;
+    @BindView(R.id.toolbar)
+    Toolbar mToolbar;
+    @BindView(R.id.tv_result)
+    TextView mTvResult;
+    @BindView(R.id.tv_result_flag)
+    TextView mTvResultFlag;
+    private long order_title_id;
+    private boolean isTM;
+    private String action;
+    private int questIndex;
+    //预约时间字符串
+    private String timeStr;
+
+    @OnClick(R.id.img_result)
+    void onEdit() {
+        gotoNextAct();
+    }
+
+    private int status;
+
+    @Override
+    protected int getViewId() {
+        return R.layout.act_action_result;
+    }
+
+    @Override
+    protected void initEvent() {
+        action = getIntent().getStringExtra("action");
+        isTM = getIntent().getBooleanExtra("isTM", false);
+        status = getIntent().getIntExtra("status", 44);
+        order_title_id = getIntent().getLongExtra("id", 0);
+        questIndex = getIntent().getIntExtra("questIndex", 0);
+        timeStr = getIntent().getStringExtra("timeStr");
+        String statu = WorkerStatus.getWorkerStatus(status);
+        // 注册时候的跳转，或者选择服务
+        if (action.equals(Constant.REGISTER_NEXT) || action.equals(Constant.PROC_SET_REGISTER_SERVICE_ABILITY) || action.equals(Constant.PROC_SET_REGISTER_BASE_INFO_ABILITY) ||
+                action.equals(Constant.PROC_SET_REGISTER_AREA_ABILITY)) {
+            mTitle.setText(R.string.uphome_service);
+            // 关闭登录页面
+            AppClassManager.getAppManager().finishActivity(LoginAct.class);
+        } else {
+            mTitle.setText(WorkerStatus.getWorkerStatusTitle(status));
+        }
+        if (action.equals(Constant.PROC_APP_ORDER_TAKING_CANCEL)) { // 拒单
+            mTvResult.setText("拒接此工单成功");
+        } else if (action.equals(Constant.PROC_APP_ORDER_RESERVING_FAIL)) { // 预约失败重新预约
+            switch (questIndex) {
+                case 3:
+                    mTvResult.setText("操作成功");
+                    break;
+                case 4:
+                    mTvResult.setText("操作成功");
+                    mTvResultFlag.setText("工单将被冻结，转交总部复核");
+                    break;
+                default:
+                    mTvResult.setText("操作成功");
+                    mTvResultFlag.setText("请于" + getIntent().getStringExtra("nextTime") + "再次预约");
+            }
+        } else if (action.equals(Constant.PROC_APP_ORDER_RESERVING_EDIT)) { // 预约
+            mTvResult.setText("预约成功");
+            mTvResultFlag.setText("预约时间为" + timeStr);
+        } else if (action.equals(Constant.REGISTER_NEXT) || action.equals(Constant.PROC_SET_REGISTER_SERVICE_ABILITY) || action.equals(Constant.PROC_SET_REGISTER_BASE_INFO_ABILITY) ||
+                action.equals(Constant.PROC_SET_REGISTER_AREA_ABILITY)) {  // 注册成功
+            mTvResult.setText("成功");
+        } else {  // 接单，预约，签到，完工 成功
+            mTvResult.setText(statu + "成功");
+        }
+        mCountDownTimerSingIn.start();
+    }
+
+    private CountDownTimer mCountDownTimerSingIn = new CountDownTimer(4000, 1000) {
+        @Override
+        public void onTick(long millisUntilFinished) {
+
+        }
+
+        @Override
+        public void onFinish() {
+            gotoNextAct();
+        }
+    };
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mCountDownTimerSingIn.cancel();
+        mCountDownTimerSingIn = null;
+    }
+
+    //PROC_APP_ORDER_RESERVING_EDIT
+    private void gotoNextAct() {
+        if (action.equals(Constant.PROC_APP_ORDER_TAKING_CANCEL) || action.equals(Constant.PROC_APP_ORDER_RESERVING_FAIL)) {
+            EventMessage eventMessage = new EventMessage(EventCode.EVENT_ORDER_SET_FAIL, "");
+            EventBus.getDefault().post(eventMessage);
+            AppClassManager.getAppManager().finishOtherActivity(HomeAct.class);
+            finish();
+        } else if (action.equals(Constant.PROC_APP_ORDER_TAKING_CANCEL)) {
+            finish();
+        } else if (action.equals(Constant.PROC_APP_ORDER_LOGGING_EDIT) && isTM) {
+            EventMessage eventMessage = new EventMessage(EventCode.EVENT_START_MSF, "");
+            EventBus.getDefault().post(eventMessage);
+            showToast("同步喵师傅签到/完工");
+            finish();
+        } else if (action.equals(Constant.REGISTER_NEXT)) {
+            // 跳转设置服务类型
+            Intent intent = new Intent(mContext, RegisterTianMaoServiceTypeAct.class);
+            intent.putExtra("register", 1);
+            startActivity(intent);
+            finish();
+        } else if (action.equals(Constant.PROC_SET_REGISTER_SERVICE_ABILITY) || action.equals(Constant.PROC_SET_REGISTER_AREA_ABILITY)) {
+            // 跳转设置服务类型
+            finish();
+        } else if (action.equals(Constant.PROC_SET_REGISTER_BASE_INFO_ABILITY)) {
+            // 跳转至承接能力
+            Intent intent = new Intent(mContext, RegisterPersonalAbility.class);
+            intent.putExtra("register", 1);
+            startActivity(intent);
+            finish();
+        } else {
+            Intent intent = new Intent(mContext, ActionPickAct.class);
+            intent.putExtra("id", order_title_id);
+            startActivity(intent);
+            finish();
+        }
+    }
+
+}

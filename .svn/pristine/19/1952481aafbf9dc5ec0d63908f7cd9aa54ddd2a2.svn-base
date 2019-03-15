@@ -1,0 +1,84 @@
+package com.rubu.model;
+
+/**
+ * Created by liuhaizhu on 2017/3/13.
+ */
+
+public class MSFModel {
+
+    /**
+     * imgpath : [
+     "/storage/emulated/0/DCIM/Screenshots/Screenshot_20170313-083444.png"
+     ]
+     * orderIds : 1440661399625855
+     * outerId : 1440661399625855
+     * siginsuccess : false
+     * tpId : 2797013908
+     * verifysuccess : true
+     * serviceType : 3
+     */
+
+    private String imgpath;
+    private String orderIds;
+    private String outerId;
+    private boolean siginsuccess;
+    private String tpId;
+    private boolean verifysuccess;
+    private int serviceType;
+
+    public String getImgpath() {
+        return imgpath;
+    }
+
+    public void setImgpath(String imgpath) {
+        this.imgpath = imgpath;
+    }
+
+    public String getOrderIds() {
+        return orderIds;
+    }
+
+    public void setOrderIds(String orderIds) {
+        this.orderIds = orderIds;
+    }
+
+    public String getOuterId() {
+        return outerId;
+    }
+
+    public void setOuterId(String outerId) {
+        this.outerId = outerId;
+    }
+
+    public boolean isSiginsuccess() {
+        return siginsuccess;
+    }
+
+    public void setSiginsuccess(boolean siginsuccess) {
+        this.siginsuccess = siginsuccess;
+    }
+
+    public String getTpId() {
+        return tpId;
+    }
+
+    public void setTpId(String tpId) {
+        this.tpId = tpId;
+    }
+
+    public boolean isVerifysuccess() {
+        return verifysuccess;
+    }
+
+    public void setVerifysuccess(boolean verifysuccess) {
+        this.verifysuccess = verifysuccess;
+    }
+
+    public int getServiceType() {
+        return serviceType;
+    }
+
+    public void setServiceType(int serviceType) {
+        this.serviceType = serviceType;
+    }
+}

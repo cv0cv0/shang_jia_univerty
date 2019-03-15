@@ -1,0 +1,132 @@
+package com.rubu.util;
+
+import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Matrix;
+import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
+
+import com.rubu.R;
+
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/8/10
+ * Vwesion 1.0
+ * Dsscription: 对图片的一系列小操作
+ */
+
+public class BitMapUtil {
+
+    /**
+     * 添加图片水印
+     *
+     * @param context
+     * @param src
+     * @return
+     */
+    public static Bitmap createWaterMaskImage(Context context, Bitmap src) {
+        Resources resources = context.getResources();
+        Bitmap waterMark = BitmapFactory.decodeResource(resources, R.mipmap.water_mark);
+        String tag = "createBitmap";
+        Log.d(tag, "create a new bitmap");
+        if (src == null) {
+            return null;
+        }
+        int w = src.getWidth();
+        int h = src.getHeight();
+
+//        int ww = watermark.getWidth();
+//        int wh = watermark.getHeight();
+        // create the new blank bitmap
+        src = scaleWithWH(src, 390, 567);
+        waterMark = scaleWithWH(waterMark, 390, 567);
+        Bitmap newb = Bitmap.createBitmap(390, 567, Bitmap.Config.ARGB_8888);// 创建一个新的和SRC长度宽度一样的位图
+        Canvas cv = new Canvas(newb);
+        // draw_yes src into
+        cv.drawBitmap(src, 0, 0, null);// 在 0，0坐标开始画入src
+        // draw_yes watermark into
+        cv.drawBitmap(waterMark, 0, 0, null);// 在src的右下角画入水印
+        // save all clip
+        cv.save(Canvas.ALL_SAVE_FLAG);// 保存
+        // store
+        cv.restore();// 存储
+        return newb;
+    }
+
+
+    /**
+     * 压缩图片的宽高
+     *
+     * @param src
+     * @param w
+     * @param h
+     * @return
+     */
+    public static Bitmap scaleWithWH(Bitmap src, double w, double h) {
+        if (w == 0 || h == 0 || src == null) {
+            return src;
+        } else {
+            // 记录src的宽高
+            int width = src.getWidth();
+            int height = src.getHeight();
+            // 创建一个matrix容器
+            Matrix matrix = new Matrix();
+            // 计算缩放比例
+            float scaleWidth = (float) (w / width);
+            float scaleHeight = (float) (h / height);
+            // 开始缩放
+            matrix.postScale(scaleWidth, scaleHeight);
+            // 创建缩放后的图片
+            return Bitmap.createBitmap(src, 0, 0, width, height, matrix, true);
+        }
+    }
+
+    /**
+     * 保存文件
+     *
+     * @param context
+     * @param bm
+     * @param fileUrl
+     */
+    public static String saveBitMap(Context context, Bitmap bm, String fileUrl) throws IOException {
+        Bitmap bms = createWaterMaskImage(context, bm);
+        String path = fileUrl;
+        File dirFile = new File(path);
+        if (!dirFile.exists()) {
+            dirFile.mkdir();
+        }
+        File myCaptureFile = new File(path + "waterMark");
+        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(myCaptureFile));
+        bms.compress(Bitmap.CompressFormat.JPEG, 70, bos);
+        bos.flush();
+        bos.close();
+        return path + "waterMark";
+    }
+
+    /**
+     * 设置图片内容
+     *
+     * @param is
+     * @param img
+     */
+    public static void setImg(boolean is, ImageView img) {
+        if (is) {
+            img.setVisibility(View.VISIBLE);
+            img.setImageResource(R.mipmap.draw_yes);
+        }
+        if (!is) {
+            img.setVisibility(View.VISIBLE);
+            img.setImageResource(R.mipmap.draw_no);
+        }
+    }
+
+}

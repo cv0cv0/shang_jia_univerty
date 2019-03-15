@@ -1,0 +1,70 @@
+package com.rubu.ui.act;
+
+import android.app.Activity;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
+import com.rubu.R;
+import com.rubu.util.StringUtil;
+
+import uk.co.senab.photoview.PhotoView;
+import uk.co.senab.photoview.PhotoViewAttacher;
+
+/**
+ * Created by liuhaizhu on 2017/3/2.
+ */
+
+public class FullScreenImgToolBarAct extends Activity {
+    public String url;
+    private PhotoView mPhotoView;
+    TextView titleLeft;
+    TextView title;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.act_full_screen_toolbar);
+        mPhotoView = (PhotoView) findViewById(R.id.photo_view);
+        titleLeft = (TextView) findViewById(R.id.title_left);
+        title = (TextView) findViewById(R.id.title);
+        title.setText("收费参考");
+        titleLeft.setText("返回");
+        titleLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+              onBackPressed();
+            }
+        });
+
+        url = getIntent().getStringExtra("url");
+        if (!StringUtil.isEmpty(url)) {
+            Glide.with(this)
+                    .load(url)
+                    .into(mPhotoView);
+        } else {
+            mPhotoView.setImageResource(R.mipmap.ic_holder_goods);
+        }
+        mPhotoView.setOnPhotoTapListener(new PhotoViewAttacher.OnPhotoTapListener() {
+            @Override
+            public void onPhotoTap(View view, float x, float y) {
+
+            }
+
+            @Override
+            public void onOutsidePhotoTap() {
+                finish();
+                overridePendingTransition(0, R.anim.zoom_exit);
+            }
+        });
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
+        overridePendingTransition(0, R.anim.zoom_exit);
+    }
+}

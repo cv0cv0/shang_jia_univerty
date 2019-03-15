@@ -1,0 +1,119 @@
+package com.rubu.model;
+
+import java.util.List;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/9/14
+ * Vwesion 1.0
+ * Dsscription:
+ */
+
+public class AlertReminderModel {
+
+    /**
+     * result : {"out_nszRtn":"查询成功！","out_Flag":0}
+     * rows : [{"reminder_sign":"Y","order_title_id":3,"record_massage":"快点，买家等不急了","record_times":"2017-09-13","reminder_id":1}]
+     */
+
+    private ResultBean result;
+    private List<RowsBean> rows;
+
+    public ResultBean getResult() {
+        return result;
+    }
+
+    public void setResult(ResultBean result) {
+        this.result = result;
+    }
+
+    public List<RowsBean> getRows() {
+        return rows;
+    }
+
+    public void setRows(List<RowsBean> rows) {
+        this.rows = rows;
+    }
+
+    public static class ResultBean {
+        /**
+         * out_nszRtn : 查询成功！
+         * out_Flag : 0
+         */
+
+        private String out_nszRtn;
+        private int out_Flag;
+
+        public String getOut_nszRtn() {
+            return out_nszRtn;
+        }
+
+        public void setOut_nszRtn(String out_nszRtn) {
+            this.out_nszRtn = out_nszRtn;
+        }
+
+        public int getOut_Flag() {
+            return out_Flag;
+        }
+
+        public void setOut_Flag(int out_Flag) {
+            this.out_Flag = out_Flag;
+        }
+    }
+
+    public static class RowsBean {
+        /**
+         * reminder_sign : Y
+         * order_title_id : 3
+         * record_massage : 快点，买家等不急了
+         * record_times : 2017-09-13
+         * reminder_id : 1
+         */
+
+        private String reminder_sign;
+        private int order_title_id;
+        private String record_massage;
+        private String record_times;
+        private int reminder_id;
+
+        public String getReminder_sign() {
+            return reminder_sign;
+        }
+
+        public void setReminder_sign(String reminder_sign) {
+            this.reminder_sign = reminder_sign;
+        }
+
+        public int getOrder_title_id() {
+            return order_title_id;
+        }
+
+        public void setOrder_title_id(int order_title_id) {
+            this.order_title_id = order_title_id;
+        }
+
+        public String getRecord_massage() {
+            return record_massage;
+        }
+
+        public void setRecord_massage(String record_massage) {
+            this.record_massage = record_massage;
+        }
+
+        public String getRecord_times() {
+            return record_times;
+        }
+
+        public void setRecord_times(String record_times) {
+            this.record_times = record_times;
+        }
+
+        public int getReminder_id() {
+            return reminder_id;
+        }
+
+        public void setReminder_id(int reminder_id) {
+            this.reminder_id = reminder_id;
+        }
+    }
+}

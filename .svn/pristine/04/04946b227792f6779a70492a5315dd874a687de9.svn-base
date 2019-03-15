@@ -1,0 +1,147 @@
+package com.rubu.model;
+
+import java.util.List;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/9/28
+ * Vwesion 1.0
+ * Dsscription: 注册服务能力对象（自己的）
+ */
+
+public class ServiceAbilityModel {
+
+    /**
+     * result : {"out_nszRtn":"查询成功！","out_flag":1,"out_num":"1个大类"}
+     * rows1 : [{"out_num":"1个大类"}]
+     * rows : [{"s_service_parent_id":"1.1","service_parent":"安装家电","service_name":"索尼3D电视","s_service_subclass_id":1,"service_status":"Y"},{"s_service_parent_id":"1.1","service_parent":"安装家电","service_name":"电视机","s_service_subclass_id":2,"service_status":"Y"},{"s_service_parent_id":"1.1","service_parent":"安装家电","service_name":"hh","s_service_subclass_id":4010,"service_status":"Y"},{"s_service_parent_id":"1.2","service_parent":"安装卫浴","service_name":"普通坐便器","s_service_subclass_id":3,"service_status":"N"},{"s_service_parent_id":"1.2","service_parent":"安装卫浴","service_name":"洗漱台","s_service_subclass_id":1004,"service_status":"N"},{"s_service_parent_id":"1002.1004","service_parent":"上海滩丽都","service_name":"小红","s_service_subclass_id":4006,"service_status":"N"},{"s_service_parent_id":"2.3","service_parent":"维修衣柜","service_name":"索菲亚","s_service_subclass_id":4,"service_status":"N"},{"s_service_parent_id":"2.4","service_parent":"维修马桶","service_name":"箭牌","s_service_subclass_id":5,"service_status":"N"},{"s_service_parent_id":"2.5","service_parent":"维修维修","service_name":"坐便","s_service_subclass_id":3006,"service_status":"N"},{"s_service_parent_id":"3.1003","service_parent":"批发浴霸","service_name":"浴霸dg96250","s_service_subclass_id":2004,"service_status":"N"},{"s_service_parent_id":"3.6","service_parent":"批发花洒","service_name":"TOTO花洒","s_service_subclass_id":9,"service_status":"N"},{"s_service_parent_id":"3.7","service_parent":"批发水龙头","service_name":"箭牌水龙头","s_service_subclass_id":10,"service_status":"N"}]
+     */
+
+    private ResultBean result;
+    private List<Rows1Bean> rows1;
+    private List<RowsBean> rows;
+
+    public ResultBean getResult() {
+        return result;
+    }
+
+    public void setResult(ResultBean result) {
+        this.result = result;
+    }
+
+    public List<Rows1Bean> getRows1() {
+        return rows1;
+    }
+
+    public void setRows1(List<Rows1Bean> rows1) {
+        this.rows1 = rows1;
+    }
+
+    public List<RowsBean> getRows() {
+        return rows;
+    }
+
+    public void setRows(List<RowsBean> rows) {
+        this.rows = rows;
+    }
+
+    public static class ResultBean {
+        /**
+         * out_nszRtn : 查询成功！
+         * out_flag : 1
+         * out_num : 1个大类
+         */
+
+        private String out_nszRtn;
+        private int out_flag;
+
+        public String getOut_nszRtn() {
+            return out_nszRtn;
+        }
+
+        public void setOut_nszRtn(String out_nszRtn) {
+            this.out_nszRtn = out_nszRtn;
+        }
+
+        public int getOut_flag() {
+            return out_flag;
+        }
+
+        public void setOut_flag(int out_flag) {
+            this.out_flag = out_flag;
+        }
+
+    }
+
+    public static class Rows1Bean {
+        /**
+         * out_num : 1个大类
+         */
+
+        private String out_num;
+
+        public String getOut_num() {
+            return out_num;
+        }
+
+        public void setOut_num(String out_num) {
+            this.out_num = out_num;
+        }
+    }
+
+    public static class RowsBean {
+        /**
+         * s_service_parent_id : 1.1
+         * service_parent : 安装家电
+         * service_name : 索尼3D电视
+         * s_service_subclass_id : 1
+         * service_status : Y
+         */
+
+        private String s_service_parent_id;
+        private String service_parent;
+        private String service_name;
+        private int s_service_subclass_id;
+        private String service_status;
+
+        public String getS_service_parent_id() {
+            return s_service_parent_id;
+        }
+
+        public void setS_service_parent_id(String s_service_parent_id) {
+            this.s_service_parent_id = s_service_parent_id;
+        }
+
+        public String getService_parent() {
+            return service_parent;
+        }
+
+        public void setService_parent(String service_parent) {
+            this.service_parent = service_parent;
+        }
+
+        public String getService_name() {
+            return service_name;
+        }
+
+        public void setService_name(String service_name) {
+            this.service_name = service_name;
+        }
+
+        public int getS_service_subclass_id() {
+            return s_service_subclass_id;
+        }
+
+        public void setS_service_subclass_id(int s_service_subclass_id) {
+            this.s_service_subclass_id = s_service_subclass_id;
+        }
+
+        public String getService_status() {
+            return service_status;
+        }
+
+        public void setService_status(String service_status) {
+            this.service_status = service_status;
+        }
+    }
+}

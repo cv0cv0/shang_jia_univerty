@@ -1,0 +1,159 @@
+package com.rubu.adapter;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.support.v4.content.ContextCompat;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
+import com.rubu.R;
+import com.rubu.base.BaseListAdapter;
+import com.rubu.model.Order;
+import com.rubu.ui.act.GoodsPhotoActivity;
+import com.rubu.util.StringUtil;
+
+import java.util.List;
+
+/**
+ * Created by liuhaizhu on 2017/3/2.
+ */
+
+public class ServiceGoodsListAdapter extends BaseListAdapter<Order.Rows1Bean> {
+    private int flag = 1; //0 接单
+    private int colorBlack;
+    private int colorGray;
+    private int colorAccent;
+
+    public ServiceGoodsListAdapter(Context context, List<Order.Rows1Bean> list, int flag) {
+        super(context, list);
+        this.flag = flag;
+        colorBlack = ContextCompat.getColor(context, R.color.black);
+        colorGray = ContextCompat.getColor(context, R.color.gray_light);
+        colorAccent = ContextCompat.getColor(context, R.color.colorAccent);
+    }
+
+    @Override
+    public View initView(final Order.Rows1Bean s, View convertView, ViewGroup parent) {
+        ViewHolder holder;
+        if (convertView == null) {
+            LayoutInflater mInflater = LayoutInflater.from(parent.getContext());
+            convertView = mInflater.inflate(R.layout.item_service_goods_list, null);
+            holder = new ViewHolder();
+            holder.imgView = (ImageView) convertView.findViewById(R.id.img);
+            holder.mTvTitle = (TextView) convertView.findViewById(R.id.title);
+            holder.mTvDesc = (TextView) convertView.findViewById(R.id.desc);
+            holder.brand = (TextView) convertView.findViewById(R.id.brand);
+            holder.mRecFlag = (TextView) convertView.findViewById(R.id.tv_receive_flag);
+            holder.price = (TextView) convertView.findViewById(R.id.price);
+            convertView.setTag(holder);
+        } else {
+
+            holder = (ViewHolder) convertView.getTag();
+        }
+        if (!StringUtil.isEmpty(s.getReceive_flag())) {
+            holder.mRecFlag.setText(s.getReceive_flag());
+        }
+        if (!StringUtil.isEmpty(s.getService_money()) && ("Y").equals(s.getS_org_show_status())) {
+            holder.price.setText(s.getService_money());
+        }
+        String goodType = "";
+        if (1.00 != s.getMetering()) {
+            goodType = " * " + s.getMetering();
+        }
+        holder.mTvTitle.setText(s.getAuction_sku_properties() + "×" + (int) (s.getService_count()) + goodType);
+        if (flag == 0) {
+            holder.mTvDesc.setText("型号:************");
+        } else {
+            String model_number = s.getModel_number();
+            if (!StringUtil.isEmpty(model_number)) {
+                holder.mTvDesc.setText("型号:" + model_number);
+            } else {
+                holder.mTvDesc.setText("型号:  --");
+            }
+        }
+        if (flag == 0) {
+            holder.brand.setText("品牌:************");
+        } else {
+            String brand = s.getBrand();
+            if (!StringUtil.isEmpty(brand)) {
+                holder.brand.setText("品牌:" + brand);
+            } else {
+                holder.brand.setText("品牌:  --");
+            }
+        }
+        if (!StringUtil.isEmpty(s.getImg_url())) {
+            String imgs[] = (s.getImg_url()).split(";");
+            String umgUrl =  imgs[0];
+            Glide.with(context)
+                    .load(umgUrl)
+                    .centerCrop()
+                    .into(holder.imgView);
+        }
+        holder.imgView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Activity activity = (Activity) context;
+                activity.startActivity(new Intent(context, GoodsPhotoActivity.class).putExtra("url", StringUtil.isEmpty(s.getImg_url()) ? null : s.getImg_url()));
+                activity.overridePendingTransition(R.anim.zoom_enter, 0);
+            }
+        });
+        if (s.getReceive_status() != null) {
+            int getReceive_status = (int) Math.ceil(Double.valueOf(s.getReceive_status()));
+            if (s.getCancel_flag() == 0 && getReceive_status != 12) {
+                holder.mTvTitle.setTextColor(colorBlack);
+                holder.mTvDesc.setTextColor(colorBlack);
+                holder.mRecFlag.setTextColor(colorBlack);
+                holder.price.setTextColor(colorBlack);
+            } else {
+                holder.mTvTitle.setTextColor(colorGray);
+                holder.mTvDesc.setTextColor(colorGray);
+                holder.mRecFlag.setTextColor(colorGray);
+                holder.price.setTextColor(colorGray);
+            }
+        } else {
+            if (s.getCancel_flag() == 0) {
+                holder.mTvTitle.setTextColor(colorBlack);
+                holder.mTvDesc.setTextColor(colorBlack);
+                holder.mRecFlag.setTextColor(colorAccent);
+                holder.price.setTextColor(colorBlack);
+            } else {
+                holder.mTvTitle.setTextColor(colorGray);
+                holder.mTvDesc.setTextColor(colorGray);
+                holder.mRecFlag.setTextColor(colorGray);
+                holder.price.setTextColor(colorGray);
+            }
+        }
+        // 完工的单子
+        if (s.getOrder_status() == 58) {
+            // 完工的单子
+            if (s.getCancel_flag() == 1) {
+                holder.mRecFlag.setTextColor(colorGray);
+                holder.mRecFlag.setText("已取消");
+                // 取消的单子
+            } else {
+                holder.mRecFlag.setTextColor(colorAccent);
+                holder.mRecFlag.setText("已完工");
+            }
+        }
+        return convertView;
+    }
+
+    class ViewHolder {
+        ImageView imgView;
+        // 商品标题
+        TextView mTvTitle;
+        // 型号
+        TextView mTvDesc;
+        // 品牌
+        TextView brand;
+        // 到货状态
+        TextView mRecFlag;
+        // 商品价格
+        TextView price;
+    }
+}

@@ -1,0 +1,135 @@
+package com.rubu.ui.act;
+
+import android.content.Intent;
+import android.view.View;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.base.BaseActivity;
+import com.rubu.constant.Constant;
+import com.rubu.event.EventCode;
+import com.rubu.event.EventMessage;
+import com.rubu.model.YCModel;
+import com.rubu.net.ApiImp;
+import com.rubu.net.Params;
+import com.rubu.net.ReqJson;
+
+import org.greenrobot.eventbus.EventBus;
+
+import butterknife.BindView;
+import butterknife.OnClick;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
+/**
+ * Created by liuhaizhu on 2017/3/15.
+ */
+
+public class HandleOrderAct extends BaseActivity {
+    @BindView(R.id.title_left)
+    TextView titleLeft;
+    @BindView(R.id.title)
+    TextView title;
+    @BindView(R.id.title_right_toolbar)
+    TextView titleRightToolbar;
+
+    @BindView(R.id.tv_question)
+    TextView tv_question;
+    @BindView(R.id.tv_result)
+    TextView tv_result;
+
+    private long order_title_id;
+
+    @OnClick(R.id.btn_next)
+    void gotNext(){
+        abnormalSave();
+    }
+    @Override
+    protected int getViewId() {
+        return R.layout.act_handle_order;
+    }
+
+    @Override
+    protected void initEvent() {
+        order_title_id = getIntent().getLongExtra("id", 0);
+        title.setText("异常工单");
+        titleLeft.setText("返回");
+        titleLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onBackPressed();
+            }
+        });
+        takingOrder();
+    }
+    private void takingOrder() {
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_APP_ELSE_RESULT_LOAD);
+        reqJson.setOrder_title_id(String.valueOf(order_title_id));
+        reqJson.setHas_rows("yes");
+        showProgressDialog("正在加载");
+        mSubscription = ApiImp.get().getYiChangeResult(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<YCModel>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        dissmisProgressDialog();
+                        showToast("网络不给力");
+                    }
+                    @Override
+                    public void onNext(YCModel model) {
+                        dissmisProgressDialog();
+                        int flag = model.getResult().getOut_Flag();
+                        if (flag == 0) {
+                            YCModel.RowsBean rowsBean=model.getRows().get(0);
+                            tv_question.setText(rowsBean.getMarker_description());
+                            tv_result.setText(rowsBean.getHandler_description());
+                        }
+                    }
+                });
+    }
+    private void abnormalSave() {
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_APP_ABNORMAL_SAVE);
+        reqJson.setOrder_title_id(String.valueOf(order_title_id));
+        reqJson.setHas_rows("no");
+        showProgressDialog("正在进入");
+        mSubscription = ApiImp.get().getYiChangeResult(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<YCModel>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        dissmisProgressDialog();
+                        showToast("网络不给力");
+                    }
+                    @Override
+                    public void onNext(YCModel model) {
+                        dissmisProgressDialog();
+                        int flag = model.getResult().getOut_Flag();
+                        if (flag == 0) {
+                            EventMessage message = new EventMessage(EventCode.EVENT_ORDER_STATUS_CHANGE, "");
+                            EventBus.getDefault().post(message);
+                            Intent intent = new Intent(mContext, ActionPickAct.class);
+                            intent.putExtra("id",order_title_id);
+                            mContext.startActivity(intent);
+                            finish();
+                        }else {
+                            showToast(model.getResult().getOut_nszRtn());
+
+                        }
+                    }
+                });
+    }
+}

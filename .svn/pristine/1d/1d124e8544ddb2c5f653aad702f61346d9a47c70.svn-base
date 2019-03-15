@@ -1,0 +1,15 @@
+package com.rubu.util;
+
+import android.content.Context;
+import android.provider.Settings;
+
+/**
+ * Created by liuhaizhu on 2017/3/24.
+ */
+
+public class UUID {
+    public static String getUUID(Context context){
+        String ANDROID_ID = Settings.System.getString(context.getContentResolver(), Settings.System.ANDROID_ID);
+        return ANDROID_ID;
+    }
+}

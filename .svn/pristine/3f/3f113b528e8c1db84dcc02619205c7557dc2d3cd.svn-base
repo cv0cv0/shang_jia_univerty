@@ -1,0 +1,147 @@
+package com.rubu.pop.dialog;
+
+import android.content.Context;
+import android.util.Log;
+import android.util.SparseArray;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.ImageView;
+import android.widget.Spinner;
+import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
+import com.rubu.application.SJApplication;
+
+import java.lang.ref.WeakReference;
+
+import static com.bumptech.glide.gifdecoder.GifHeaderParser.TAG;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/5/3
+ * Vwesion 1.0
+ * Dsscription:   自定义的AlertDialog 的辅助类
+ */
+
+class AlertDialogHelper {
+
+    private View mContentView = null;
+
+    private SparseArray<WeakReference<View>> mViewArray;
+
+    public AlertDialogHelper(Context mContext, int viewId) {
+        this();
+        mContentView = LayoutInflater.from(mContext).inflate(viewId, null);
+    }
+
+    public AlertDialogHelper() {
+        mViewArray = new SparseArray<>();
+    }
+
+    /**
+     * 传入Dialog的布局处理
+     *
+     * @param viewRes
+     */
+    public void setContentView(View viewRes) {
+        this.mContentView = viewRes;
+    }
+
+    public View getContentView() {
+        return mContentView;
+    }
+
+    /**
+     * Dialog真正设置View内容
+     *
+     * @param viewId
+     * @param text
+    */
+    public void setText(int viewId, CharSequence text) {
+        TextView tv = getView(viewId);
+        tv.setText(text);
+    }
+    public void setImage(int viewId, CharSequence image) {
+        ImageView iv = getView(viewId);
+        Log.i(TAG, "setImage: "+image);
+        Glide.with(SJApplication.getContextObject())
+                .load(image)
+                .centerCrop()
+                .into(iv);
+    }
+
+    /**
+     * Dialog真正设置View内容
+     *
+     * @param viewId
+     * @param visibility
+     */
+    public void setVisibility(int viewId, int visibility) {
+        View view = getView(viewId);
+        view.setVisibility(visibility);
+    }
+
+    /**
+     * Dialog真正设置View的点击事件
+     *
+     * @param viewId
+     * @param listenner
+     */
+    public void setClick(int viewId, View.OnClickListener listenner) {
+        View v = getView(viewId);
+        v.setOnClickListener(listenner);
+    }
+
+    /**
+     * Dialog真正设置Spinner的点击事件
+     *
+     * @param viewId
+     * @param listenner
+     */
+    public void setSpinnerItemSelectClick(int viewId, Spinner.OnItemSelectedListener listenner) {
+        View v = getView(viewId);
+        Spinner spinner = (Spinner) v;
+        spinner.setOnItemSelectedListener(listenner);
+    }
+
+    /**
+     * Dialog获取EditText的信息内容
+     *
+     * @param viewId
+     */
+    public String getEditText(int viewId) {
+        View v = getView(viewId);
+        TextView textView = (TextView) v;
+        String result = textView.getText().toString().trim();
+        return result;
+    }
+
+    public void setOnCheckedChangeListener(int viewId, CompoundButton.OnCheckedChangeListener listener){
+        View v = getView(viewId);
+        CheckBox cb = (CheckBox) v;
+        cb.setOnCheckedChangeListener(listener);
+    }
+
+    /**
+     * 优化父类的重复调用findViewById的次数
+     *
+     * @param viewId
+     * @param <T>
+     * @return
+     */
+    public <T extends View> T getView(int viewId) {
+        /*************  调用软应用的对象数据 必须判断是否存在 在调用,不然使用之前会报错 (因为GC优先 删除 软应用的数据) *******************/
+        WeakReference<View> weakReference = mViewArray.get(viewId);
+        View view = null;
+        if (weakReference != null) {
+            view = weakReference.get();
+        }
+        if (view == null) {
+            view = mContentView.findViewById(viewId);
+            mViewArray.put(viewId, new WeakReference<>(view));
+        }
+        return (T) view;
+    }
+}

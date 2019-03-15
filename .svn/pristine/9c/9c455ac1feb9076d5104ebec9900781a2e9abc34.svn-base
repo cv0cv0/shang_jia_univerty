@@ -1,0 +1,42 @@
+package com.rubu.ui.act;
+
+import android.view.View;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.base.BaseActivity;
+
+import butterknife.BindView;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/7/11
+ * Vwesion 1.0
+ * Dsscription: 技师身份照片样式
+ */
+
+public class WokerPhotoHintAct extends BaseActivity {
+
+    @BindView(R.id.title_left)
+    TextView titleLeft;
+    @BindView(R.id.title)
+    TextView title;
+
+    @Override
+    protected int getViewId() {
+        return R.layout.act_woker_photo_hint;
+    }
+
+    @Override
+    protected void initEvent() {
+        title.setText("上家服务");
+        titleLeft.setText("返回");
+        titleLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onBackPressed();
+            }
+        });
+
+    }
+}

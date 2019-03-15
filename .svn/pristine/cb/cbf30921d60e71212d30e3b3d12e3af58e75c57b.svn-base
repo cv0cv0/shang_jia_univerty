@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:gravity="center"
+              android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="24dp"
+        android:layout_marginRight="24dp"
+        android:background="@android:color/white"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/statement_times"
+            android:textColor="@color/orange"
+            android:textSize="@dimen/text_large"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/service_time"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:id="@+id/textView3"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/statement_times_ps"
+            android:textColor="@color/orange"
+            android:textSize="@dimen/text_medium"/>
+        <Button
+            android:id="@+id/btn_confirm"
+            android:background="@android:color/white"
+            android:layout_marginTop="8dp"
+            android:text="@string/confirm"
+            android:layout_width="match_parent"
+            android:textColor="@color/colorAccent"
+            android:textSize="20sp"
+            android:layout_height="50dp"/>
+
+    </LinearLayout>
+</LinearLayout>

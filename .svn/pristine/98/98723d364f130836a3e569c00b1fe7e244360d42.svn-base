@@ -1,0 +1,152 @@
+package com.rubu.ui.act.mine;
+
+import android.content.Intent;
+import android.view.View;
+import android.widget.ListView;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.adapter.AlertUnusualAdapter;
+import com.rubu.base.BaseActivity;
+import com.rubu.constant.Constant;
+import com.rubu.model.Base;
+import com.rubu.model.UnusualModel;
+import com.rubu.net.ApiImp;
+import com.rubu.net.Params;
+import com.rubu.net.ReqJson;
+import com.rubu.util.LoginUtil;
+
+import butterknife.BindView;
+import butterknife.OnClick;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/9/13
+ * Vwesion 1.0
+ * Dsscription: 异常提醒列表
+ */
+
+public class AlertUnusualAct extends BaseActivity {
+    @BindView(R.id.title)
+    TextView mTitle;
+    @BindView(R.id.title_left)
+    TextView mTitleLeft;
+    @BindView(R.id.remider_list)
+    ListView mRemiderListView;
+
+    private AlertUnusualAdapter mAdapter;
+
+
+    @Override
+    protected int getViewId() {
+        return R.layout.act_alert_unusual;
+    }
+
+    @Override
+    protected void initEvent() {
+        mTitle.setText("异常提醒");
+        mTitleLeft.setText(R.string.back);
+        getRemiderList();
+    }
+
+    @OnClick({R.id.title_left})
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.title_left:
+                finish();
+                break;
+        }
+    }
+
+    /**
+     * 获取异常提醒列表内容
+     */
+    private void getRemiderList() {
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_SCS_YICHANG_SELECT);
+        reqJson.setS_wk_user_id(LoginUtil.getUserId(mContext));
+        mSubscription = ApiImp.get().getUnusualList(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<UnusualModel>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onNext(UnusualModel model) {
+                        int flag = model.getResult().getOut_Flag();
+                        if (flag == 0) {
+                            if (mAdapter != null) {
+                                mAdapter.refresh(model.getRows());
+                            } else {
+                                mAdapter = new AlertUnusualAdapter(mContext, model.getRows());
+                                mRemiderListView.setAdapter(mAdapter);
+                                mAdapter.setmItemOnclick(new AlertUnusualAdapter.ItemOnclick() {
+                                    @Override
+                                    public void onClick(int titleId, int orderStatus) {
+                                        setRedDot(titleId, orderStatus);
+                                    }
+                                });
+                            }
+                        } else {
+                            showToast(model.getResult().getOut_nszRtn());
+                        }
+                    }
+                });
+    }
+
+
+    /**
+     * 设置红点状态
+     */
+    private void setRedDot(final int titleId, final int orderStatus) {
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_SET_RED_DOT_UNUSUAL);
+        reqJson.setTitle_else_id(titleId);
+        reqJson.setHas_rows("no");
+        mSubscription = ApiImp.get().setRedDot(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Base>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onNext(Base model) {
+                        int flag = model.getResult().getOut_Flag();
+                        if (flag == 0) {
+                            Intent intent = new Intent(mContext, QuestionOrderDetialAct.class);
+                            // 客服工单ID
+                            intent.putExtra(("TitleId"), titleId);
+                            // 进行不同的网络请求
+                            intent.putExtra("flag", orderStatus);
+                            mContext.startActivity(intent);
+                        } else {
+                            showToast(model.getResult().getOut_nszRtn());
+                        }
+                    }
+                });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+}

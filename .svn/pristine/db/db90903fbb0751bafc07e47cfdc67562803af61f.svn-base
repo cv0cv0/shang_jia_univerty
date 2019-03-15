@@ -1,0 +1,71 @@
+package com.rubu.ui.act.mine.adapter;
+
+import android.view.View;
+import android.widget.BaseAdapter;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.base.BaseRecyclerAdapter;
+import com.rubu.base.BaseRecyclerViewHolder;
+import com.rubu.model.Base;
+import com.rubu.ui.act.mine.model.AuditModel;
+
+import java.util.List;
+
+/**
+ * Created by 72732 on 2018/4/19.
+ */
+
+public class AuditSizerAdapter extends BaseRecyclerAdapter<AuditModel> {
+
+    private ItemViewClickListenner listenner;
+
+    @Override
+    public void showData(BaseRecyclerViewHolder viewHolder, final int i, List<AuditModel> mItemDataList) {
+        final AuditModel model = mItemDataList.get(i);
+        if (model.isSelect()) {
+            ((TextView) viewHolder.findView(R.id.tv_item)).setBackgroundResource(R.color.colorAccent);
+            ((TextView) viewHolder.findView(R.id.tv_item)).setTextColor(mContext.getResources().getColor(R.color.white));
+        } else {
+            ((TextView) viewHolder.findView(R.id.tv_item)).setBackgroundResource(R.color.c_e5e5e5);
+            ((TextView) viewHolder.findView(R.id.tv_item)).setTextColor(mContext.getResources().getColor(R.color.c_333333));
+        }
+        ((TextView) viewHolder.findView(R.id.tv_item)).setText(model.getName());
+        viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (listenner != null) {
+                    listenner.onClick(model, i);
+                }
+            }
+        });
+    }
+
+    @Override
+    public int getListLayoutId() {
+        return R.layout.item_string;
+    }
+
+    @Override
+    public BaseRecyclerViewHolder createViewHolder(View view) {
+        return new ViewHolder(view);
+    }
+
+    static class ViewHolder extends BaseRecyclerViewHolder {
+
+        TextView tv_item;
+
+        public ViewHolder(View itemView) {
+            super(itemView);
+            tv_item = (TextView) itemView.findViewById(R.id.tv_item);
+        }
+    }
+
+    public void setOnItemViewClickListenner(ItemViewClickListenner listenner) {
+        this.listenner = listenner;
+    }
+
+    public interface ItemViewClickListenner {
+        void onClick(AuditModel bean, int position);
+    }
+}

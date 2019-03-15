@@ -1,0 +1,253 @@
+package com.rubu.ui.act.register;
+
+import android.content.Intent;
+import android.util.Log;
+import android.view.View;
+import android.widget.ListView;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.base.BaseActivity;
+import com.rubu.constant.Constant;
+import com.rubu.model.Base;
+import com.rubu.model.ServiceModel;
+import com.rubu.model.SiteNameModel;
+import com.rubu.net.ApiImp;
+import com.rubu.net.Params;
+import com.rubu.net.ReqJson;
+import com.rubu.ui.act.mine.MineAct;
+import com.rubu.ui.act.register.adapter.RegisterServiceTypeAdapter;
+import com.rubu.util.LoginUtil;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import butterknife.BindView;
+import butterknife.OnClick;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/9/25
+ * Vwesion 1.0
+ * Dsscription:  注册中设置服务类型(天猫的)
+ */
+
+public class RegisterTianMaoServiceTypeAct extends BaseActivity {
+    @BindView(R.id.title)
+    TextView mTitle;
+    @BindView(R.id.title_left)
+    TextView mTitleLeft;
+    @BindView(R.id.service_count)
+    TextView mTVServiceCount;
+    @BindView(R.id.btn_next)
+    TextView mTVNext;
+    @BindView(R.id.lv_reservice_count)
+    ListView mLVService;
+
+    // 0表示从我的过来 ， 1从注册过来 ; 服务选择的数量
+    private int mFlag = 0, mCheckServiceCount = 0, mServiceCount;
+    private List<ServiceModel> mDataList = new ArrayList<>();  // 转换之后的集合内容
+    private List<ServiceModel> mCheckData = new ArrayList<>();  // 选择的集合的内容
+    private RegisterServiceTypeAdapter mAdapter;
+
+    @Override
+    protected int getViewId() {
+        return R.layout.activity_register_set_service;
+    }
+
+    @Override
+    protected void initEvent() {
+        mFlag = getIntent().getIntExtra("register", 0);
+
+        mTitleLeft.setText(R.string.back);
+        mTitleLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+        if (mFlag == 0) {
+            mTVNext.setText("保存");
+            mTitle.setText(R.string.tianmao_type);
+        } else {
+            mTitle.setText(R.string.service_ability);
+        }
+        getSiteInfo();
+    }
+
+    @OnClick({R.id.btn_next})
+    public void onClick(View view) {
+        switch (view.getId()) {
+            // 下一步
+            case R.id.btn_next:
+                setRegisterServiceAbility();
+                break;
+        }
+    }
+
+    /**
+     * 获取服务能力信息列表
+     */
+    private void getSiteInfo() {
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_APP_WORKER_SUBSTATION);
+        reqJson.setUser_id(LoginUtil.getUserId(mContext));
+        mSubscription = ApiImp.get().getSiteInfo(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<SiteNameModel>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        showToast("网络不给力");
+                        Log.i("获取服务能力信息列表错误", e.toString());
+                    }
+
+                    @Override
+                    public void onNext(SiteNameModel siteNameModel) {
+                        if (siteNameModel.getResult().getOut_Flag() == 0) {
+                            getServiceContent(siteNameModel.getRows2());
+                        }
+                    }
+                });
+    }
+
+    // 获取比较后父group的内容
+    private void getServiceContent(List<SiteNameModel.Rows2Bean> list) {
+        ServiceModel serviceModel;
+        ServiceModel.ChildModel childModel;
+        List<SiteNameModel.Rows2Bean> data = new ArrayList<>();
+        for (int a = 0; a < list.size(); a++) {
+            data.add(list.get(a));
+        }
+        for (int i = 0; i < data.size(); i++) {
+            List<ServiceModel.ChildModel> childData = new ArrayList<>();
+            // 删除掉父相同的 item
+            for (int j = data.size() - 1; j > i; j--) {
+                if (data.get(i).getService_ability_parent_name().equals(data.get(j).getService_ability_parent_name())) {
+                    data.remove(data.get(j));
+                }
+            }
+            // 获取目前的父的类目
+            String parentId = data.get(i).getService_ability_parent_id();
+            String parentName = data.get(i).getService_ability_parent_name();
+            boolean isSlect = data.get(i).getService_type_status().equals("Y") ? true : false;
+            boolean isCheck = data.get(i).getService_select().equals("1") ? true : false;
+            //  获取和这个类目相同的子的集合
+            for (int x = 0; x < list.size(); x++) {
+                if (list.get(x).getService_ability_parent_name().equals(parentName)) {
+                    int childId = list.get(x).getService_ability_id();
+                    String childName = list.get(x).getService_ability_name();
+                    childModel = new ServiceModel.ChildModel(childId, childName);
+                    childData.add(childModel);
+                }
+            }
+            serviceModel = new ServiceModel(isCheck, isSlect, parentId, parentName);
+            mDataList.add(serviceModel);
+            if (serviceModel.isCheck()) {
+                mCheckData.add(serviceModel);
+            }
+        }
+        mServiceCount = mDataList.size();
+        mCheckServiceCount = mCheckData.size();
+        mTVServiceCount.setText(mCheckServiceCount + "/" + mServiceCount);
+        mAdapter = new RegisterServiceTypeAdapter(mContext, mDataList);
+        mAdapter.setOnCheckBoxClick(new RegisterServiceTypeAdapter.OnCheckBoxClickListernner() {
+            @Override
+            public void onClick(ServiceModel data, boolean isCheck) {
+                if (isCheck) {
+                    mCheckData.add(data);
+                } else {
+                    mCheckData.remove(data);
+                }
+                mCheckServiceCount = mCheckData.size();
+                mTVServiceCount.setText(mCheckServiceCount + "/" + mServiceCount);
+            }
+        });
+        mLVService.setAdapter(mAdapter);
+    }
+
+    /**
+     * 设置服务能力
+     */
+    private void
+
+    setRegisterServiceAbility() {
+        showProgressDialog("请稍等...");
+        // 服务ID
+        StringBuffer abilityIdStr = new StringBuffer();
+        // 服务名字
+        StringBuffer abilityNameStr = new StringBuffer();
+        for (ServiceModel model : mCheckData) {
+            abilityIdStr.append(model.getService_ability_parent_id()).append(",");
+            abilityNameStr.append(model.getService_ability_parent_name()).append(",");
+        }
+        if (abilityIdStr.length() > 0) {
+            abilityIdStr.deleteCharAt(abilityIdStr.length() - 1);
+        }
+        if (abilityNameStr.length() > 0) {
+            abilityNameStr.deleteCharAt(abilityNameStr.length() - 1);
+        }
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_SET_REGISTER_TIANMAO_SERVICE_ABILITY);
+        reqJson.setWorker_type_id(2);
+        reqJson.setWorker_type_name("核心工人");
+        reqJson.setS_bind_tel(LoginUtil.getTel(mContext));
+        reqJson.setService_ability_parent_idStr(abilityIdStr.toString());
+        reqJson.setService_ability_parent_nameStr(abilityNameStr.toString());
+        reqJson.setHas_rows("no");
+        mSubscription = ApiImp.get().registerSetServiceAbility(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Base>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        dissmisProgressDialog();
+                        Log.i("注册服务能力错误:", e.toString());
+                        showToast("网络不给力");
+                    }
+
+                    @Override
+                    public void onNext(Base base) {
+                        dissmisProgressDialog();
+                        int flag = base.getResult().getOut_Flag();
+                        if (flag == 0) {
+                            if (mFlag == 0) {
+                                finish();
+                            } else {
+                                Intent intent = new Intent(mContext, RegisterBaseInfotAct.class);
+                                intent.putExtra("register", 1);
+                                startActivity(intent);
+                                finish();
+                            }
+                        } else {
+                            showToast(base.getResult().getOut_nszRtn());
+                        }
+                    }
+                });
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        if (mFlag == 0) {
+            finish();
+        }
+        if (mFlag == 1) {
+            gotoNewAty(MineAct.class);
+            finish();
+        }
+    }
+}

@@ -1,0 +1,129 @@
+package com.rubu.model;
+
+import java.util.List;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/9/13
+ * Vwesion 1.0
+ * Dsscription:
+ */
+
+public class UnusualModel {
+
+    /**
+     * result : {}
+     * rows : [{"handler_date":"2017-08-09 16:28:05","serach_sign":"N","handler_description":null,"title_else_id":20019,"marker_description":"真的打破"}]
+     */
+
+    private ResultBean result;
+    private List<RowsBean> rows;
+
+    public ResultBean getResult() {
+        return result;
+    }
+
+    public void setResult(ResultBean result) {
+        this.result = result;
+    }
+
+    public List<RowsBean> getRows() {
+        return rows;
+    }
+
+    public void setRows(List<RowsBean> rows) {
+        this.rows = rows;
+    }
+
+    public static class ResultBean {
+        /**
+         * out_nszRtn : 该语句没有返回结果集。:exec PROC_APP_S_USER_STEP1_ADD N'17682305898',N'4374',0,N''
+         * out_Flag : 400
+         */
+
+        private String out_nszRtn;
+        private int out_Flag;
+
+        public String getOut_nszRtn() {
+            return out_nszRtn;
+        }
+
+        public void setOut_nszRtn(String out_nszRtn) {
+            this.out_nszRtn = out_nszRtn;
+        }
+
+        public int getOut_Flag() {
+            return out_Flag;
+        }
+
+        public void setOut_Flag(int out_Flag) {
+            this.out_Flag = out_Flag;
+        }
+    }
+
+    public static class RowsBean {
+        /**
+         * handler_date : 2017-08-09 16:28:05
+         * serach_sign : N
+         * handler_description : null
+         * title_else_id : 20019
+         * marker_description : 真的打破
+         */
+
+        private String handler_date;
+        private String serach_sign;
+        private String handler_description;
+        private int title_else_id;
+        private String marker_description;
+        private int waiter_else_status;
+
+
+        public int getWaiter_else_status() {
+            return waiter_else_status;
+        }
+
+        public void setWaiter_else_status(int waiter_else_status) {
+            this.waiter_else_status = waiter_else_status;
+        }
+
+        public String getHandler_date() {
+            return handler_date;
+        }
+
+        public void setHandler_date(String handler_date) {
+            this.handler_date = handler_date;
+        }
+
+        public String getSerach_sign() {
+            return serach_sign;
+        }
+
+        public void setSerach_sign(String serach_sign) {
+            this.serach_sign = serach_sign;
+        }
+
+        public String getHandler_description() {
+            return handler_description;
+        }
+
+        public void setHandler_description(String handler_description) {
+            this.handler_description = handler_description;
+        }
+
+        public int getTitle_else_id() {
+            return title_else_id;
+        }
+
+        public void setTitle_else_id(int title_else_id) {
+            this.title_else_id = title_else_id;
+        }
+
+        public String getMarker_description() {
+            return marker_description;
+        }
+
+        public void setMarker_description(String marker_description) {
+            this.marker_description = marker_description;
+        }
+    }
+}

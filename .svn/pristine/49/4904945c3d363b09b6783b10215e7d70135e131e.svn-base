@@ -1,0 +1,747 @@
+package com.rubu.ui.act.register;
+
+import android.app.Dialog;
+import android.content.Intent;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.bigkoo.pickerview.adapter.ArrayWheelAdapter;
+import com.google.gson.Gson;
+import com.rubu.R;
+import com.rubu.base.BaseActivity;
+import com.rubu.city.AreaModel;
+import com.rubu.constant.Constant;
+import com.rubu.constant.SharePerenceCode;
+import com.rubu.model.Base;
+import com.rubu.model.StreetInfoModel;
+import com.rubu.net.ApiImp;
+import com.rubu.net.Params;
+import com.rubu.net.ReqJson;
+import com.rubu.ui.act.ActionResultAct;
+import com.rubu.ui.act.mine.MineAct;
+import com.rubu.util.DialogUtil;
+import com.rubu.util.LoginUtil;
+import com.rubu.util.SPUtils;
+import com.rubu.util.StringUtil;
+import com.rubu.util.TxtUtil;
+import com.rubu.view.OnItemSelectedListener;
+import com.rubu.view.WheelView;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import butterknife.BindView;
+import butterknife.OnClick;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/9/25
+ * Vwesion 1.0
+ * Dsscription:  注册基本信息
+ */
+
+public class RegisterBaseInfotAct extends BaseActivity {
+    @BindView(R.id.title_left)
+    TextView titleLeft;
+    @BindView(R.id.title)
+    TextView title;
+    // 手机号
+    @BindView(R.id.tv_phone)
+    TextView mTvPhone;
+    // 名字
+    @BindView(R.id.et_username)
+    EditText mEtUserName;
+    // 身份证号
+    @BindView(R.id.tv_id_card)
+    TextView mTVIdCard;
+    // 城市区域 （选择）
+    @BindView(R.id.tv_address_result)
+    TextView mTvAddressResult;
+    // 所在街道 （选择）
+    @BindView(R.id.tv_street_result)
+    TextView mTVStreetResult;
+    // 详细地址 （输入）
+    @BindView(R.id.et_address)
+    EditText mEtAddress;
+    // 地址检查 （检查）
+    @BindView(R.id.adress_Check)
+    ImageView mIVAdressCheck;
+    // 推荐分站 （输入）
+    @BindView(R.id.tv_site_name)
+    EditText mETSiteName;
+    // 分站检查 （检查）
+    @BindView(R.id.site_Check)
+    ImageView mIVSiteCheck;
+    // 工行名字
+    @BindView(R.id.et_bank_name)
+    EditText mETBankName;
+    // 工行名字检查 （检查）
+    @BindView(R.id.bank_name_Check)
+    ImageView mIVBackNameCheck;
+    // 工行ID
+    @BindView(R.id.et_card_number)
+    EditText mETCordNumber;
+    // 工行ID检查 （检查）
+    @BindView(R.id.bank_card_Check)
+    ImageView mIVBackCardCheck;
+    @BindView(R.id.btn_next)
+    Button mBTNNext;
+
+    // 分站名字, 身份证号
+    private String mSiteName, mIdCard;
+    // 0表示从我的过来 ， 1从注册过来 ;
+    private int mFlag = 0;
+    public static final int REQUEST_CODE_IDCARD = 4;  // 街道
+    private String shengShiQu = "";
+
+    @Override
+    protected int getViewId() {
+        return R.layout.activity_register_base_info;
+    }
+
+    @Override
+    protected void initEvent() {
+        mFlag = getIntent().getIntExtra("register", 0);
+        title.setText("基础信息");
+        titleLeft.setText("返回");
+        titleLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onBackPressed();
+            }
+        });
+        if (mFlag == 0) {
+            mBTNNext.setText("保存");
+        }
+        mTvPhone.setText(LoginUtil.getTel(mContext));
+        // 名字的效果
+        mEtUserName.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                setCanNext();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+        // 详细地址的效果
+        mEtAddress.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String address = s.toString();
+                if (StringUtil.isEmpty(address)) {
+                    mIVAdressCheck.setVisibility(View.GONE);
+                } else {
+                    setIVCheck(mIVAdressCheck, true);
+                }
+                setCanNext();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+        // 推荐分站的效果
+        mETSiteName.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String siteName = s.toString();
+                if (StringUtil.isEmpty(siteName)) {
+                    mIVSiteCheck.setVisibility(View.GONE);
+                } else if (siteName.startsWith(" ")) {
+                    setIVCheck(mIVSiteCheck, false);
+                } else {
+                    setIVCheck(mIVSiteCheck, true);
+                }
+                setCanNext();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+        // 银行开户地地址的效果
+        mETBankName.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String bankName = s.toString();
+                if (StringUtil.isEmpty(bankName)) {
+                    mIVBackNameCheck.setVisibility(View.GONE);
+                } else if (bankName.startsWith(" ")) {
+                    setIVCheck(mIVSiteCheck, false);
+                } else {
+                    setIVCheck(mIVBackNameCheck, true);
+                }
+                setCanNext();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+        // 银行卡的效果
+        mETCordNumber.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String IdCard = s.toString();
+                if (StringUtil.isEmpty(IdCard)) {
+                    mIVBackCardCheck.setVisibility(View.GONE);
+                } else {
+                    setIVCheck(mIVBackCardCheck, true);
+                }
+                setCanNext();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+    }
+
+    @OnClick({R.id.rl_base_info, R.id.btn_next, R.id.rel_address, R.id.rel_street})
+    public void onClick(View view) {
+        String region = mTvAddressResult.getText().toString();
+        switch (view.getId()) {
+            case R.id.rl_base_info: // 基本照片信息
+                Intent intent = new Intent(mContext, RegisterBasePhotoInfoAct.class);
+                startActivityForResult(intent, REQUEST_CODE_IDCARD);
+                break;
+            case R.id.rel_address:  // 区域选择
+                if (null == placeDialog) {
+                    chooseCity(TxtUtil.getSSX(mContext));
+                } else {
+                    placeDialog.show();
+                }
+                break;
+            case R.id.rel_street: // 街道
+                if (isRegion(region))
+                    break;
+                setStreetInfo();
+                break;
+            case R.id.btn_next: // 下一步操作
+                setBaseInfo();
+                break;
+        }
+    }
+
+    // 区域是否为空---------------
+    private boolean isRegion(String region) {
+        if (StringUtil.isEmpty(region)) {
+            showToast("请选择所在区域");
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 根据所有的状态判断是否可以进行下一步 -------------
+     */
+    private void setCanNext() {
+        if (checkData()) {
+            setBTNNext(true);
+        } else {
+            setBTNNext(false);
+        }
+    }
+
+    /**
+     * 检查内容，通过的返回true--------------------
+     *
+     * @return
+     */
+    private boolean checkData() {
+        // 名字
+        String name = mEtUserName.getText().toString();
+        if (!name.matches("[\u4e00-\u9fa5]+")) {
+            return false;
+        }
+        if (StringUtil.isEmpty(name)) {
+            return false;
+        }
+        // 身份证号
+        if (StringUtil.isEmpty(mIdCard)) {
+            return false;
+        }
+        // 详细地址
+        String region = mTvAddressResult.getText().toString();
+        if (StringUtil.isEmpty(region)) {
+            return false;
+        }
+        String address = mEtAddress.getText().toString();
+        if (StringUtil.isEmpty(address)) {
+            return false;
+        }
+        address.trim();
+        address = StringUtil.splitSpace(address);
+        // 街道信息
+        String street = mTVStreetResult.getText().toString();
+        if (StringUtil.isEmpty(street)) {
+            return false;
+        }
+        // 推荐分站道信息
+        String siteName = mETSiteName.getText().toString();
+        if ((!StringUtil.isEmpty(siteName) && siteName.startsWith(" "))) {
+            return false;
+        }
+        // 开户银行信息
+        String bankName = mETBankName.getText().toString();
+        if ((StringUtil.isEmpty(bankName)) || ((!StringUtil.isEmpty(siteName)) && siteName.startsWith(" "))) {
+            return false;
+        }
+        // 银行卡号信息
+        String cordNumber = mETCordNumber.getText().toString();
+        if (StringUtil.isEmpty(cordNumber)) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 设置是否显示对勾----------------
+     *
+     * @param isEnabled
+     */
+    private void setBTNNext(boolean isEnabled) {
+        if (isEnabled) {
+            mBTNNext.setEnabled(true);
+            mBTNNext.setBackgroundResource(R.drawable.bg_login_btn_shape);
+        }
+        if (!isEnabled) {
+            mBTNNext.setEnabled(false);
+            mBTNNext.setBackgroundResource(R.drawable.bg_login_btn_shape_gray);
+        }
+    }
+
+    /**
+     * 设置基本信息-------------------
+     */
+    private void setBaseInfo() {
+        String name = mEtUserName.getText().toString();
+        String region = mTvAddressResult.getText().toString();
+        region = region.replace(" ", ",");
+        String address = mEtAddress.getText().toString();
+        address.trim();
+        address = StringUtil.splitSpace(address);
+        String street = mTVStreetResult.getText().toString();
+        String bankName = mETBankName.getText().toString();
+        String cordNumber = mETCordNumber.getText().toString();
+        register(name, region, address, mSiteName, street, mStreetId, bankName, cordNumber);
+    }
+
+
+    /**
+     * 显示状态-----------------
+     *
+     * @param iv
+     * @param is
+     */
+    private void setIVCheck(ImageView iv, boolean is) {
+        if (is) {
+            iv.setVisibility(View.VISIBLE);
+            iv.setImageResource(R.mipmap.draw_yes);
+        } else {
+            iv.setVisibility(View.VISIBLE);
+            iv.setImageResource(R.mipmap.draw_no);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+            switch (requestCode) {
+                // 身份证的回调
+                case REQUEST_CODE_IDCARD:
+                    mIdCard = data.getStringExtra("idCard");
+                    mTVIdCard.setText(mIdCard);
+                    break;
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private String shen, shi, qu;
+
+    private void chooseCity(String area) {
+        List<AreaModel.ListBeanXX> list = new Gson().fromJson(area, AreaModel.class).getList();
+        province_list.clear();
+        province_list.addAll(list);
+
+        List<AreaModel.ListBeanXX.ListBeanX> aaa = province_list.get(0).getList();
+        city_list.addAll(aaa);
+
+        List<AreaModel.ListBeanXX.ListBeanX.ListBean> aaaa = city_list.get(0).getList();
+        more_list.addAll(aaaa);
+
+        getProvinceItem();
+        showPlaceDialog();
+    }
+
+
+    /**
+     * @param name       注册输入的名字
+     * @param region     用户注册的省市区
+     * @param address    用户注册的详细地址
+     * @param siteName   用户注册的推荐分站名字 (可不填)
+     * @param street     用户注册的街道
+     * @param streetId   用户注册的街道Id
+     * @param bankName   开户工行
+     * @param cordNumber 工行账户
+     */
+
+    private void register(String name, String region, String address, String siteName, String street, int streetId, String bankName, String cordNumber) {
+        showProgressDialog("请稍等...");
+        ReqJson mReqJson = new ReqJson();
+        mReqJson.setProc(Constant.PROC_SET_REGISTER_BASE_INFO_ABILITY);
+        mReqJson.setUser_id(LoginUtil.getUserId(mContext));
+        mReqJson.setS_user_name(name);
+        mReqJson.setS_idcard_no(mIdCard);
+        mReqJson.setS_region_tag(region);
+        mReqJson.setS_address(address);
+        mReqJson.setStreet_id(streetId);
+        mReqJson.setStreet_name(street);
+        mReqJson.setHas_rows("no");
+        mReqJson.setS_user_account(cordNumber);
+        mReqJson.setS_bank_account(bankName);
+        mReqJson.setSs_org_name(siteName);
+        mSubscription = ApiImp.get().registerSetBaseInfoAbility(Params.getNetWorkParams(mReqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Base>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        dissmisProgressDialog();
+                        showToast("网络不给力");
+                        Log.i("注册错误", "设置个人信息错误" + e.toString());
+                    }
+
+                    @Override
+                    public void onNext(Base model) {
+                        dissmisProgressDialog();
+                        int flag = model.getResult().getOut_Flag();
+                        if (flag == 0) {
+                            // 待审核或者审核和通过保存状态
+                            SPUtils.put(mContext, SharePerenceCode.SP_USER_EXAM_STATUE, true);
+                            Log.d("审核流程", "本地状态为" + true);
+                            if (mFlag == 0) {
+                                finish();
+                            } else {
+                                Intent intent = new Intent(mContext, ActionResultAct.class);
+                                intent.putExtra("action", Constant.PROC_SET_REGISTER_BASE_INFO_ABILITY);
+                                startActivity(intent);
+                                finish();
+                            }
+                        } else {
+                            showToast(model.getResult().getOut_nszRtn());
+                        }
+                    }
+                });
+    }
+
+
+    public int currentItemp = 0;
+    public int currentItemc = 0;
+    public int currentItem = 0;
+    List<AreaModel.ListBeanXX> province_list = new ArrayList<>();
+    List<AreaModel.ListBeanXX.ListBeanX> city_list = new ArrayList<>();
+    List<AreaModel.ListBeanXX.ListBeanX.ListBean> more_list = new ArrayList<>();
+    private Dialog placeDialog;
+    private WheelView wv, wv_province, wv_city;
+
+    /**
+     * 显示地区的三级联动
+     */
+    private void showPlaceDialog() {
+        if (null == placeDialog) {
+            View view = LayoutInflater.from(this).inflate(R.layout.dia_picker_time, null);
+            placeDialog = DialogUtil.getDialog(this, view, Gravity.BOTTOM, false);
+            wv_province = (WheelView) view.findViewById(R.id.wv_year);
+            wv_city = (WheelView) view.findViewById(R.id.wv_month);
+            wv = (WheelView) view.findViewById(R.id.wv_day);
+            TextView btnCancel = (TextView) view.findViewById(R.id.btnCancel);
+            btnCancel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    placeDialog.dismiss();
+                }
+            });
+            final TextView btnSubmit = (TextView) view.findViewById(R.id.btnSubmit);
+            btnSubmit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (wv_province.isEnabled() && wv_city.isEnabled() && wv.isEnabled()) {
+                        // 是否可以下一步
+                        setCanNext();
+                        currentItemp = wv_province.getCurrentItem();
+                        currentItemc = wv_city.getCurrentItem();
+                        currentItem = wv.getCurrentItem();
+                        String place = "";
+                        if (province_list.size() > 0) {
+                            place = place + province_list.get(wv_province.getCurrentItem()).getName();
+                        }
+                        ;
+                        if (city_list.size() > 0) {
+                            place = place + " " +
+                                    city_list.get(wv_city.getCurrentItem()).getName();
+                        }
+                        if (more_list.size() > 0) {
+                            place = place + " " +
+                                    more_list.get(wv.getCurrentItem()).getName();
+                        }
+                        if (province_list.size() > 0) {
+                            shen = province_list.get(wv_province.getCurrentItem()).getName();
+                        }
+                        if (city_list.size() > 0) {
+                            shi = city_list.get(wv_city.getCurrentItem()).getName();
+                        }
+                        if (more_list.size() > 0) {
+                            qu = more_list.get(wv.getCurrentItem()).getName();
+                        }
+                        // tv_lawyer_area.setText(place);
+                        placeDialog.dismiss();
+                        shengShiQu = shen + "," + shi + "," + qu;
+                        mTvAddressResult.setText(shen + " " + shi + " " + qu);
+                    }
+                }
+            });
+            wv_province.setAdapter(new ArrayWheelAdapter(listproStr));
+            //  wv_province.setLabel(province_list.get(i).getName());
+            wv_province.setCyclic(false);
+            wv_province.setHide(true);
+            wv_province.setOnItemSelectedListener(new OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(int i) {
+                    listCityStr.clear();
+                    listMoreStr.clear();
+                    city_list = province_list.get(i).getList();
+                    if (city_list != null && city_list.size() > 0) {
+                        more_list = city_list.get(0).getList();
+                    }
+                    getCityMore();
+                    wv_city.setAdapter(new ArrayWheelAdapter(listCityStr));
+                    wv.setAdapter(new ArrayWheelAdapter(listMoreStr));
+                    wv_city.setCurrentItem(0);
+                    wv.setCurrentItem(0);
+
+                    wv_province.setEnabled(true);
+                }
+            });
+            wv_city.setAdapter(new ArrayWheelAdapter(listCityStr));
+            wv_city.setCyclic(false);
+            wv_city.setHide(true);
+            wv_city.setOnItemSelectedListener(new OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(int index) {
+                    more_list = city_list.get(index).getList();
+                    getMore();
+                    wv_city.setEnabled(true);
+                    wv_province.setEnabled(true);
+                    wv.setAdapter(new ArrayWheelAdapter(listMoreStr));
+                    wv.setCurrentItem(0);
+                }
+            });
+            wv.setAdapter(new ArrayWheelAdapter(listMoreStr));
+            wv.setCyclic(false);
+            wv.setHide(true);
+            wv.setOnItemSelectedListener(new OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(int index) {
+                    wv.setEnabled(true);
+                    wv_city.setEnabled(true);
+                }
+            });
+            wv_province.setWv(wv_city);
+            wv_city.setWv(wv_province);
+        }
+        wv_province.setCurrentItem(currentItemp);
+        wv_city.setCurrentItem(currentItemc);
+        wv.setCurrentItem(currentItem);
+        placeDialog.show();
+    }
+
+    ArrayList<String> listproStr;
+    ArrayList<String> listCityStr;
+    ArrayList<String> listMoreStr;
+
+    public void getProvinceItem() {
+        listproStr = new ArrayList<>();
+        listCityStr = new ArrayList<>();
+        listMoreStr = new ArrayList<>();
+        for (int i = 0; i < province_list.size(); i++) {
+            listproStr.add(province_list.get(i).getName());
+        }
+        for (int i = 0; i < city_list.size(); i++) {
+            if (null != city_list.get(i).getName())
+                listCityStr.add(city_list.get(i).getName());
+        }
+        for (int i = 0; i < more_list.size(); i++) {
+            listMoreStr.add(more_list.get(i).getName());
+        }
+    }
+
+    public void getCityMore() {
+        for (int i = 0; i < city_list.size(); i++) {
+            if (null != city_list.get(i).getName())
+                listCityStr.add(city_list.get(i).getName());
+        }
+        for (int i = 0; i < more_list.size(); i++) {
+            listMoreStr.add(more_list.get(i).getName());
+        }
+    }
+
+    public void getMore() {
+        listMoreStr.clear();
+        for (int i = 0; i < more_list.size(); i++) {
+            listMoreStr.add(more_list.get(i).getName());
+        }
+    }
+
+    private Dialog streetDialog;
+    private WheelView wv_street;
+    public int currentItemS = 0;
+    private String mStreetName = "暂无街道地址";
+    private int mStreetId;
+    private List<StreetInfoModel.RowsBean> mStreetDataList;
+    private ArrayList<String> mStreetList = new ArrayList<>();
+
+    /**
+     * 显示街道数据
+     */
+    private void showStreetDialog() {
+        if (null == streetDialog) {
+            View view = LayoutInflater.from(this).inflate(R.layout.dia_picker_street, null);
+            streetDialog = DialogUtil.getDialog(this, view, Gravity.BOTTOM, false);
+            wv_street = (WheelView) view.findViewById(R.id.wv_street);
+            TextView btnCancel = (TextView) view.findViewById(R.id.btnCancel);
+            btnCancel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    streetDialog.dismiss();
+                }
+            });
+            final TextView btnSubmit = (TextView) view.findViewById(R.id.btnSubmit);
+            btnSubmit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // TODO: 2017/7/6  接到选择器 选择街道;
+                    if (wv_street.isEnabled()) {
+                        currentItemS = wv_street.getCurrentItem();
+                        if (mStreetList.size() > 0) {
+                            mStreetName = mStreetList.get(wv_street.getCurrentItem());
+                            mStreetId = mStreetDataList.get(wv_street.getCurrentItem()).getStreet_id();
+                        }
+                        mTVStreetResult.setText(mStreetName);
+                        streetDialog.dismiss();
+                        mStreetList.clear();
+                        // 是否可以下一步
+                        setCanNext();
+                    }
+                }
+            });
+            wv_street.setAdapter(new ArrayWheelAdapter(mStreetList));
+            wv_street.setCyclic(false);
+            wv_street.setHide(true);
+        }
+        wv_street.setCurrentItem(currentItemS);
+        streetDialog.show();
+    }
+
+    /**
+     * 获取街道的数据
+     */
+    private void setStreetInfo() {
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_APP_WORKER_STREET_LOAD);
+        reqJson.setShengShiQuStr(shengShiQu.trim());
+        mSubscription = ApiImp.get().getStreetInfo(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<StreetInfoModel>() {
+                               @Override
+                               public void onCompleted() {
+
+                               }
+
+                               @Override
+                               public void onError(Throwable e) {
+                                   Toast.makeText(mContext, "网络异常", Toast.LENGTH_LONG).show();
+                               }
+
+                               @Override
+                               public void onNext(StreetInfoModel streetInfoModel) {
+                                   if (streetInfoModel.getResult().getOut_Flag() == 0) {
+                                       mStreetDataList = new ArrayList<>();
+                                       mStreetDataList = streetInfoModel.getRows();
+                                       if (mStreetDataList.size() > 0) {
+                                           for (int i = 0; i < mStreetDataList.size(); i++) {
+                                               mStreetList.add(mStreetDataList.get(i).getStreet_name());
+                                           }
+                                           showStreetDialog();
+                                       }
+                                   }
+                               }
+                           }
+
+                );
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        if (mFlag == 0) {
+            finish();
+        }
+        if (mFlag == 1) {
+            gotoNewAty(MineAct.class);
+            finish();
+        }
+    }
+}

@@ -1,0 +1,67 @@
+package com.rubu.ui.act;
+
+import android.content.Context;
+import android.widget.ImageView;
+
+import com.rubu.R;
+import com.rubu.base.BaseActivity;
+import com.rubu.util.StringUtil;
+import com.squareup.picasso.Picasso;
+import com.youth.banner.Banner;
+import com.youth.banner.BannerConfig;
+import com.youth.banner.loader.ImageLoader;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import butterknife.BindView;
+
+/**
+ * 商品轮播图
+ * Banner框架可自行在git搜索查看使用说明
+ *
+ * 原始历史版本,如果调整回去，即将跳转改写成跳转FullScreenImgAct即可
+ */
+public class GoodsPhotoActivity extends BaseActivity {
+
+    @BindView(R.id.banner)
+    Banner mBanner;
+    private List<String> imageLists = new ArrayList<>();
+    private String imageUrls;
+
+    @Override
+    protected int getViewId() {
+        return R.layout.activity_goods_photo;
+    }
+
+    @Override
+    protected void initEvent() {
+        imageUrls = getIntent().getStringExtra("url");
+        if (StringUtil.isEmpty(imageUrls)) {
+            imageLists.add("null");
+        } else {
+            imageLists = Arrays.asList(imageUrls.split(";"));
+        }
+        initBanner();
+    }
+
+    private void initBanner() {
+        mBanner.setBannerStyle(BannerConfig.NUM_INDICATOR)
+                .setImageLoader(new PicassoImageLoad())
+                .setImages(imageLists)
+                .setIndicatorGravity(BannerConfig.RIGHT)
+                .isAutoPlay(false)
+                .setViewPagerIsScroll(true)
+                .start();
+    }
+
+    class PicassoImageLoad extends ImageLoader {
+        @Override
+        public void displayImage(Context context, Object path, ImageView imageView) {
+            //Picasso 加载图片简单用法
+            Picasso.with(context).load((String) path).fit().error(R.mipmap.ic_holder_goods).into(imageView);
+        }
+    }
+
+}

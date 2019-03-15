@@ -1,0 +1,146 @@
+package com.rubu.model;
+
+import java.io.Serializable;
+import java.util.List;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/9/4
+ * Vwesion 1.0
+ * Dsscription: 遇到问题对象
+ */
+
+public class QuestionListModel implements Serializable {
+
+    /**
+     * result : {"out_nszRtn":"查询成功！","out_Flag":0}
+     * rows1 : [{"s_problem_category_id":1002,"s_problem_subclass_id":1003,"problem_subclass":"例子","problem_category":"技师打破货物"}]
+     * rows : [{"s_problem_category_id":1002,"problem_category":"技师打破货物"}]
+     */
+
+    private ResultBean result;
+    private List<Rows1Bean> rows1;
+    private List<RowsBean> rows;
+
+    public ResultBean getResult() {
+        return result;
+    }
+
+    public void setResult(ResultBean result) {
+        this.result = result;
+    }
+
+    public List<Rows1Bean> getRows1() {
+        return rows1;
+    }
+
+    public void setRows1(List<Rows1Bean> rows1) {
+        this.rows1 = rows1;
+    }
+
+    public List<RowsBean> getRows() {
+        return rows;
+    }
+
+    public void setRows(List<RowsBean> rows) {
+        this.rows = rows;
+    }
+
+    public static class ResultBean {
+        /**
+         * out_nszRtn : 查询成功！
+         * out_Flag : 0
+         */
+
+        private String out_nszRtn;
+        private int out_Flag;
+
+        public String getOut_nszRtn() {
+            return out_nszRtn;
+        }
+
+        public void setOut_nszRtn(String out_nszRtn) {
+            this.out_nszRtn = out_nszRtn;
+        }
+
+        public int getOut_Flag() {
+            return out_Flag;
+        }
+
+        public void setOut_Flag(int out_Flag) {
+            this.out_Flag = out_Flag;
+        }
+    }
+
+    public static class Rows1Bean implements Serializable {
+        /**
+         * s_problem_category_id : 1002
+         * s_problem_subclass_id : 1003
+         * problem_subclass : 例子
+         * problem_category : 技师打破货物
+         */
+
+        private int s_problem_category_id;
+        private int s_problem_subclass_id;
+        private String problem_subclass;
+        private String problem_category;
+
+        public int getS_problem_category_id() {
+            return s_problem_category_id;
+        }
+
+        public void setS_problem_category_id(int s_problem_category_id) {
+            this.s_problem_category_id = s_problem_category_id;
+        }
+
+        public int getS_problem_subclass_id() {
+            return s_problem_subclass_id;
+        }
+
+        public void setS_problem_subclass_id(int s_problem_subclass_id) {
+            this.s_problem_subclass_id = s_problem_subclass_id;
+        }
+
+        public String getProblem_subclass() {
+            return problem_subclass;
+        }
+
+        public void setProblem_subclass(String problem_subclass) {
+            this.problem_subclass = problem_subclass;
+        }
+
+        public String getProblem_category() {
+            return problem_category;
+        }
+
+        public void setProblem_category(String problem_category) {
+            this.problem_category = problem_category;
+        }
+    }
+
+    public static class RowsBean {
+        /**
+         * s_problem_category_id : 1002
+         * problem_category : 技师打破货物
+         */
+
+        private int s_problem_category_id;
+        private String problem_category;
+
+        public int getS_problem_category_id() {
+            return s_problem_category_id;
+        }
+
+        public void setS_problem_category_id(int s_problem_category_id) {
+            this.s_problem_category_id = s_problem_category_id;
+        }
+
+        public String getProblem_category() {
+            return problem_category;
+        }
+
+        public void setProblem_category(String problem_category) {
+            this.problem_category = problem_category;
+        }
+    }
+}

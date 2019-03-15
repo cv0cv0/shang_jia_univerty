@@ -1,0 +1,193 @@
+package com.rubu.model;
+
+import java.io.Serializable;
+import java.util.List;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/4/20
+ * Vwesion 1.0
+ * Dsscription:   分站列表的数据对象
+ */
+
+public class SiteNameModel implements Serializable {
+    /**
+     * result : {"out_nszRtn":"推荐成功 !","out_Flag":0}
+     * rows1 : [{"worker_type_name":"工头","worker_type_id":1},{"worker_type_name":"核心工人","worker_type_id":2},{"worker_type_name":"普通工人","worker_type_id":3},{"worker_type_name":"储备工人","worker_type_id":4}]
+     * rows2 : [{"service_ability_id":1,"service_ability_name":"灯具安装"},{"service_ability_id":2,"service_ability_name":"浴霸安装"},{"service_ability_id":3,"service_ability_name":"吊顶小件安装"},{"service_ability_id":4,"service_ability_name":"吊顶大件安装"},{"service_ability_id":5,"service_ability_name":"淋浴房安装"},{"service_ability_id":6,"service_ability_name":"卫浴家具安装"},{"service_ability_id":7,"service_ability_name":"浴缸安装"},{"service_ability_id":8,"service_ability_name":"蹲便器安装"},{"service_ability_id":9,"service_ability_name":"普通卫浴安装"},{"service_ability_id":10,"service_ability_name":"墙纸安装"},{"service_ability_id":11,"service_ability_name":"地板安装"}]
+     * rows : [{"s_org_name":"杭州上家F","s_org_id":1},{"s_org_name":"杭州上家D","s_org_id":52},{"s_org_name":"上家DZ","s_org_id":53},{"s_org_name":"外围撮合Z","s_org_id":67},{"s_org_name":"上家CZ","s_org_id":157},{"s_org_name":"上家BZ","s_org_id":158},{"s_org_name":"空白区域Z","s_org_id":161},{"s_org_name":"现场撮合Z","s_org_id":181},{"s_org_name":"上家FZ","s_org_id":185},{"s_org_name":"上家EZ","s_org_id":190},{"s_org_name":"订单中转上家Z","s_org_id":191},{"s_org_name":"智能维修邱伟伟Z","s_org_id":197},{"s_org_name":"上家SZ","s_org_id":409},{"s_org_name":"桐庐上家Z","s_org_id":430},{"s_org_name":"外围上家Z","s_org_id":448},{"s_org_name":"杭州撮合Z","s_org_id":480},{"s_org_name":"杭州上家ABCDZ","s_org_id":481}]
+     */
+
+    private ResultBean result;
+    private List<Rows1Bean> rows1;
+    private List<Rows2Bean> rows2;
+    private List<RowsBean> rows;
+
+    public ResultBean getResult() {
+        return result;
+    }
+
+    public void setResult(ResultBean result) {
+        this.result = result;
+    }
+
+    public List<Rows1Bean> getRows1() {
+        return rows1;
+    }
+
+    public void setRows1(List<Rows1Bean> rows1) {
+        this.rows1 = rows1;
+    }
+
+    public List<Rows2Bean> getRows2() {
+        return rows2;
+    }
+
+    public void setRows2(List<Rows2Bean> rows2) {
+        this.rows2 = rows2;
+    }
+
+    public List<RowsBean> getRows() {
+        return rows;
+    }
+
+    public void setRows(List<RowsBean> rows) {
+        this.rows = rows;
+    }
+
+    public static class ResultBean {
+        /**
+         * out_nszRtn : 推荐成功 !
+         * out_Flag : 0
+         */
+
+        private String out_nszRtn;
+        private int out_Flag;
+
+        public String getOut_nszRtn() {
+            return out_nszRtn;
+        }
+
+        public void setOut_nszRtn(String out_nszRtn) {
+            this.out_nszRtn = out_nszRtn;
+        }
+
+        public int getOut_Flag() {
+            return out_Flag;
+        }
+
+        public void setOut_Flag(int out_Flag) {
+            this.out_Flag = out_Flag;
+        }
+    }
+
+    public static class Rows1Bean {
+        /**
+         * worker_type_name : 工头
+         * worker_type_id : 1
+         */
+
+        private String worker_type_name;
+        private int worker_type_id;
+
+        public String getWorker_type_name() {
+            return worker_type_name;
+        }
+
+        public void setWorker_type_name(String worker_type_name) {
+            this.worker_type_name = worker_type_name;
+        }
+
+        public int getWorker_type_id() {
+            return worker_type_id;
+        }
+
+        public void setWorker_type_id(int worker_type_id) {
+            this.worker_type_id = worker_type_id;
+        }
+    }
+
+    public static class Rows2Bean {
+
+        private int service_ability_id;
+        private String service_ability_name;
+        private String service_ability_parent_id;
+        private String service_ability_parent_name;
+        private String service_type_status;
+        private String service_select;
+
+        public int getService_ability_id() {
+            return service_ability_id;
+        }
+
+        public void setService_ability_id(int service_ability_id) {
+            this.service_ability_id = service_ability_id;
+        }
+
+        public String getService_ability_name() {
+            return service_ability_name;
+        }
+
+        public void setService_ability_name(String service_ability_name) {
+            this.service_ability_name = service_ability_name;
+        }
+
+        public String getService_ability_parent_id() {
+            return service_ability_parent_id;
+        }
+
+        public void setService_ability_parent_id(String service_ability_parent_id) {
+            this.service_ability_parent_id = service_ability_parent_id;
+        }
+
+        public String getService_ability_parent_name() {
+            return service_ability_parent_name;
+        }
+
+        public void setService_ability_parent_name(String service_ability_parent_name) {
+            this.service_ability_parent_name = service_ability_parent_name;
+        }
+
+        public String getService_type_status() {
+            return service_type_status;
+        }
+
+        public void setService_type_status(String service_type_status) {
+            this.service_type_status = service_type_status;
+        }
+
+        public String getService_select() {
+            return service_select;
+        }
+
+        public void setService_select(String service_select) {
+            this.service_select = service_select;
+        }
+    }
+
+    public static class RowsBean {
+        /**
+         * s_org_name : 杭州上家F
+         * s_org_id : 1
+         */
+
+        private String s_org_name;
+        private int s_org_id;
+
+        public String getS_org_name() {
+            return s_org_name;
+        }
+
+        public void setS_org_name(String s_org_name) {
+            this.s_org_name = s_org_name;
+        }
+
+        public int getS_org_id() {
+            return s_org_id;
+        }
+
+        public void setS_org_id(int s_org_id) {
+            this.s_org_id = s_org_id;
+        }
+    }
+}

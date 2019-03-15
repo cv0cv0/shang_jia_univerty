@@ -1,0 +1,48 @@
+package com.rubu.ui.act.mine.model;
+
+/**
+ * Created by 72732 on 2018/4/18.
+ */
+
+public class CheckOrderContentBean {
+    // 子单内容
+    private String order_name;
+    // 子单数量
+    private double order_count;
+    // 子单名称
+    private String order_statue;
+    // order_title_id
+    private String order_title_id;
+
+    public String getOrder_name() {
+        return order_name;
+    }
+
+    public void setOrder_name(String order_name) {
+        this.order_name = order_name;
+    }
+
+    public double getOrder_count() {
+        return order_count;
+    }
+
+    public void setOrder_count(double order_count) {
+        this.order_count = order_count;
+    }
+
+    public String getOrder_statue() {
+        return order_statue;
+    }
+
+    public void setOrder_statue(String order_statue) {
+        this.order_statue = order_statue;
+    }
+
+    public String getOrder_title_id() {
+        return order_title_id;
+    }
+
+    public void setOrder_title_id(String order_title_id) {
+        this.order_title_id = order_title_id;
+    }
+}

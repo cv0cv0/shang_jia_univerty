@@ -1,0 +1,66 @@
+package com.rubu.ui.act.register.adapter;
+
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.support.annotation.NonNull;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.CheckBox;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.rubu.R;
+import com.rubu.base.BaseListAdapter;
+import com.rubu.model.ServiceModel;
+import com.rubu.util.StringUtil;
+
+import java.util.List;
+
+
+/**
+ * Created by liuhaizhu on 2017/3/2.
+ * Description ： 显示注册中服务能力子类的适配器
+ */
+
+public class RegisterServiceAbilityChildsAdapter extends BaseListAdapter<ServiceModel.ChildModel> {
+
+    public RegisterServiceAbilityChildsAdapter(Context context, List<ServiceModel.ChildModel> list) {
+        super(context, list);
+    }
+
+
+    @Override
+    public View initView(ServiceModel.ChildModel childModel, View convertView, ViewGroup parent) {
+        ViewHolder viewHolder;
+        if (convertView == null) {
+            convertView = LayoutInflater.from(context).inflate(R.layout.item_question_time, null);
+            viewHolder = new ViewHolder();
+            viewHolder.mAbilityName = (TextView) convertView.findViewById(R.id.question_descirbe);
+            viewHolder.mTvArrow = (TextView) convertView.findViewById(R.id.tv_arrow);
+            convertView.setTag(viewHolder);
+        } else {
+            viewHolder = (ViewHolder) convertView.getTag();
+        }
+
+        // 设置服务能力名字
+        if (!StringUtil.isEmpty(childModel.getService_ability_name())) {
+            viewHolder.mAbilityName.setText(childModel.getService_ability_name());
+        }
+        // 隐藏图标
+        viewHolder.mTvArrow.setVisibility(View.GONE);
+        return convertView;
+    }
+
+    /**
+     * 选择
+     */
+    private class ViewHolder {
+        TextView mAbilityName;
+        TextView mTvArrow;
+    }
+}

@@ -1,0 +1,121 @@
+package com.rubu.model;
+
+import java.io.Serializable;
+import java.util.List;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/7/13
+ * Vwesion 1.0
+ * Dsscription:
+ */
+
+public class ServiceModel implements Serializable {
+
+    // 是否选择
+    private boolean isCheck = false;
+    private boolean isShowGroup;
+    // 是否可选
+    private boolean isSelect;
+    private String service_ability_parent_id;
+    private String service_ability_parent_name;
+    public List<ChildModel> childModel;
+
+    public ServiceModel(boolean isCheck, String service_ability_parent_id, String service_ability_parent_name, List<ChildModel> childModel) {
+        this.isCheck = isCheck;
+        this.service_ability_parent_id = service_ability_parent_id;
+        this.service_ability_parent_name = service_ability_parent_name;
+        this.childModel = childModel;
+    }
+
+    public ServiceModel(boolean isCheck,boolean isSelect, String service_ability_parent_id, String service_ability_parent_name) {
+        this.isCheck = isCheck;
+        this.isSelect = isSelect;
+        this.service_ability_parent_id = service_ability_parent_id;
+        this.service_ability_parent_name = service_ability_parent_name;
+    }
+
+    public boolean isCheck() {
+        return isCheck;
+    }
+
+    public void setCheck(boolean check) {
+        isCheck = check;
+    }
+
+    public boolean isShowGroup() {
+        return isShowGroup;
+    }
+
+    public void setShowGroup(boolean showGroup) {
+        isShowGroup = showGroup;
+    }
+
+    public boolean isSelect() {
+        return isSelect;
+    }
+
+    public void setSelect(boolean select) {
+        isSelect = select;
+    }
+
+    public String getService_ability_parent_id() {
+        return service_ability_parent_id;
+    }
+
+    public void setService_ability_parent_id(String service_ability_parent_id) {
+        this.service_ability_parent_id = service_ability_parent_id;
+    }
+
+    public String getService_ability_parent_name() {
+        return service_ability_parent_name;
+    }
+
+    public void setService_ability_parent_name(String service_ability_parent_name) {
+        this.service_ability_parent_name = service_ability_parent_name;
+    }
+
+    public List<ChildModel> getChildModel() {
+        return childModel;
+    }
+
+    public void setChildModel(List<ChildModel> childModel) {
+        this.childModel = childModel;
+    }
+
+    public static class ChildModel implements Serializable {
+        private int service_ability_id;
+        private String service_ability_name;
+        private boolean isCheck = false;
+
+        public ChildModel(int service_ability_id, String service_ability_name) {
+            this.service_ability_id = service_ability_id;
+            this.service_ability_name = service_ability_name;
+        }
+
+        public int getService_ability_id() {
+            return service_ability_id;
+        }
+
+        public void setService_ability_id(int service_ability_id) {
+            this.service_ability_id = service_ability_id;
+        }
+
+        public String getService_ability_name() {
+            return service_ability_name;
+        }
+
+        public void setService_ability_name(String service_ability_name) {
+            this.service_ability_name = service_ability_name;
+        }
+
+        public boolean isCheck() {
+            return isCheck;
+        }
+
+        public void setCheck(boolean check) {
+            isCheck = check;
+        }
+    }
+
+}

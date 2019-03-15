@@ -1,0 +1,38 @@
+package com.github.jdsjlzx.recyclerview;
+
+
+import android.support.v7.widget.GridLayoutManager;
+import android.util.Log;
+
+/**
+ * Created by lizhixian.
+ * <p/>
+ * RecyclerView为GridLayoutManager时，设置了HeaderView，就会用到这个SpanSizeLookup
+ */
+public class TimeOffSpanSizeLookup extends GridLayoutManager.SpanSizeLookup {
+
+    private LRecyclerViewAdapter adapter;
+
+    public TimeOffSpanSizeLookup(LRecyclerViewAdapter adapter) {
+        this.adapter = adapter;
+    }
+
+    @Override
+    public int getSpanSize(int position) {
+        boolean isHeaderOrFooter = adapter.isRefreshHeader(position) || adapter.isHeader(position) || adapter.isFooter(position);
+        if (isHeaderOrFooter) {
+            Log.e("isHeaderOrFooter","1---"+position);
+            return 3;
+        }
+        int p = position - 2;
+        if (p % 7 < 4) {
+            Log.e("isHeaderOrFooter","3---"+position);
+            return 3;
+        } else {
+            Log.e("isHeaderOrFooter","1---"+position);
+            return 1;
+
+        }
+
+    }
+}

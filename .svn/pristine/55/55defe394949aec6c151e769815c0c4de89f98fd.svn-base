@@ -1,0 +1,124 @@
+package com.rubu.constant;
+
+/**
+ * 类描述：存放常量  打算的
+ * 创建人：lhz
+ * 创建时间：2016/6/29 9:02
+ * 修改时间：2016/6/29 9:02
+ * 修改备注：
+ */
+public class Constant {
+
+    //    测试环境(新) 外网
+    public static String BASE_URL = "http://61.164.47.179:1520/";
+    public static String BASE_WOKE_IMG = "http://61.164.47.179:1520/upload/workimg/";
+////        测试环境(新) 内网
+//    public static String BASE_URL = "http://10.86.10.15:1520/";
+//    public static String BASE_WOKE_IMG = "http://10.86.10.15:1520/upload/workimg/";
+
+    //        测试环境(预备机) 内网wan
+//    public static String BASE_URL = "http://10.86.10.17:1720/";
+//    public static String BASE_WOKE_IMG = "http://10.86.10.17:1720/upload/workimg/";
+
+    //        测试环境(预备机) 外网
+//    public static String BASE_URL = "http://61.164.47.179:1720/";
+//    public static String BASE_WOKE_IMG = "http://61.164.47.179:1720/upload/workimg/";
+
+    ////        本地机
+//    public static String BASE_URL = "http://192.168.10.126:8083/";
+//    public static String BASE_WOKE_IMG = "http://192.168.10.126:8083/upload/workimg/";
+//
+//     正式环境
+//    public static final String BASE_URL = "http://www.uphome.cn:8080/";
+//    public static final String BASE_WOKE_IMG = "http://www.uphome.cn:8080/upload/workimg/";
+    public static final String AES_KEY = "uphome2017";
+    public static final String LOGIN_PROC = "PROC_APP_S_USER_LOGIN"; // 登陆请求
+    public static final String ORDER_LOAD_PROC = "PROC_APP_ORDER_LOAD_NEW";//获取工单列表数据
+    public static final String PROC_APP_ORDER_LOAD_NEW = "PROC_APP_ORDER_LOAD_NEW";//异常工单
+    public static final String APP_VERSION = "3.0.1";//用于本地更新的版本号/废弃手机自身的版本获取
+    // 列表数据
+    public static final String GET_CODE = "PROC_APP_S_USER_STEP1_ADD"; // 获取验证码(注册)
+    public static final String PROC_APP_S_USER_LOGIN1_ADD = "PROC_APP_S_USER_LOGIN1_ADD"; // 获取验证码(登陆)
+    public static final String CHECK_CODE = "PROC_APP_S_USER_STEP2_ADD"; // 验证验证码(注册)
+    public static final String REGISTER = "PROC_APP_S_USER_STEP3_ADD"; // 注册接口(正常)
+    public static final String PROC_APP_S_USER_STEP3_UPDATE = "PROC_APP_S_USER_STEP3_UPDATE"; // 更新技师信息(完善注册信息)
+    public static final String REGISTER_NEXT = "PROC_APP_S_USER_STEP3_ADD_PASSWORD"; // 注册接口（设置密码）
+    public static final String ORDER_DETAIL_PROC = "PROC_APP_ORDER_DETAIL_LOAD";//工单管理子表 /接单界面 /预约界面/自有单签到界面/完工界面
+    public static final String PROC_APP_ORDER_TAKING_EDIT = "PROC_APP_ORDER_TAKING_EDIT";//接单操作
+    public static final String PROC_APP_ORDER_TAKING_CANCEL = "PROC_APP_ORDER_TAKING_CANCEL";//取消接单
+    public static final String PROC_APP_ORDER_RESERVING_EDIT = "PROC_APP_ORDER_RESERVING_EDIT";  // 预约操作
+    public static final String PROC_APP_ORDER_RESERVING_MEMO = "PROC_APP_ORDER_RESERVING_MEMO";// 备注
+    public static final String PROC_APP_S_USER_LOAD = "PROC_APP_S_USER_LOAD";//个人信息
+    public static final String PROC_APP_ORDER_RESERVING_FAIL = "PROC_APP_ORDER_RESERVING_FAIL_NEW";//预约失败重新预约信息(新)
+    public static final String PROC_APP_ORDER_UNINSTALL_FAIL_NEW = "PROC_APP_ORDER_UNINSTALL_FAIL_NEW";//签到工单的遇到问题中的无需安装(废弃)
+    public static final String PROC_APP_ORDER_ADDRESS_CORRECTION = "PROC_APP_ORDER_ADDRESS_CORRECTION";//签到工单的遇到问题中的无法胜任
+
+    public static final String PROC_APP_ORDER_LOGGING_EDIT = "PROC_APP_ORDER_LOGGING_EDIT";//签到操作
+    public static final String PROC_APP_ORDER_RESERVING_AGAIN = "PROC_APP_ORDER_RESERVING_AGAIN";//改约页面
+    public static final String PROC_APP_ORDER_SUB_LOAD = "PROC_APP_ORDER_SUB_LOAD_NEW";//服务调整操作(新)
+    public static final String PROC_APP_ORDER_ELSE_EDIT = "PROC_APP_ORDER_ELSE_EDIT";//遇到问题
+    public static final String PROC_APP_ORDER_FINISHING_EDIT = "PROC_APP_ORDER_FINISHING_EDIT";//天猫完工
+    public static final String PROC_APP_BDORDER_FINISHING_EDIT = "PROC_APP_BDORDER_FINISHING_EDIT";//非天猫完工`
+    public static final String PROC_APP_WORKER_VERIFICATION_EDIT = "PROC_APP_WORKER_VERIFICATION_EDIT";//喵师傅 核销后的状态返回给服务器
+    public static final String PROC_APP_ORDER_COUNT_LOAD = "PROC_APP_ORDER_COUNT_LOAD";// 每个状态下都要显示工单数量
+    public static final String PROC_APP_SCS_ORDER_COUNT = "PROC_APP_SCS_ORDER_COUNT ";// 异常工单接口
+    public static final String PROC_APP_ELSE_RESULT_LOAD = "PROC_APP_ELSE_RESULT_LOAD";//  问题描述
+    public static final String PROC_APP_ORG_MARK_LOAD = "PROC_APP_ORG_MARK_LOAD";//  分站备注信息（旧）
+    public static final String PROC_APP_ALLORDER_MARK_LOAD = "PROC_APP_ALLORDER_MARK_LOAD";//  分站备注信息(新)
+    public static final String PROC_DATA_APP_VERSION_UPDATE = "PROC_DATA_APP_VERSION_UPDATE";// 版本更新
+    public static final String PROC_DATA_APP_MSG_UPDATE = "PROC_DATA_APP_MSG_UPDATE";// 获取广告和改变广告状态
+    public static final String PROC_APP_ABNORMAL_SAVE = "PROC_APP_ABNORMAL_SAVE";// 版本更新
+    public static final String PROC_APP_WORKER_SUBSTATION = "PROC_APP_WORKER_SUBSTATION";// 推荐分站列表
+    public static final String PROC_APP_WORKER_STREET_LOAD = "PROC_APP_WORKER_STREET_LOAD";// 街道信息列表
+    public static final String PROC_APP_WORKER_PASSWORD_EDIT = "PROC_APP_WORKER_PASSWORD_EDIT";// 修改密码
+    public static final String PROC_APP_WORKER_BRANK_MSG = "PROC_APP_WORKER_BRANK_MSG";// 设置工行卡号
+    public static final String PROC_APP_IDENTIFYCODE_AGAIN = "PROC_APP_IDENTIFYCODE_AGAIN";// 补发确认码
+    public static final String PROC_APP_PHOTO_UPDATE = "PROC_APP_PHOTO_UPDATE";// 更新身份证照片
+    public static final String PROC_APP_WORKER_EXAM = "PROC_APP_WORKER_EXAM";// 考试培训网址获取接口
+    public static final String PROC_APP_SCS_ORDER_PROBLEM = "PROC_APP_SCS_ORDER_PROBLEM";// 获取遇到问题列表
+    public static final String PROC_APP_SCS_ORDER_TITLE_LOAD = "PROC_APP_SCS_ORDER_TITLE_LOAD";// 获取问题处理流程内容
+    public static final String PROC_APP_WORKER_REMINDER_LOAD = "PROC_APP_WORKER_REMINDER_LOAD";// 催单列表的数据加载
+    public static final String PROC_APP_REMINDER_DETAILS_LOAD = "PROC_APP_REMINDER_DETAILS_LOAD";// 催单详情的数据加载
+    public static final String PROC_SCS_YICHANG_SELECT = "PROC_SCS_YICHANG_SELECT";// 异常列表的数据加载
+    public static final String PROC_APP_ORDER_CALL_RECORD_SAVE = "PROC_APP_ORDER_CALL_RECORD_SAVE";// 保存通话记录
+    public static final String PROC_APP_MESSAGE_REMIND = "PROC_APP_MESSAGE_REMIND";// 更新技师是否提醒急速工单接口
+
+
+//    public static final String PROC_DATA_YCB_MESSAGE_ADD = "PROC_DATA_YCB_MESSAGE_ADD";//设置是否接单
+    public static final String PROC_APP_S_USER_STATUS_EDIT = "PROC_APP_S_USER_STATUS_EDIT";//设置是否接单
+
+    public static final String PROC_APP_MSG_DETAIL_LOAD = "PROC_APP_MSG_DETAIL_LOAD";// 消息明细加载
+
+    public static final int FROM_GONG = 1;//工单管理
+    public static final int FROM_YI = 2;//异常工单消息状态
+    public static final int FROM_ACCOUNT = 3;//结算消息状态
+
+    //喵师傅
+    public static final String TPID = "2797013908";//服务商标识 不知道填什么问@铭郎 要
+    public static final int SERVICE_TYPE = 3;//服务类型，0：家装的送货上门并安装，1：单向安装，2：建材的送货上门，3：建材的安装，4：建材的送货上门和安
+
+    public static final String APPLICATION_ID = "com.rubu";
+
+    //  重新架构的接口
+    //  注册相关
+    public static final String PROC_SET_REGISTER_TIANMAO_SERVICE_ABILITY = "PROC_APP_S_USER_STEP3_ADD_ABILITY_TYPE";// 获取服务能力
+    public static final String PROC_SET_REGISTER_BASE_INFO_ABILITY = "PROC_APP_S_USER_STEP3_ADD"; // 设置基本信息
+    public static final String PROC_GET_REGISTER_SERVICE_ABILITY = "PROC_APP_SERVICE_CONFIGURATION_LOAD";// 获取服务能力 （个人能力）
+    public static final String PROC_SET_REGISTER_SERVICE_ABILITY = "PROC_APP_SERVICE_CONFIGURATION_UPDATE";// 设置服务能力 （个人能力）
+    public static final String PROC_GET_REGISTER_AREA_ABILITY = "PROC_APP_WORKER_COVERAGE_AREA";// 获取覆盖能力 （个人能力）
+    public static final String PROC_SET_REGISTER_AREA_ABILITY = "PROC_APP_WORKER_COVERAGE_AREA_ADD";// 设置覆盖能力 （个人能力）
+    // 我的个人界面
+    public static final String PROC_MODIFY_MINE_ADDRESS = "PROC_APP_S_USER_ADDRESS_EDIT";// 修改个人地址
+    public static final String PROC_GET_DETIAL_DETIAL_LIST = "PROC_APP_WORKER_LIST_LOAD";// 拉取清单列表
+    public static final String PROC_GET_PUNISH_LIST = "PROC_SCS_PUNISH_SELECT";// 处罚列表的数据加载
+    public static final String PROC_GET_FINISH_ORDER_LIST = "PROC_APP_FINISHED_LOAD";// 完工清单列表的数据加载
+    public static final String PROC_GET_AUDIT_ORDER_LIST = "PROC_APP_RESERVE_AND_SERVICE_ADJUST_AUDIT";// 审核工单列表
+    public static final String PROC_SET_RED_DOT_PUNISH = "PROC_SCS_UPDATE_PUNISH_SIGN";// 处罚提醒列表 （设置红点）
+    public static final String PROC_SET_RED_DOT_UNUSUAL = "PROC_SCS_UPDATE_SELECT_SIGN";// 异常提示列表 （设置红点）
+    public static final String PROC_SET_RED_DOT_ORDER_REMINDER = "PROC_REMINDER_MESSAGE_UPDATE";// 异常提示列表 （设置红点）
+    public static final String PROC_GET_MSG_NEWS_NOTICE_LIST = "PROC_SCS_MSG_MENU_LOAD";// 消息列表新闻公告消息
+    public static final String PROC_GET_MSG_ORDER_REMINDER_LIST = "PROC_REMINDER_MESSAGE_LOAD";// 消息列表消息提醒列表
+    public static final String PROC_GET_MSG_DETIAL = "PROC_APP_SCS_MSG";// 消息详情加载
+    // 主页面
+    public static final String PROC_CHECK_USER_INFO = "PROC_APP_JS_EXAMINE";// 技师信息审核
+}

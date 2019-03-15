@@ -1,0 +1,140 @@
+package com.rubu.ui.act;
+
+import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
+import android.support.v7.widget.Toolbar;
+import android.view.View;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.base.BaseActivity;
+import com.rubu.base.TabFragAdapter;
+import com.rubu.constant.Constant;
+import com.rubu.constant.WorkerStatus;
+import com.rubu.event.EventCode;
+import com.rubu.event.EventMessage;
+import com.rubu.model.OrderNumModel;
+import com.rubu.net.ApiImp;
+import com.rubu.net.Params;
+import com.rubu.net.ReqJson;
+import com.rubu.ui.fragment.FmUtil;
+import com.rubu.util.LoginUtil;
+import com.rubu.view.commontablayout.SlidingTabLayout;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import butterknife.BindView;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
+/**
+ * Created by liuhaizhu on 2017/3/1.
+ * 已结算,作废
+ */
+public class AccountingOrderAct extends BaseActivity {
+    @BindView(R.id.title_left)
+    TextView mTitleLeft;
+    @BindView(R.id.title)
+    TextView mTitle;
+    @BindView(R.id.title_right_toolbar)
+    TextView mTitleRightToolbar;
+    @BindView(R.id.toolbar)
+    Toolbar mToolbar;
+    @BindView(R.id.tab_layout)
+    SlidingTabLayout mTabLayout;
+    @BindView(R.id.view_pager)
+    ViewPager mViewPager;
+
+    private final String[] mTitles = {"结算中  \n", "已结算  \n"};
+    private List<Fragment> mFragments;
+
+    @Override
+    protected int getViewId() {
+        return R.layout.act_order_abnormal;
+    }
+
+    @Override
+    protected void initEvent() {
+        initFragments();
+        mTitle.setText(R.string.accounting_order);
+        mTitleLeft.setText(R.string.back);
+        mTitleLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+        getOrderNum();
+    }
+
+
+    /**
+     * 初始化fragment
+     */
+    private void initFragments() {
+        mFragments = new ArrayList<>();
+        mFragments.add(FmUtil.getFrag(6, WorkerStatus.R_J_NO, Constant.FROM_ACCOUNT));
+        mFragments.add(FmUtil.getFrag(7, WorkerStatus.R_J_YES, Constant.FROM_ACCOUNT));
+        TabFragAdapter mTabFragAdapter = new TabFragAdapter(getSupportFragmentManager(), mTitles, mFragments);
+        mViewPager.setAdapter(mTabFragAdapter);
+        mViewPager.setOffscreenPageLimit(0);
+        mTabLayout.setViewPager(mViewPager);
+    }
+
+    @Override
+    public void onEventMainThread(EventMessage event) {
+        super.onEventMainThread(event);
+        //数量变化
+        if (event.action == EventCode.EVENT_ACCOUNTING_ORDER_NUM_CHANGE) {
+            switch (event.flag) {
+                case WorkerStatus.R_J_NO:
+                    mTitles[0] = "结算中\n " + event.num;
+                    setTextTitle(0);
+                    break;
+                case WorkerStatus.R_J_YES:
+                    mTitles[1] = "已结算\n " + event.num;
+                    setTextTitle(1);
+                    break;
+
+            }
+        }
+    }
+
+    private void setTextTitle(int pos) {
+        mTabLayout.getTitleView(pos).setText(mTitles[pos]);
+    }
+
+    private void getOrderNum() {
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_APP_ORDER_COUNT_LOAD);
+        reqJson.setUser_id(LoginUtil.getUserId(mContext));
+        reqJson.setHas_rows("yes");
+        mSubscription = ApiImp.get().getOrderNum(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<OrderNumModel>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onNext(OrderNumModel model) {
+                        if (model.getResult().getOut_Flag() == 0) {
+                            OrderNumModel.RowsBean bean = model.getRows().get(0);
+                            mTitles[0] = "   结算中\n " + bean.getCount_68();
+                            setTextTitle(0);
+                            mTitles[1] = "   已结算\n " + bean.getCount_69();
+                            setTextTitle(1);
+
+                        }
+                    }
+                });
+    }
+}

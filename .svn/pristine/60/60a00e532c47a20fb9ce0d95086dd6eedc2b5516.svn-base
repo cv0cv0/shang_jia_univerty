@@ -1,0 +1,378 @@
+package com.rubu.ui.fragment;
+
+import android.content.Intent;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.rubu.R;
+import com.rubu.base.BaseFragment;
+import com.rubu.constant.Constant;
+import com.rubu.model.FinishOrderModel;
+import com.rubu.net.ApiImp;
+import com.rubu.net.Params;
+import com.rubu.net.ReqJson;
+import com.rubu.ui.act.ActionPickAct;
+import com.rubu.ui.act.mine.MineAction;
+import com.rubu.ui.act.mine.model.FinishOrderContentBean;
+import com.rubu.ui.act.mine.model.FinishOrderTitleBean;
+import com.rubu.ui.act.mine.view.FinishContentItemView;
+import com.rubu.ui.act.mine.view.FinishTitleItemView;
+import com.rubu.util.LoginUtil;
+import com.rubu.util.StringUtil;
+import com.rubu.util.TimeUtil;
+import com.rubu.view.datepick.TimeSelector;
+import com.scwang.smartrefresh.layout.SmartRefreshLayout;
+import com.scwang.smartrefresh.layout.api.RefreshLayout;
+import com.scwang.smartrefresh.layout.listener.OnLoadmoreListener;
+import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
+
+import java.util.List;
+
+import butterknife.BindView;
+import butterknife.OnClick;
+import me.drakeet.multitype.Items;
+import me.drakeet.multitype.MultiTypeAdapter;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
+/**
+ * Created by 72732
+ * on 2018/6/14.
+ * 完工清单Fragment
+ */
+
+public class FmCompleteOrder extends BaseFragment {
+
+    @BindView(R.id.smare_fa_sha)
+    SmartRefreshLayout mRefreshLayout;
+    @BindView(R.id.recycle_view)
+    RecyclerView mRecycleView;
+    @BindView(R.id.ll_time)
+    LinearLayout mLLTime;
+    @BindView(R.id.tv_select_start_day)
+    TextView mTVStartDay;
+    @BindView(R.id.tv_select_end_day)
+    TextView mTVEndDay;
+    @BindView(R.id.tv_refresh_hint)
+    TextView mTVHint;
+    private MultiTypeAdapter multiTypeAdapter;
+    // 列表内容
+    private Items items = new Items();
+    // 分页加载
+    private int page = 1;
+    // 最大页数
+    private int maxPage;
+    // 哪个按钮触发的效果 (当天==0,7天==1,近30天==2,全部==3,更多==4)
+    private int flag;
+    // 开始开始时间截至时间
+    private String startTime, endTime;
+    TimeSelector mTimeSelector;
+
+    @Override
+    protected int getViewId() {
+        return R.layout.frag_complete_order;
+    }
+
+    @OnClick({R.id.confirm, R.id.tv_refresh_hint, R.id.tv_select_start_day, R.id.tv_select_end_day})
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.confirm:
+                if (StringUtil.isEmpty(startTime) || StringUtil.isEmpty(endTime)) {
+                    showToast("请先选择正确的时间");
+                    break;
+                }
+                mRefreshLayout.autoRefresh();
+                break;
+            case R.id.tv_refresh_hint:
+                // 没有数据重新刷新
+                mRefreshLayout.autoRefresh();
+                break;
+            case R.id.tv_select_start_day:
+                initTimeSelector(1);
+                break;
+            case R.id.tv_select_end_day:
+                initTimeSelector(2);
+                break;
+
+        }
+    }
+
+    @Override
+    protected void init() {
+        flag = getArguments().getInt("flag");
+        initRecycleView();
+        mRefreshLayout.setOnRefreshListener(new OnRefreshListener() {
+            @Override
+            public void onRefresh(RefreshLayout refreshlayout) {
+                loadData(MineAction.REFRESH);
+            }
+        });
+        mRefreshLayout.setOnLoadmoreListener(new OnLoadmoreListener() {
+            @Override
+            public void onLoadmore(RefreshLayout refreshlayout) {
+                loadData(MineAction.LOAD_MORE);
+            }
+        });
+        setTime(flag);
+        if (flag != 4) {
+            mRefreshLayout.autoRefresh();
+        } else {
+            mLLTime.setVisibility(View.VISIBLE);
+        }
+    }
+
+    // 初始化recycleView
+    private void initRecycleView() {
+        mRecycleView.setLayoutManager(new LinearLayoutManager(mContext));
+        multiTypeAdapter = new MultiTypeAdapter(items);
+        FinishTitleItemView finishTitleItemView = new FinishTitleItemView();
+        multiTypeAdapter.register(FinishOrderTitleBean.class, finishTitleItemView);
+        finishTitleItemView.setOnItemClickListenner(new FinishTitleItemView.OnItemClickListenner() {
+            @Override
+            public void onItemClick(FinishOrderTitleBean bean) {
+                Intent intent = new Intent(mContext, ActionPickAct.class);
+                Log.i("工单号", bean.getOrder_title_id() + "");
+                intent.putExtra("id", Long.valueOf(bean.getOrder_title_id()));
+                startActivity(intent);
+            }
+        });
+        FinishContentItemView finishContentItemView = new FinishContentItemView();
+        multiTypeAdapter.register(FinishOrderContentBean.class, finishContentItemView);
+        finishContentItemView.setOnItemClickListenner(new FinishContentItemView.OnItemClickListenner() {
+            @Override
+            public void onItemClick(FinishOrderContentBean bean) {
+                Intent intent = new Intent(mContext, ActionPickAct.class);
+                Log.i("工单号", bean.getOrder_title_id() + "");
+                intent.putExtra("id", Long.valueOf(bean.getOrder_title_id()));
+                startActivity(intent);
+            }
+        });
+        mRecycleView.setAdapter(multiTypeAdapter);
+    }
+
+    /**
+     * @param flag 0 == 当天 1 == 一个星期 2 == 当月 3 == 全部 4 == 自选时间 默认当天
+     */
+    private void setTime(int flag) {
+        long todayStartTime = TimeUtil.getToday0Time();
+        startTime = TimeUtil.getTime(todayStartTime);
+        long todayendTime = TimeUtil.getToday24Time();
+        endTime = TimeUtil.getTime(todayendTime);
+        switch (flag) {
+            case 0:
+                todayStartTime = TimeUtil.getToday0Time();
+                startTime = TimeUtil.getTime(todayStartTime);
+                break;
+            case 1:
+                startTime = TimeUtil.getDayBeforWeek();
+                break;
+            case 2:
+                String time = TimeUtil.castTime(TimeUtil.getCurrentTime(), TimeUtil.TIME_UNIT_STR, TimeUtil.TIME_UNIT_YEAR_month);
+                startTime = TimeUtil.castTime(time, TimeUtil.TIME_UNIT_YEAR_month, TimeUtil.TIME_UNIT_STR);
+                break;
+            case 3:
+                startTime = "";
+                endTime = "";
+                break;
+            case 4:
+                startTime = "";
+                endTime = "";
+                break;
+        }
+    }
+
+    private static final String TAG = "FmCompleteOrder";
+
+    /**
+     * @param type
+     */
+    private void initTimeSelector(final int type) {
+        String start = "2017年1月1日", end = TimeUtil.getDayCN();
+        // 设置开始选择时间的范围(  start,end  及控制自己的end就好)
+        if (!StringUtil.isEmpty(endTime) && type == 1) {
+            end = TimeUtil.castTime(endTime, TimeUtil.TIME_UNIT_STR, TimeUtil.TIME_UNIT_YEAR_CN);
+            Log.d(TAG, "initTimeSelector: endTime = " + endTime);
+            Log.d(TAG, "initTimeSelector: end = " + end);
+        }
+        // 设置截至时间的时间范围(  start,end  及控制自己的start就好)
+        if (!StringUtil.isEmpty(startTime) && type == 2) {
+            start = TimeUtil.castTime(startTime, TimeUtil.TIME_UNIT_STR, TimeUtil.TIME_UNIT_YEAR_CN);
+            Log.d(TAG, "initTimeSelector: startTime = " + startTime);
+            Log.d(TAG, "initTimeSelector: start = " + start);
+        }
+        if (mTimeSelector == null) {
+            mTimeSelector = new TimeSelector(mContext, new TimeSelector.ResultHandler() {
+                @Override
+                public void handle(String time, String week) {
+                    if (type == 1) {
+                        mTVStartDay.setText(time);
+                        startTime = TimeUtil.castTime(time + " 00:00:00", TimeUtil.TIME_UNIT_YEAR_CN_9, TimeUtil.TIME_UNIT_STR);
+
+                    }
+                    if (type == 2) {
+                        mTVEndDay.setText(time);
+                        endTime = TimeUtil.castTime(time + " 23:59:59", TimeUtil.TIME_UNIT_YEAR_CN_9, TimeUtil.TIME_UNIT_STR);
+                    }
+                    mTimeSelector = null;
+                }
+            }, start, end);
+            mTimeSelector.setCancelResultHandler(new TimeSelector.CancelResultHandler() {
+                @Override
+                public void cancelHandle() {
+                    mTimeSelector = null;
+                }
+            });
+        }
+        mTimeSelector.show(mTVEndDay);
+    }
+
+    /**
+     * 刷新数据
+     */
+    private View.OnClickListener mOnClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            mRefreshLayout.autoRefresh();
+        }
+    };
+
+    /**
+     * 加载数据
+     *
+     * @param action
+     */
+    private void loadData(final int action) {
+        if (action == MineAction.REFRESH) {
+            page = 1;
+            items.clear();
+            mRefreshLayout.setLoadmoreFinished(false);
+        }
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_GET_FINISH_ORDER_LIST);
+        reqJson.setS_user_id(LoginUtil.getUserId(mContext));
+        reqJson.setStart_time(startTime);
+        reqJson.setEnd_time(endTime);
+        reqJson.setPagecount(page);
+        reqJson.setHas_rows("yes");
+        mSubscription = ApiImp.get().getFinishOrder(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<FinishOrderModel>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        showToast("网络不给力");
+                        Log.i("拉取个人清单失败", e.toString());
+                        if (action == MineAction.REFRESH) {
+                            mRefreshLayout.finishRefresh(false);
+                        } else {
+                            mRefreshLayout.finishLoadmore(false);
+                        }
+                        Toast.makeText(mContext, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onNext(FinishOrderModel model) {
+                        if (model.getResult().getOut_Flag() == 0) {
+                            page++;
+                            int remainder = model.getResult().getOut_zhongtNum() % 10;
+                            maxPage = model.getResult().getOut_zhongtNum() / 10;
+                            if (remainder != 0) {
+                                maxPage++;
+                            }
+                            if (model.getRows1() != null) {
+                                transformData(model.getRows1());
+                            }
+                            if (page > maxPage) {
+                                mRefreshLayout.setLoadmoreFinished(true);
+                            }
+                            if (action == MineAction.REFRESH) {
+                                mRefreshLayout.finishRefresh();
+                            } else {
+                                mRefreshLayout.finishLoadmore();
+                            }
+                        } else {
+                            Toast.makeText(mContext, model.getResult().getOut_nszRtn(), Toast.LENGTH_SHORT).show();
+                            if (action == MineAction.REFRESH) {
+                                mRefreshLayout.finishRefresh(false);
+                            } else {
+                                mRefreshLayout.finishLoadmore(false);
+                            }
+                            if (items.isEmpty()) {
+                                mTVHint.setVisibility(View.VISIBLE);
+                            } else {
+                                mTVHint.setVisibility(View.GONE);
+                            }
+                        }
+                    }
+                });
+
+    }
+
+    // 转换数据
+    private void transformData(List<FinishOrderModel.Rows1Bean> list) {
+        String order_title_id_Old = "", order_title_id_new;
+        for (int i = 0; i < list.size(); i++) {
+            FinishOrderModel.Rows1Bean rows1Bean = list.get(i);
+            // 第0条
+            if (i == 0) {
+                order_title_id_Old = rows1Bean.getOrder_title_id();
+                // 添加一次父类
+                items.add(transformFinishOrderTitleBean(rows1Bean));
+                // 添加一次子类
+                items.add(transformFinishOrderContentBean(rows1Bean));
+            } else {
+
+                order_title_id_new = rows1Bean.getOrder_title_id();
+                if (order_title_id_new.equals(order_title_id_Old)) {
+                    // 添加一次子类
+                    items.add(transformFinishOrderContentBean(rows1Bean));
+                } else {
+                    // 添加一次父类
+                    items.add(transformFinishOrderTitleBean(rows1Bean));
+                    // 添加一次子类
+                    items.add(transformFinishOrderContentBean(rows1Bean));
+                }
+                order_title_id_Old = order_title_id_new;
+            }
+        }
+        if (!items.isEmpty()) {
+            mTVHint.setVisibility(View.GONE);
+        } else {
+            mTVHint.setVisibility(View.VISIBLE);
+        }
+        multiTypeAdapter.notifyDataSetChanged();
+    }
+
+    private FinishOrderTitleBean transformFinishOrderTitleBean(FinishOrderModel.Rows1Bean rows1Bean) {
+        Log.i("工单号", rows1Bean.getOrder_title_id() + "");
+        FinishOrderTitleBean titleBean = new FinishOrderTitleBean();
+        titleBean.setOrder_title_name(rows1Bean.getParent_wk_order_id());
+        titleBean.setmCouserName(rows1Bean.getBuyer_name());
+        titleBean.setOrder_title_id(rows1Bean.getOrder_title_id());
+        titleBean.setFinished_time(rows1Bean.getFinished_time());
+        return titleBean;
+    }
+
+    private FinishOrderContentBean transformFinishOrderContentBean(FinishOrderModel.Rows1Bean rows1Bean) {
+        Log.i("工单号", rows1Bean.getOrder_title_id() + "");
+        FinishOrderContentBean contentBean = new FinishOrderContentBean();
+        contentBean.setOrder_name(rows1Bean.getParent_wk_order_type() + " " + rows1Bean.getService_parent() + " " + rows1Bean.getAuction_sku_properties());
+        if (StringUtil.isEmpty(rows1Bean.getService_parent())) {
+            contentBean.setOrder_name(rows1Bean.getParent_wk_order_type() + " " + rows1Bean.getAuction_sku_properties());
+        }
+        contentBean.setOrder_count(rows1Bean.getService_count());
+        contentBean.setOrder_statue(rows1Bean.getCancel_flag());
+        contentBean.setOrder_title_id(rows1Bean.getOrder_title_id());
+        return contentBean;
+    }
+}

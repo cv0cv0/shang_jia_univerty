@@ -1,0 +1,38 @@
+package com.rubu.util;
+
+import android.content.Context;
+
+import com.rubu.R;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+
+/**
+ * Created by liuhaizhu on 2017/3/12.
+ */
+
+public class TxtUtil {
+    public static String getSSX(Context context) {
+        InputStream inputStream = context.getResources().openRawResource(R.raw.ssx);
+        InputStreamReader inputStreamReader = null;
+        try {
+            inputStreamReader = new InputStreamReader(inputStream, "gbk");
+        } catch (UnsupportedEncodingException e1) {
+            e1.printStackTrace();
+        }
+        BufferedReader reader = new BufferedReader(inputStreamReader);
+        StringBuffer sb = new StringBuffer("");
+        String line;
+        try {
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return sb.toString();
+    }
+}

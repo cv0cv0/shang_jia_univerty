@@ -1,0 +1,54 @@
+package com.rubu.ui.act.register.model;
+
+import java.io.Serializable;
+import java.util.List;
+
+/**
+ * Created by wenld on 2017/10/3.
+ */
+
+public class AreaGroupModel implements Serializable {
+    public AreaParentModel parent;
+    public List<AreaChildModel> children;
+
+    public boolean hasHeader() {
+        if (parent != null) {
+            return true;
+        }
+        return false;
+    }
+
+    public int getChildrenCount() {
+        if (children != null) {
+            return children.size();
+        }
+        return 0;
+    }
+
+    public boolean equalParent(Object parent) {
+        return this.parent == parent;
+    }
+
+//
+//    public int getChildSelect(){}
+
+    /**
+     * 判断是否有这样的子类
+     *
+     * @param child
+     * @return
+     */
+    public boolean equalChild(Object child) {
+        boolean isChild = false;
+        for (AreaChildModel model : children) {
+            if (child.equals(model)) {
+                isChild = true;
+            }
+        }
+        return isChild;
+    }
+
+    public int count() {
+        return hasHeader() ? 1 + getChildrenCount() : getChildrenCount();
+    }
+}

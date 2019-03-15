@@ -1,0 +1,373 @@
+package com.rubu.ui.act.mine;
+
+import android.Manifest;
+import android.annotation.TargetApi;
+import android.app.Activity;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
+import android.util.Log;
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.base.BaseActivity;
+import com.rubu.constant.Constant;
+import com.rubu.constant.SharePerenceCode;
+import com.rubu.model.InfoModel;
+import com.rubu.model.VersionModel;
+import com.rubu.net.ApiImp;
+import com.rubu.net.Params;
+import com.rubu.net.ReqJson;
+import com.rubu.pop.PopDialog;
+import com.rubu.ui.act.AbnormalOrderAct;
+import com.rubu.ui.act.ExamAct;
+import com.rubu.ui.act.HomeAct;
+import com.rubu.ui.act.TianMaoMallActivity;
+import com.rubu.ui.act.XYAct;
+import com.rubu.ui.act.login.model.UserInfoModel;
+import com.rubu.ui.act.register.RegisterBaseInfotAct;
+import com.rubu.ui.act.register.RegisterPersonalAbility;
+import com.rubu.ui.act.register.RegisterTianMaoServiceTypeAct;
+import com.rubu.util.DataCleanManager;
+import com.rubu.util.LoginUtil;
+import com.rubu.util.SPUtils;
+import com.rubu.util.StringUtil;
+import com.rubu.util.UpdateUtils;
+import com.rubu.util.UserInfoUtil;
+
+import butterknife.BindView;
+import butterknife.OnClick;
+import flutter.UniversityActivity;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
+/**
+ * Created by fly on 2017/3/2.
+ */
+
+public class MineAct extends BaseActivity {
+    private static final int PERMISSON_STORGE = 0x978;
+    private VersionModel mModel;
+    @BindView(R.id.title_left)
+    TextView titleLeft;
+    @BindView(R.id.title)
+    TextView title;
+    @BindView(R.id.title_right_toolbar)
+    TextView titleRightToolbar;
+    @BindView(R.id.tv_cache)
+    TextView tvCache;
+    @BindView(R.id.ll_name)
+    LinearLayout llName;
+    @BindView(R.id.tv_tel)
+    TextView mTvTel;
+    @BindView(R.id.tv_name)
+    TextView tv_name;
+    @BindView(R.id.text_mine_order_account)
+    TextView tv_order_account;
+    @BindView(R.id.tv_version)
+    TextView tv_version;
+    private String currentVersion;
+
+    private String mUserName;
+
+    // 审核通不通过
+    boolean isExam;
+    // 请求类型
+
+    @Override
+    protected int getViewId() {
+        return R.layout.activity_mine1;
+    }
+
+    @Override
+    protected void initEvent() {
+        try {
+            totalCacheSize = DataCleanManager.getTotalCacheSize(mContext);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        tvCache.setText(totalCacheSize);
+        title.setText("我的");
+        titleLeft.setText("返回");
+        titleRightToolbar.setText("消息");
+        titleLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onBackPressed();
+            }
+        });
+        titleRightToolbar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(mContext, MsgAct.class);
+                intent.putExtra("MsgType", 1);
+                startActivity(intent);
+//                intent.putExtra("url", Constant.BASE_URL + "scs/admin/msg_menu.jsp");
+            }
+        });
+//        currentVersion = PackInfoUtil.getVersion(mContext);
+        currentVersion = Constant.APP_VERSION;
+        tv_version.setText("V" + currentVersion);
+        isExam = (boolean) SPUtils.get(mContext, SharePerenceCode.SP_USER_EXAM_STATUE, true);
+//        getInfo();
+    }
+
+    @OnClick({R.id.ll_name, R.id.view_accounting_order, R.id.view_finish_order, R.id.view_check_order, R.id.ll_personal_ability,
+            R.id.ll_tianmao_service_ability, R.id.university_layout, R.id.view_accessories_mall, R.id.exam, R.id.ll_xieyi, R.id.view_clear_cache, R.id.view_version,
+            R.id.view_alert_reminder, R.id.view_alert_unusual, R.id.punish_reminder, R.id.ll_unnormal_order_list})
+    public void onClick(View view) {
+        Intent intent;
+        switch (view.getId()) {
+            // 个人信息
+            case R.id.ll_name:
+                // 审核和不通过也跳转重新注册的页面
+                Log.d("审核流程", "本地状态为：" + isExam);
+                Log.d("审核流程", "本地名字状态为：" + (StringUtil.isEmpty(LoginUtil.getUserName(mContext)) ? "名字信息为空" : "名字信息不为空"));
+                if (StringUtil.isEmpty(mUserName) || (!isExam)) {
+                    gotoNewAty(RegisterBaseInfotAct.class);
+                } else {
+                    gotoNewAty(MineBaseInfotAct.class);
+                }
+                break;
+            // 我的清单
+            case R.id.view_accounting_order:
+                gotoNewAty(MineDetialAccountAct.class);
+                break;
+            // 完工清单
+            case R.id.view_finish_order:
+                gotoNewAty(MineDetialFinishOrderAct.class);
+                break;
+            // 审核记录
+            case R.id.view_check_order:
+                gotoNewAty(CheckOrderAct.class);
+                break;
+            // 承接能力
+            case R.id.ll_personal_ability:
+                gotoNewAty(RegisterPersonalAbility.class);
+                break;
+            // 天猫服务能力
+            case R.id.ll_tianmao_service_ability:
+                gotoNewAty(RegisterTianMaoServiceTypeAct.class);
+                break;
+            case R.id.university_layout:
+                startActivity(new Intent(this, UniversityActivity.class));
+                break;
+            // 上家商城
+            case R.id.view_accessories_mall:
+                Intent intent1 = new Intent(this, TianMaoMallActivity.class);
+                intent1.putExtra("url", "https://weidian.com/?userid=821843049&infoType=1");
+                startActivity(intent1);
+                break;
+            // 考试
+            case R.id.exam:
+                intent = new Intent(this, ExamAct.class);
+                startActivity(intent);
+                break;
+            // 合作协议
+            case R.id.ll_xieyi:
+                gotoNewAty(XYAct.class);
+                break;
+            // 清除缓存
+            case R.id.view_clear_cache:
+                clearCache();
+                break;
+            // 版本更新
+            case R.id.view_version:
+                getVersion();
+                break;
+            // 异常提醒
+            case R.id.view_alert_unusual:
+                gotoNewAty(AlertUnusualAct.class);
+                break;
+            // 催单提醒
+            case R.id.view_alert_reminder:
+                gotoNewAty(AlertReminderAct.class);
+                break;
+            // 处罚列表
+            case R.id.punish_reminder: // 跳转到处罚提醒列表
+                gotoNewAty(AlertPunishAct.class);
+                break;
+            // 异常工单
+            case R.id.ll_unnormal_order_list:
+                gotoNewAty(AbnormalOrderAct.class);
+                break;
+        }
+    }
+
+    private PopDialog mDialogExit;
+
+    String totalCacheSize = "0MB";
+
+    /**
+     * 清除缓存
+     */
+    protected void clearCache() {
+        new AlertDialog.Builder(mContext).setTitle(R.string.tip).setMessage(R.string.is_clear_cache).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        }).setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+                DataCleanManager.cleanInternalCache(MineAct.this);
+                showToast("已清除" + totalCacheSize + "缓存");
+                totalCacheSize = "0MB";
+                tvCache.setText(totalCacheSize);
+            }
+        }).create().show();
+    }
+
+    private void getInfo() {
+        SPUtils.remove(mContext, "userInfo");
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_APP_S_USER_LOAD);
+        reqJson.setUser_id(LoginUtil.getUserId(mContext));
+        reqJson.setHas_rows("yes");
+        mSubscription = ApiImp.get().info(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<InfoModel>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        showToast("网络不给力");
+                        Log.i("个人信息错误", e.toString());
+                    }
+
+                    @Override
+                    public void onNext(InfoModel model) {
+                        if (model.getResult().getOut_Flag() == 0) {
+                            UserInfoModel userInfoModel = new UserInfoModel();
+                            userInfoModel.setS_user_id(model.getRows().get(0).getS_user_id());
+                            userInfoModel.setS_user_name(model.getRows().get(0).getS_user_name());
+                            userInfoModel.setS_bind_tel(model.getRows().get(0).getS_bind_tel());
+                            userInfoModel.setS_idcard_no(model.getRows().get(0).getS_idcard_no());
+                            userInfoModel.setS_region_tag(model.getRows().get(0).getS_region_tag());
+                            userInfoModel.setS_Street(model.getRows().get(0).getStreet_name());
+                            userInfoModel.setS_address(model.getRows().get(0).getS_address());
+                            userInfoModel.setS_org_name(model.getRows().get(0).getS_org_name());
+                            userInfoModel.setS_bank_account(model.getRows().get(0).getS_bank_account());
+                            userInfoModel.setS_user_account(model.getRows().get(0).getS_user_account());
+                            userInfoModel.setS_is_taking(model.getRows().get(0).getS_is_taking());
+                            userInfoModel.setService_ability_name(model.getRows1().get(0).getService_ability_name());
+                            mTvTel.setText(userInfoModel.getS_bind_tel());
+                            mUserName = userInfoModel.getS_user_name();
+                            Log.d(TAG, "onNext: mUserName" + mUserName);
+                            if (!StringUtil.isEmpty(mUserName) && isExam) {
+                                if (0 == model.getRows().get(0).getS_is_taking() || ("N").equals(model.getRows().get(0).getS_org_show_status())) {
+                                    tv_order_account.setText("");
+                                } else {
+                                    tv_order_account.setText(model.getRows().get(0).getTotal_fee() + "");
+                                }
+                                tv_name.setText(model.getRows().get(0).getS_user_name());
+                                tv_name.setTextColor(getResources().getColor(R.color.black));
+                            } else {
+                                tv_name.setText("请完善信息");
+                                tv_name.setTextColor(getResources().getColor(R.color.red_light));
+                                tv_order_account.setText("");
+                            }
+                            UserInfoUtil.getInfo(mContext);
+                            // 审核和通过或者待审的情况下才保存到本地,否则审核和不通过不保存到本地
+                            if (isExam) {
+                                UserInfoUtil.saveInfo(mContext, userInfoModel);
+                                Log.d("审核流程", "保存本地数据");
+                                String name = UserInfoUtil.getUserName(mContext);
+                                Log.d("审核流程", "本地名字为：" + name);
+                            }
+                        }
+                    }
+                });
+    }
+
+//    private void setIsPick() {
+//        if (model.getRows().get(0).getS_is_taking() == 2) {
+//            ibtnStop.setSelected(true);
+//        } else {
+//            ibtnStop.setSelected(false);
+//        }
+//    }
+
+    /**
+     * 获取版本更新功能
+     */
+    private void getVersion() {
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_DATA_APP_VERSION_UPDATE);
+        mSubscription = ApiImp.get().getVersion(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<VersionModel>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onNext(VersionModel model) {
+                        if (model.getResult().getOut_Flag() == 0) {
+                            mModel = model;
+                            if (!currentVersion.equals(model.getRows().get(0).getVersion())) {
+                                checkPermission();
+                            }
+                        } else {
+                            showToast(model.getResult().getOut_nszRtn());
+                        }
+                    }
+                });
+    }
+
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    private void checkPermission() {
+        if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            //应用还未获取读取本地文件 的权限，询问是否允许
+            ActivityCompat.requestPermissions((Activity) mContext, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSON_STORGE);
+        } else {
+            UpdateUtils.alertDownload(mContext, mModel.getRows().get(0), 0);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSON_STORGE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                UpdateUtils.alertDownload(mContext, mModel.getRows().get(0), 0);
+            } else {
+                showToast("权限被禁止");
+            }
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        gotoNewAty(HomeAct.class);
+        finish();
+    }
+
+    private static final String TAG = "MineAct";
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume: onResume");
+        getInfo();
+    }
+}

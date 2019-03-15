@@ -1,0 +1,179 @@
+package com.rubu.ui.act;
+
+import android.content.Intent;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.adapter.RemarkerListAdapter;
+import com.rubu.base.BaseActivity;
+import com.rubu.constant.Constant;
+import com.rubu.model.FenModel;
+import com.rubu.model.RemarkerModel;
+import com.rubu.net.ApiImp;
+import com.rubu.net.Params;
+import com.rubu.net.ReqJson;
+import com.rubu.util.StringUtil;
+import com.rubu.view.AutoListView;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import butterknife.BindView;
+import butterknife.OnClick;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
+/**
+ * Created by liuhaizhu on 2017/3/6.
+ */
+
+public class RemarksAct extends BaseActivity {
+    @BindView(R.id.title_left)
+    TextView mTitleLeft;
+    @BindView(R.id.title)
+    TextView mTitle;
+    @BindView(R.id.tv_time)
+    TextView mTvTime;
+    @BindView(R.id.tv_remark)
+    TextView tv_remark;
+    @BindView(R.id.toolbar)
+    Toolbar mToolbar;
+    @BindView(R.id.btn_edit)
+    Button mBTNEdit;
+    @BindView(R.id.remarker_list)
+    AutoListView mListView;
+
+    @OnClick(R.id.btn_edit)
+    void onEdit() {
+        Intent intent = new Intent(mContext, RemarksEditAct.class);
+        intent.putExtra("remark", remark);
+        intent.putExtra("updatetime", updatetime);
+        intent.putExtra("id", order_title_id);
+        startActivity(intent);
+        finish();
+    }
+
+    private long order_title_id;
+    private String updatetime;
+    private String remark, time, userName;
+    // 工单状态（如果是 68,69 代表是完成的工单,不可以编辑）
+    private int orderStatus;
+
+    @Override
+    protected int getViewId() {
+        return R.layout.act_remarks;
+    }
+
+    @Override
+    protected void initEvent() {
+        mTitleLeft.setText(R.string.back);
+        mTitleLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+        mTitle.setText(R.string.remark);
+        order_title_id = getIntent().getLongExtra("id", 0);
+        remark = getIntent().getStringExtra("remark");
+        orderStatus = getIntent().getIntExtra("order_status",0);
+        if (orderStatus==68||orderStatus==69){
+            mBTNEdit.setVisibility(View.INVISIBLE);
+        }
+        updatetime = getIntent().getStringExtra("updatetime");
+        if (!StringUtil.isEmpty(remark)) {
+            tv_remark.setText(remark);
+            mTvTime.setText("最近更新时间：" + updatetime);
+        } else {
+            tv_remark.setText("暂无备注信息");
+            mTvTime.setVisibility(View.INVISIBLE);
+        }
+        getFen();
+    }
+
+    private void getFen() {
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_APP_ALLORDER_MARK_LOAD);
+        reqJson.setOrder_title_id(String.valueOf(order_title_id));
+        mSubscription = ApiImp.get().getFen(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<FenModel>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onNext(FenModel model) {
+                        if (model.getResult().getOut_Flag() == 0) {
+                            List<RemarkerModel> mList = new ArrayList<>();
+                            mList = getData(model);
+                            Log.i("备注集合长度", mList.size() + "");
+                            RemarkerListAdapter adapter = new RemarkerListAdapter(mContext, mList);
+                            mListView.setAdapter(adapter);
+                        }
+                    }
+                });
+    }
+
+    /**
+     * 转换备注内容
+     *
+     * @param model
+     * @return
+     */
+    private List<RemarkerModel> getData(FenModel model) {
+        List<RemarkerModel> list = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            RemarkerModel remarkerModel = new RemarkerModel();
+            switch (i) {
+                //  分站备注
+                case 0:
+                    if (!StringUtil.isEmpty(model.getRows().get(0).getRemark_operator_id())) {
+                        remarkerModel.setmTitle("分站备注");
+                        remarkerModel.setmContent(model.getRows().get(0).getS_org_remark());
+                        remarkerModel.setmOperater(model.getRows().get(0).getRemark_operator_id());
+                        remarkerModel.setmOperateTime(model.getRows().get(0).getRemark_time());
+                        list.add(remarkerModel);
+                    }
+                    break;
+                // 运营备注
+                case 1:
+                    if (!StringUtil.isEmpty(model.getRows().get(0).getOperater_operator_id())) {
+                        remarkerModel.setmTitle("运营备注");
+                        remarkerModel.setmContent(model.getRows().get(0).getOperater_remark());
+                        remarkerModel.setmOperater(model.getRows().get(0).getOperater_operator_id());
+                        remarkerModel.setmOperateTime(model.getRows().get(0).getOperater_updatetime());
+                        list.add(remarkerModel);
+                    }
+                    break;
+                // 商务备注
+                case 2:
+                    if (!StringUtil.isEmpty(model.getRows().get(0).getBusiness_operator())) {
+                        remarkerModel.setmTitle("商户备注");
+                        remarkerModel.setmContent(model.getRows().get(0).getBusiness_note());
+                        remarkerModel.setmOperater(model.getRows().get(0).getBusiness_operator());
+                        remarkerModel.setmOperateTime(model.getRows().get(0).getBusiness_time());
+                        list.add(remarkerModel);
+                    }
+                    break;
+            }
+        }
+        return list;
+    }
+}
+
+
+

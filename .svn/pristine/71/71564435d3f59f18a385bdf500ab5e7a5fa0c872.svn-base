@@ -1,0 +1,156 @@
+package com.rubu.ui.act;
+
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.Build;
+import android.util.DisplayMetrics;
+import android.util.Log;
+import android.view.KeyEvent;
+import android.view.View;
+import android.webkit.WebChromeClient;
+import android.webkit.WebResourceResponse;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+
+import com.rubu.R;
+import com.rubu.base.BaseActivity;
+
+import java.io.IOException;
+
+import butterknife.BindView;
+
+
+/**
+ * Created by Administrator on 2017/4/10.
+ */
+
+public class TMWebviewAct extends BaseActivity {
+
+    @BindView(R.id.web)
+    WebView webView;
+    private String weburl;
+
+    private static final String INJECTION_TOKEN = "**injection**";
+
+    @Override
+    protected int getViewId() {
+        return R.layout.act_tmorder_detail;
+    }
+
+    @Override
+    protected void initEvent() {
+        weburl = getIntent().getStringExtra("weburl");
+        if (Build.VERSION.SDK_INT >= 19) // KITKAT
+        {
+            webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+        }
+
+        WebSettings webSettings = webView.getSettings();
+        webSettings.setJavaScriptEnabled(true);
+
+
+        // User settings
+
+        webSettings.setJavaScriptEnabled(true);
+        webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
+        webSettings.setUseWideViewPort(true);//关键点
+
+        webSettings.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.SINGLE_COLUMN);
+
+        webSettings.setDisplayZoomControls(false);
+        webSettings.setJavaScriptEnabled(true); // 设置支持javascript脚本
+        webSettings.setAllowFileAccess(true); // 允许访问文件
+        webSettings.setBuiltInZoomControls(true); // 设置显示缩放按钮
+        webSettings.setSupportZoom(true); // 支持缩放
+
+
+        webSettings.setLoadWithOverviewMode(true);
+
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        int mDensity = metrics.densityDpi;
+        Log.d("maomao", "densityDpi = " + mDensity);
+        if (mDensity == 240) {
+            webSettings.setDefaultZoom(WebSettings.ZoomDensity.FAR);
+        } else if (mDensity == 160) {
+            webSettings.setDefaultZoom(WebSettings.ZoomDensity.MEDIUM);
+        } else if (mDensity == 120) {
+            webSettings.setDefaultZoom(WebSettings.ZoomDensity.CLOSE);
+        } else if (mDensity == DisplayMetrics.DENSITY_XHIGH) {
+            webSettings.setDefaultZoom(WebSettings.ZoomDensity.FAR);
+        } else if (mDensity == DisplayMetrics.DENSITY_TV) {
+            webSettings.setDefaultZoom(WebSettings.ZoomDensity.FAR);
+        } else {
+            webSettings.setDefaultZoom(WebSettings.ZoomDensity.MEDIUM);
+        }
+
+
+        /**
+         * 用WebView显示图片，可使用这个参数 设置网页布局类型： 1、LayoutAlgorithm.NARROW_COLUMNS ：
+         * 适应内容大小 2、LayoutAlgorithm.SINGLE_COLUMN:适应屏幕，内容将自动缩放
+         */
+        webSettings.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.NARROW_COLUMNS);
+
+        webView.loadUrl(weburl);
+
+        webView.setWebChromeClient(new WebChromeClient() {
+
+            @Override
+            public void onProgressChanged(WebView view, int newProgress) {
+                // Log.i("info", newProgress+"");
+               /* if(newProgress==100){
+                    progressBar.setVisibility(View.GONE);
+                }*/
+
+            }
+        });
+
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                if (url.startsWith("http:") || url.startsWith("https:")) {
+                    return false;
+                }
+                try {
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                    startActivity(intent);
+                } catch (Exception e) {
+                }
+                return true;
+            }
+
+            @Override
+            public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                super.onPageStarted(view, url, favicon);
+            }
+
+            @Override
+            public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
+                WebResourceResponse response = super.shouldInterceptRequest(view, url);
+                if (url != null && url.contains(INJECTION_TOKEN)) {
+                    String assetPath = url.substring(url.indexOf(INJECTION_TOKEN) + INJECTION_TOKEN.length(), url.length());
+                    try {
+                        response = new WebResourceResponse(
+                                "application/javascript",
+                                "UTF8",
+                                getAssets().open(assetPath)
+                        );
+                    } catch (IOException e) {
+                        e.printStackTrace(); // Failed to load asset file
+                    }
+                }
+                return response;
+            }
+        });
+    }
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && webView.canGoBack()) {
+            webView.goBack();// 返回前一个页面
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+}

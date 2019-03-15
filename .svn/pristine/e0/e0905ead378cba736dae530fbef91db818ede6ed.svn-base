@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
+
+    <include layout="@layout/toolbar"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_marginLeft="@dimen/item_margin"
+        android:gravity="center_vertical"
+        android:text="遇到问题"
+        android:textColor="@color/red_dark"
+        android:textSize="@dimen/text_large"/>
+    <TextView
+        android:id="@+id/tv_question"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/item_margin"
+        android:gravity="center_vertical"
+        android:textColor="@color/gray_dark"
+        android:textSize="@dimen/text_large"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_height="50dp"
+        android:layout_marginLeft="@dimen/item_margin"
+        android:gravity="center_vertical"
+        android:text="处理结果"
+        android:textColor="@color/text_blue"
+        android:textSize="@dimen/text_large"/>
+    <TextView
+        android:id="@+id/tv_result"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/item_margin"
+        android:gravity="center_vertical"
+        android:textColor="@color/gray_dark"
+        android:textSize="@dimen/text_large"/>
+    <Button
+        android:id="@+id/btn_next"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:layout_marginLeft="@dimen/item_margin"
+        android:layout_marginRight="@dimen/item_margin"
+        android:layout_marginTop="28dp"
+        android:background="@color/blue_dark"
+        android:text="进入此工单"
+        android:textColor="@android:color/white"
+        android:textSize="@dimen/text_large"/>
+</LinearLayout>

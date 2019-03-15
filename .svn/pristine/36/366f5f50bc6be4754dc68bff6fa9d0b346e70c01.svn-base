@@ -1,0 +1,122 @@
+package com.rubu.ui.act.mine;
+
+import android.content.Intent;
+import android.view.View;
+import android.widget.ListView;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.adapter.AlertReminderAdapter;
+import com.rubu.base.BaseActivity;
+import com.rubu.constant.Constant;
+import com.rubu.model.AlertReminderModel;
+import com.rubu.net.ApiImp;
+import com.rubu.net.Params;
+import com.rubu.net.ReqJson;
+import com.rubu.util.LoginUtil;
+
+import butterknife.BindView;
+import butterknife.OnClick;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/9/13
+ * Vwesion 1.0
+ * Dsscription: 催单提醒列表
+ */
+
+public class AlertReminderAct extends BaseActivity {
+    @BindView(R.id.title)
+    TextView mTitle;
+    @BindView(R.id.title_left)
+    TextView mTitleLeft;
+    @BindView(R.id.remider_list)
+    ListView mRemiderListView;
+
+    private AlertReminderAdapter mAdapter;
+
+    @Override
+    protected int getViewId() {
+        return R.layout.act_alert_unusual;
+    }
+
+    @Override
+    protected void initEvent() {
+        mTitle.setText("催单提醒");
+        mTitleLeft.setText(R.string.back);
+        mTitleLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+
+            }
+        });
+        getRemiderList();
+    }
+
+    @OnClick({R.id.title_left})
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.title_left:
+                finish();
+                break;
+        }
+    }
+
+    /**
+     * 获取催单提醒列表内容
+     */
+    private void getRemiderList() {
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_APP_WORKER_REMINDER_LOAD);
+        reqJson.setS_user_id(LoginUtil.getUserId(mContext));
+        mSubscription = ApiImp.get().getReminderList(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<AlertReminderModel>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onNext(AlertReminderModel model) {
+                        int flag = model.getResult().getOut_Flag();
+                        if (flag == 0) {
+                            if (mAdapter != null) {
+                                mAdapter.refresh(model.getRows());
+                            } else {
+                                mAdapter = new AlertReminderAdapter(mContext, model.getRows());
+                                mRemiderListView.setAdapter(mAdapter);
+                                mAdapter.setmItemOnclick(new AlertReminderAdapter.ItemOnclick() {
+                                    @Override
+                                    public void onClick(int reminderId) {
+                                        // TODO: 2017/9/14 跳转到详情页面
+                                        Intent intent = new Intent(mContext, ReminderOrderDetialAct.class);
+                                        // 催单ID
+                                        intent.putExtra(("ReminderId"), reminderId);
+                                        mContext.startActivity(intent);
+                                    }
+                                });
+                            }
+                        } else {
+                            showToast(model.getResult().getOut_nszRtn());
+                        }
+                    }
+                });
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
+    }
+}

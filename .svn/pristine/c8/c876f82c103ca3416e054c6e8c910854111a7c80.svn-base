@@ -1,0 +1,88 @@
+package com.rubu.city;
+
+import java.util.List;
+
+/**
+ * Created by liuhaizhu on 2017/3/12.
+ */
+
+public class AreaModel {
+
+    private List<ListBeanXX> list;
+
+    public List<ListBeanXX> getList() {
+        return list;
+    }
+
+    public void setList(List<ListBeanXX> list) {
+        this.list = list;
+    }
+
+    public static class ListBeanXX {
+        /**
+         * name : 北京
+         * list : [{"name":"北京","list":[{"name":"昌平"},{"name":"朝阳"},{"name":"大兴"},{"name":"东城"},{"name":"房山"},{"name":"丰台"},{"name":"海淀"},{"name":"怀柔"},{"name":"门头沟"},{"name":"密云"},{"name":"平谷"},{"name":"石景山"},{"name":"顺义"},{"name":"通州"},{"name":"西城"},{"name":"延庆"}]}]
+         */
+
+        private String name;
+        private List<ListBeanX> list;
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public List<ListBeanX> getList() {
+            return list;
+        }
+
+        public void setList(List<ListBeanX> list) {
+            this.list = list;
+        }
+
+        public static class ListBeanX {
+            /**
+             * name : 北京
+             * list : [{"name":"昌平"},{"name":"朝阳"},{"name":"大兴"},{"name":"东城"},{"name":"房山"},{"name":"丰台"},{"name":"海淀"},{"name":"怀柔"},{"name":"门头沟"},{"name":"密云"},{"name":"平谷"},{"name":"石景山"},{"name":"顺义"},{"name":"通州"},{"name":"西城"},{"name":"延庆"}]
+             */
+
+            private String name;
+            private List<ListBean> list;
+
+            public String getName() {
+                return name;
+            }
+
+            public void setName(String name) {
+                this.name = name;
+            }
+
+            public List<ListBean> getList() {
+                return list;
+            }
+
+            public void setList(List<ListBean> list) {
+                this.list = list;
+            }
+
+            public static class ListBean {
+                /**
+                 * name : 昌平
+                 */
+
+                private String name;
+
+                public String getName() {
+                    return name;
+                }
+
+                public void setName(String name) {
+                    this.name = name;
+                }
+            }
+        }
+    }
+}

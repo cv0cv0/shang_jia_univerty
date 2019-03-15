@@ -1,0 +1,194 @@
+package com.rubu.model;
+
+import java.util.List;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/11/6
+ * Vwesion 1.0
+ * Dsscription: 完工单子的操作
+ */
+
+public class FinishOrderModel {
+
+    /**
+     * result : {"out_nszRtn":"加载成功 !","out_Flag":0,"out_zhongtNum":82}
+     * rows1 : [{"order_title_id":10112,"parent_wk_order_id":"BD17190681154703","buyer_name":"路远","cancel_flag":"完工","parent_wk_order_type":"安装","service_parent":null,"auction_sku_properties":"电视机","service_count":1},{"order_title_id":10299,"parent_wk_order_id":"BD17191308460539","buyer_name":"路远","cancel_flag":"完工","parent_wk_order_type":"安装","service_parent":null,"auction_sku_properties":"电视机","service_count":1},{"order_title_id":20112,"parent_wk_order_id":"BD17191511064020","buyer_name":"路远","cancel_flag":"完工","parent_wk_order_type":"安装","service_parent":null,"auction_sku_properties":"电视机","service_count":1},{"order_title_id":32374,"parent_wk_order_id":"TM17203441954923","buyer_name":"周红","cancel_flag":"完工","parent_wk_order_type":"安装","service_parent":null,"auction_sku_properties":"挂钩/挂衣钩","service_count":1},{"order_title_id":32374,"parent_wk_order_id":"TM17203441954923","buyer_name":"周红","cancel_flag":"完工","parent_wk_order_type":"安装","service_parent":null,"auction_sku_properties":"卫浴五金套件","service_count":2},{"order_title_id":32378,"parent_wk_order_id":"TM17203441960200","buyer_name":"陶柳红","cancel_flag":"完工","parent_wk_order_type":"安装","service_parent":null,"auction_sku_properties":"淋浴花洒龙头(套装)","service_count":1},{"order_title_id":32380,"parent_wk_order_id":"TM17203441967975","buyer_name":"梁林","cancel_flag":"完工","parent_wk_order_type":"安装","service_parent":null,"auction_sku_properties":"淋浴花洒龙头(套装)","service_count":1},{"order_title_id":32382,"parent_wk_order_id":"TM17203441960015","buyer_name":"任先生","cancel_flag":"完工","parent_wk_order_type":"安装","service_parent":null,"auction_sku_properties":"一体智能坐便器","service_count":1},{"order_title_id":32382,"parent_wk_order_id":"TM17203441960015","buyer_name":"任先生","cancel_flag":"完工","parent_wk_order_type":"安装","service_parent":null,"auction_sku_properties":"普通坐便器","service_count":1},{"order_title_id":32386,"parent_wk_order_id":"TM17203441972096","buyer_name":"李岱","cancel_flag":"完工","parent_wk_order_type":"安装","service_parent":null,"auction_sku_properties":"一体智能坐便器","service_count":1},{"order_title_id":32387,"parent_wk_order_id":"TM17203441970589","buyer_name":"王蕾","cancel_flag":"完工","parent_wk_order_type":"安装","service_parent":null,"auction_sku_properties":"浴室柜组合","service_count":1},{"order_title_id":32643,"parent_wk_order_id":"BD17206865120964","buyer_name":"路远","cancel_flag":"完工","parent_wk_order_type":"安装","service_parent":null,"auction_sku_properties":"电视机","service_count":1}]
+     * rows : [{"order_title_id":10112},{"order_title_id":10299},{"order_title_id":20112},{"order_title_id":32374},{"order_title_id":32378},{"order_title_id":32380},{"order_title_id":32382},{"order_title_id":32386},{"order_title_id":32387},{"order_title_id":32643}]
+     */
+
+    private ResultBean result;
+    private List<Rows1Bean> rows1;
+    private List<RowsBean> rows;
+
+    public ResultBean getResult() {
+        return result;
+    }
+
+    public void setResult(ResultBean result) {
+        this.result = result;
+    }
+
+    public List<Rows1Bean> getRows1() {
+        return rows1;
+    }
+
+    public void setRows1(List<Rows1Bean> rows1) {
+        this.rows1 = rows1;
+    }
+
+    public List<RowsBean> getRows() {
+        return rows;
+    }
+
+    public void setRows(List<RowsBean> rows) {
+        this.rows = rows;
+    }
+
+    public static class ResultBean {
+        /**
+         * out_nszRtn : 加载成功 !
+         * out_Flag : 0
+         * out_zhongtNum : 82
+         */
+
+        private String out_nszRtn;
+        private int out_Flag;
+        private int out_zhongtNum;
+
+        public String getOut_nszRtn() {
+            return out_nszRtn;
+        }
+
+        public void setOut_nszRtn(String out_nszRtn) {
+            this.out_nszRtn = out_nszRtn;
+        }
+
+        public int getOut_Flag() {
+            return out_Flag;
+        }
+
+        public void setOut_Flag(int out_Flag) {
+            this.out_Flag = out_Flag;
+        }
+
+        public int getOut_zhongtNum() {
+            return out_zhongtNum;
+        }
+
+        public void setOut_zhongtNum(int out_zhongtNum) {
+            this.out_zhongtNum = out_zhongtNum;
+        }
+    }
+
+    public static class Rows1Bean {
+        /**
+         * order_title_id : 10112
+         * parent_wk_order_id : BD17190681154703
+         * buyer_name : 路远
+         * cancel_flag : 完工
+         * parent_wk_order_type : 安装
+         * service_parent : null
+         * auction_sku_properties : 电视机
+         * service_count : 1.0
+         */
+
+        private String order_title_id;
+        private String parent_wk_order_id;
+        private String buyer_name;
+        private String cancel_flag;
+        private String parent_wk_order_type;
+        private String service_parent;
+        private String auction_sku_properties;
+        private String finished_time;
+        private double service_count;
+
+        public String getOrder_title_id() {
+            return order_title_id;
+        }
+
+        public void setOrder_title_id(String order_title_id) {
+            this.order_title_id = order_title_id;
+        }
+
+        public String getParent_wk_order_id() {
+            return parent_wk_order_id;
+        }
+
+        public void setParent_wk_order_id(String parent_wk_order_id) {
+            this.parent_wk_order_id = parent_wk_order_id;
+        }
+
+        public String getBuyer_name() {
+            return buyer_name;
+        }
+
+        public void setBuyer_name(String buyer_name) {
+            this.buyer_name = buyer_name;
+        }
+
+        public String getCancel_flag() {
+            return cancel_flag;
+        }
+
+        public void setCancel_flag(String cancel_flag) {
+            this.cancel_flag = cancel_flag;
+        }
+
+        public String getParent_wk_order_type() {
+            return parent_wk_order_type;
+        }
+
+        public void setParent_wk_order_type(String parent_wk_order_type) {
+            this.parent_wk_order_type = parent_wk_order_type;
+        }
+
+        public String getService_parent() {
+            return service_parent;
+        }
+
+        public void setService_parent(String service_parent) {
+            this.service_parent = service_parent;
+        }
+
+        public String getAuction_sku_properties() {
+            return auction_sku_properties;
+        }
+
+        public void setAuction_sku_properties(String auction_sku_properties) {
+            this.auction_sku_properties = auction_sku_properties;
+        }
+
+        public String getFinished_time() {
+            return finished_time;
+        }
+
+        public void setFinished_time(String finished_time) {
+            this.finished_time = finished_time;
+        }
+
+        public double getService_count() {
+            return service_count;
+        }
+
+        public void setService_count(double service_count) {
+            this.service_count = service_count;
+        }
+    }
+
+    public static class RowsBean {
+        /**
+         * order_title_id : 10112
+         */
+
+        private int order_title_id;
+
+        public int getOrder_title_id() {
+            return order_title_id;
+        }
+
+        public void setOrder_title_id(int order_title_id) {
+            this.order_title_id = order_title_id;
+        }
+    }
+}

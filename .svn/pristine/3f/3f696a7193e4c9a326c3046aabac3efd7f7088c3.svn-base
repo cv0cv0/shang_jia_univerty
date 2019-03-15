@@ -1,0 +1,104 @@
+package com.rubu.adapter;
+
+import android.content.Context;
+import android.support.v4.content.ContextCompat;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.base.BaseListAdapter;
+import com.rubu.model.Order;
+import com.rubu.util.StringUtil;
+
+import java.util.List;
+
+/**
+ * Created by liuhaizhu on 2017/3/2.
+ * 附加服务适配器
+ */
+
+public class AdditionalServiceListAdapter extends BaseListAdapter<Order.Rows4Bean> {
+    private Boolean flag;
+    private List<Order.Rows1Bean> rows1list;
+    private int colorBlack;
+    private int colorGray;
+
+    public AdditionalServiceListAdapter(Context context, List<Order.Rows4Bean> list, List<Order.Rows1Bean> rows1list) {
+        super(context, list);
+        this.flag = ("Y").equals(rows1list.get(0).getS_org_show_status());
+        this.rows1list = rows1list;
+        colorBlack = ContextCompat.getColor(context, R.color.black);
+        colorGray = ContextCompat.getColor(context, R.color.gray_light);
+    }
+
+    @Override
+    public View initView(Order.Rows4Bean s, View convertView, ViewGroup parent) {
+        ViewHolder holder;
+        if (convertView == null) {
+            LayoutInflater mInflater = LayoutInflater.from(parent.getContext());
+            convertView = mInflater.inflate(R.layout.item_additional_list, null);
+            holder = new ViewHolder();
+            holder.mLeftTV = (TextView) convertView.findViewById(R.id.additional_left_tv);
+            holder.mRightTV = (TextView) convertView.findViewById(R.id.additional_right_tv);
+            holder.mServiceNum = (TextView) convertView.findViewById(R.id.additional_service_num);
+            convertView.setTag(holder);
+        } else {
+            holder = (ViewHolder) convertView.getTag();
+        }
+//        holder.mLeftTV.setText(s.getService_name());
+//        holder.mRightTV.setText(s.getService_price());
+        holder.mLeftTV.setText((StringUtil.isEmpty(s.getService_name()))?"暂无":s.getService_name());
+        if (flag) {
+            holder.mRightTV.setVisibility(View.VISIBLE);
+        }else {
+            holder.mRightTV.setVisibility(View.INVISIBLE);
+        }
+        holder.mRightTV.setText((StringUtil.isEmpty(s.getUnit_price()+""))?"暂无":s.getUnit_price()+"");
+        holder.mServiceNum.setText((StringUtil.isEmpty(s.getService_num()+""))?"×1":"×"+s.getService_num());
+
+        //被取消的商品对应的附加服务是否被取消置灰
+        for (Order.Rows1Bean rows1:rows1list
+             ) {
+            if(rows1.getOrder_sub_id()==s.getOrder_sub_id()){
+                int getReceive_status = (int) Math.ceil(Double.valueOf(rows1.getReceive_status()));
+                if (rows1.getCancel_flag()==0&&getReceive_status!=12) {
+                    holder.mLeftTV.setTextColor(colorBlack);
+                    holder.mRightTV.setTextColor(colorBlack);
+                    holder.mServiceNum.setTextColor(colorBlack);
+                } else {
+                    holder.mLeftTV.setTextColor(colorGray);
+                    holder.mRightTV.setTextColor(colorGray);
+                    holder.mServiceNum.setTextColor(colorGray);
+                }
+            }else {
+                if (rows1.getCancel_flag() == 0) {
+                    holder.mLeftTV.setTextColor(colorBlack);
+                    holder.mRightTV.setTextColor(colorBlack);
+                    holder.mServiceNum.setTextColor(colorBlack);
+                } else {
+                    holder.mLeftTV.setTextColor(colorGray);
+                    holder.mRightTV.setTextColor(colorGray);
+                    holder.mServiceNum.setTextColor(colorGray);
+                }
+            }
+        }
+        if(s.isCheck()){
+            holder.mLeftTV.setTextColor(context.getResources().getColor(R.color.gray));
+            holder.mRightTV.setTextColor(context.getResources().getColor(R.color.gray));
+            holder.mServiceNum.setTextColor(context.getResources().getColor(R.color.gray));
+        }else {
+            holder.mLeftTV.setTextColor(context.getResources().getColor(R.color.gray));
+            holder.mRightTV.setTextColor(context.getResources().getColor(R.color.gray));
+            holder.mServiceNum.setTextColor(context.getResources().getColor(R.color.gray));
+        }
+        return convertView;
+    }
+
+    class ViewHolder {
+        TextView mLeftTV;
+        TextView mRightTV;
+        TextView mServiceNum;
+    }
+}

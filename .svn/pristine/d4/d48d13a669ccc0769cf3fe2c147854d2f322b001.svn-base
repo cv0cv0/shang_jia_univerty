@@ -1,0 +1,71 @@
+package com.rubu.ui.fragment;
+
+import android.os.Bundle;
+
+/**
+ * Created by liuhaizhu on 2017/3/7.
+ */
+
+public class FmUtil {
+    public static FmTodayOrTom getFrag(int s) {
+        FmTodayOrTom fm = new FmTodayOrTom();
+        Bundle bundle = new Bundle();
+        bundle.putInt("status", s);
+        fm.setArguments(bundle);
+        return fm;
+    }
+
+    /**
+     * 今日工单,明日工单创建列表创建工单fragment
+     *
+     * @param flag   1 今日工单 2 明日工单
+     * @param status 状态默认为0
+     * @return
+     */
+    public static FmTodayOrTom getFrag(int flag, int status) {
+        FmTodayOrTom fm = new FmTodayOrTom();
+        Bundle bundle = new Bundle();
+        bundle.putInt("flag", flag);
+        bundle.putInt("status", status);
+        fm.setArguments(bundle);
+        return fm;
+    }
+
+    /**
+     * 工单管理+异常工单列表创建工单fragment
+     *
+     * @param flag      网络请求有用
+     *                  5 全部工单
+     *                  3 全部异常（新的异常工单）4待取证（新的异常工单）8 待处理（新的异常工单） 9 已处理（新的异常工单）
+     *                  6 结算中工单（已作废） 7 已结算工单（已作废）
+     * @param status    网络请求有用
+     *                  44 待接单 55 待预约 56 待签到 57 待完工
+     * @param formWhere 用于EventBuf传递不同的消息状态  FROM_GONG = 1;//工单管理  FROM_YI = 2;//异常工单消息状态 FROM_ACCOUNT = 3;//结算消息状态
+     * @return
+     */
+    public static FmTodayOrTom getFrag(int flag, int status, int formWhere) {
+        FmTodayOrTom fm = new FmTodayOrTom();
+        Bundle bundle = new Bundle();
+        bundle.putInt("status", status);
+        bundle.putInt("flag", flag);
+        bundle.putInt("formWhere", formWhere);
+        fm.setArguments(bundle);
+        return fm;
+    }
+
+    /**
+     * 创建完工的fragment
+     *
+     * @param flag
+     * @return
+     */
+    public static FmCompleteOrder getFragConplete(int flag) {
+        FmCompleteOrder fm = new FmCompleteOrder();
+        Bundle bundle = new Bundle();
+        bundle.putInt("flag", flag);
+        fm.setArguments(bundle);
+        return fm;
+    }
+
+
+}

@@ -1,0 +1,2271 @@
+package com.rubu.ui.act;
+
+import android.Manifest;
+import android.annotation.TargetApi;
+import android.app.Activity;
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.net.Uri;
+import android.os.Build;
+import android.os.CountDownTimer;
+import android.os.IBinder;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
+import android.view.Gravity;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
+import android.widget.Spinner;
+import android.widget.TextView;
+
+import com.alibaba.sdk.android.msf.application.MsfSdk;
+import com.amap.api.location.AMapLocation;
+import com.amap.api.location.AMapLocationClient;
+import com.amap.api.location.AMapLocationClientOption;
+import com.amap.api.location.AMapLocationListener;
+import com.google.gson.Gson;
+import com.rubu.Bean.CallInfoBean;
+import com.rubu.R;
+import com.rubu.adapter.ActionsAdapter;
+import com.rubu.adapter.AddImgAdapter;
+import com.rubu.adapter.AdditionalExpensesListAdapter;
+import com.rubu.adapter.AdditionalServiceListAdapter;
+import com.rubu.adapter.FinishImgAdapter;
+import com.rubu.adapter.SelectTimeAdapter;
+import com.rubu.adapter.ServiceGoodsListAdapter;
+import com.rubu.adapter.TimeLineAdapter;
+import com.rubu.base.BaseActivity;
+import com.rubu.constant.Constant;
+import com.rubu.constant.SharePerenceCode;
+import com.rubu.constant.WorkerStatus;
+import com.rubu.event.EventCode;
+import com.rubu.event.EventMessage;
+import com.rubu.model.Base;
+import com.rubu.model.MSFModel;
+import com.rubu.model.Order;
+import com.rubu.model.StreetInfoModel;
+import com.rubu.model.UpLoadModel;
+import com.rubu.net.ApiImp;
+import com.rubu.net.Params;
+import com.rubu.net.ReqJson;
+import com.rubu.pop.PopDialog;
+import com.rubu.pop.PopStatementServiceTime;
+import com.rubu.pop.dialog.MyAlertDialog;
+import com.rubu.util.CountDownUtil;
+import com.rubu.util.LoginUtil;
+import com.rubu.util.SPUtils;
+import com.rubu.util.StringUtil;
+import com.rubu.util.SyUtil;
+import com.rubu.util.TLog;
+import com.rubu.util.TelInfoUntil;
+import com.rubu.util.TimeUtil;
+import com.rubu.view.AutoGridView;
+import com.rubu.view.AutoListView;
+import com.rubu.view.PullDownElasticImp;
+import com.rubu.view.PullDownScrollView;
+import com.rubu.view.datepick.TimeSelector;
+import com.umeng.analytics.MobclickAgent;
+import com.wq.photo.util.BitmapUtils;
+import com.wq.photo.widget.PickConfig;
+
+import org.greenrobot.eventbus.EventBus;
+
+import java.io.File;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import butterknife.BindView;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
+
+/**
+ * Created by liuhaizhu on 2017/3/2.
+ */
+
+public class ActionPickAct extends BaseActivity implements ActionsAdapter.OnActionClickListener, PullDownScrollView.RefreshListener {
+    private static final int PERMISSON_LOC = 0X989;
+    private static final int REQUEST_CODE_MSF = 0x999;
+    private static final int PERMISSON_STORGE = 0x978;
+    public static final int PERMISSON_CALL_LOG = 0x976;
+    @BindView(R.id.title_left)
+    TextView mTitleLeft;
+    @BindView(R.id.title)
+    TextView mTitle;
+    @BindView(R.id.remark_buttom)
+    TextView mRemarkButtom;
+    @BindView(R.id.tv_guide)
+    TextView mTvRouteGuide;//导航提示语 判断是否显示
+    @BindView(R.id.tv_real_guide)
+    TextView mTvRealRouteGuide;//修正地址导航提示语
+    @BindView(R.id.auto_list_view)
+    AutoListView mAutoListView;// 服务商品列表
+    @BindView(R.id.list_view_timeline)
+    AutoListView mListViewTimeLine;
+    @BindView(R.id.btn_next)
+    Button mBtnNext;
+    @BindView(R.id.scrollView)
+    ScrollView mScrollView;
+    @BindView(R.id.grid_select_service_time)
+    AutoGridView mGridSelectServiceTime;
+
+    // 各个工单的操作(接单:拒接此单;预约:预约失败,剩余预约次数;签到:遇到问题,改约;)
+    @BindView(R.id.grid_view_actions)
+    AutoGridView mGridViewActions;
+    @BindView(R.id.tv_statement_times)
+    TextView mTvStatementTimes;
+    @BindView(R.id.tv_select_day)
+    TextView mTvSelectTime;
+    @BindView(R.id.grid_add)
+    AutoGridView mAutoGridViewAdd;
+    @BindView(R.id.tv_parent_wk_order_type)
+    TextView mTvParentWkOrderType;
+    @BindView(R.id.tv_yes_no_quickness)
+    TextView mTvYesNoQuickness;
+    @BindView(R.id.tv_parent_wk_order_id)
+    TextView mTvParentWkOrderId;
+    @BindView(R.id.tv_order_arrival_time)
+    TextView mTVArrivalTime;
+    @BindView(R.id.tv_buyer_name)
+    TextView mTvBuyerName;
+    @BindView(R.id.tv_buyer_mobile)
+    TextView mTvBuyerMobile;
+    @BindView(R.id.tv_buyer_address)
+    TextView mTvBuyerAddress;//服务地址详细地址
+    @BindView(R.id.tv_buyer_address_tag)
+    TextView mTvBuyerAddressTag;//服务地址范围
+    @BindView(R.id.tv_total_service_num)
+    TextView mTvTotalServiceNum;
+    @BindView(R.id.tv_total_price)
+    TextView tv_total_price;
+    @BindView(R.id.tv_service_today_time)
+    TextView tv_service_today_time;
+    private AddImgAdapter mAddImgAdapter;
+    @BindView(R.id.service_tz)
+    TextView service_tz;
+    @BindView(R.id.tv_subscribe_hint)
+    TextView subscribeHint;
+    @BindView(R.id.tv_sign_hint)
+    TextView signHint;
+    @BindView(R.id.view_service_time)
+    View mServiceTime;
+    @BindView(R.id.view_add_imgs)
+    View mAddImgs;
+    @BindView(R.id.view_handle_question)
+    View view_handle_question;
+    @BindView(R.id.view_question)
+    View view_question;
+    @BindView(R.id.view_root)
+    LinearLayout viewRoot;
+    @BindView(R.id.ll_adress)
+    LinearLayout llAdress;//服务地址总布局
+    @BindView(R.id.mPullDownScrllView)
+    PullDownScrollView mPullDownScrollView;
+    @BindView(R.id.service_code_ll)
+    LinearLayout mServiceCodeLL;
+    @BindView(R.id.service_num)
+    TextView mServicePhoneNumTV;
+    @BindView(R.id.service_people)
+    TextView mServiceName;
+    @BindView(R.id.service_code_et)
+    EditText mServiceCodeET;
+    @BindView(R.id.reisseu_code)
+    TextView reissueTV;
+
+    //附加服务
+    @BindView(R.id.additional_services_ll)
+    LinearLayout additionalServiceLL;
+    @BindView(R.id.additional_services_listview)
+    AutoListView mAdditionalServicesListView;
+
+    //附加费用
+    @BindView(R.id.additional_expenses_ll)
+    LinearLayout additionalExpensesLL;
+    @BindView(R.id.additional_expenses_listview)
+    AutoListView mAdditionalExpensesListView;
+
+    //改约提示语句
+    @BindView(R.id.tv_order_fail_hint)
+    TextView orderFail_tv;
+
+    //真实地
+    @BindView(R.id.ll_real_adress)
+    LinearLayout realAddress_LL;//真实地址总布局
+    @BindView(R.id.tv_real_buyer_address_tag)
+    TextView reakBuyerAddressTag_tv;//真实地址的范围
+    @BindView(R.id.tv_real_buyer_address)
+    TextView realBuyerAddress_tv;//真实详细地址
+
+    //服务地址
+    @BindView(R.id.tv_service_address_title)
+    TextView serviceAddressTitle_tv;//服务地址标题
+
+    //附加服务的适配器
+    private AdditionalServiceListAdapter mAdditionalServiceListAdapter;
+    //附加费用的适配器
+    private AdditionalExpensesListAdapter mAdditionalExpensesListAdapter;
+
+    private ServiceGoodsListAdapter mServiceGoodsListAdapter;
+    private TimeLineAdapter mTimeLineAdapter;
+    private ActionsAdapter mActionsAdapter;
+    private long order_title_id;
+    private String parent_order_title_id;//主攻单号
+    private Order mOrder;
+    private boolean isSignIn = false;
+    private boolean isFromPush;//是否是推送进来
+
+    private String StrTag;//导航一级地址
+    private String StrAddress;//导航详细地址
+    private String realTag;//真实详细一级地址
+    private String realStrAddress;//真实详细地址
+    private long mReceiveDate = 0; // 到货时间
+    private LocalBroadcastManager mLBM; // 接收打完电话发送过来的通话记录
+    private String mStartCallTime, mCallTime, mCallNumber; // 开始通话时间和通话时长
+    //    private MyTelBroadCastReciver mTelReciver;
+    private IntentFilter mIntentFilter;
+    private Intent mTelIntentService;
+    private int mCallTimes; // 预约相关操作的次数
+    private boolean mIsCanReser; // 是否可以预约
+    // 预约电话取人相关参数
+    private CallInfoBean mCallInfoBean = new CallInfoBean(); // 所有和电话记录相关的参数都在这里面
+
+    ServiceConnection coon = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+
+        }
+    };
+
+    @Override
+    protected int getViewId() {
+        return R.layout.act_pick_action;
+    }
+
+    @Override
+    protected void initEvent() {
+        //添加下拉刷新
+        mPullDownScrollView.setRefreshListener(this);
+        mPullDownScrollView.setPullDownElastic(new PullDownElasticImp(this));
+        order_title_id = getIntent().getLongExtra("id", 0);
+        isFromPush = getIntent().getBooleanExtra("isFromPush", false);
+        initViewController(viewRoot);
+        showLoading(true, "加载中，请稍等");
+        getOrderDetail();
+        mTitleLeft.setText(R.string.back);
+        mTitleLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+        mBtnNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                gotoNextAct();
+            }
+        });
+        // 初始化接收电话记录的广播接收者
+//        mLBM = LocalBroadcastManager.getInstance(mContext);
+//        mIntentFilter = new IntentFilter();
+//        mIntentFilter.addAction(TelService.BROADCAST_TEL_CALL_TIME);
+//        mTelReciver = new MyTelBroadCastReciver();
+//        mTelIntentService = new Intent(mContext, TelService.class);
+    }
+
+    //    @Override
+    protected void onStart() {
+        super.onStart();
+//        mLBM.registerReceiver(mTelReciver, mIntentFilter);
+//        bindService(mTelIntentService, coon, BIND_AUTO_CREATE);
+//        Log.d(TAG, "onStart: 开启服务");
+    }
+
+    private String handleTag(String tag) {
+        String[] tags = tag.split(",");
+        if (tags.length == 4) {
+            return tags[0] + " " + tags[1] + " " + tags[2] + " " + tags[3];
+        } else if (tags.length == 2) {
+            return tags[0] + " " + tags[1];
+        } else if (tags.length == 3) {
+            return tags[0] + " " + tags[1] + " " + tags[2];
+        } else {
+            String tt = "";
+            for (String t : tags) {
+                tt = tt + t + " ";
+            }
+            return tt;
+        }
+    }
+
+    private void setDetail() {
+        TLog.i("获取数据正常，开始显示数据");
+        Order.RowsBean rowsBean = mOrder.getRows().get(0);
+        // 获取到货时间 天猫单有到货时间,并且如果现在时间是到货时间的头两天，则预约时间从当天开始
+        if (!StringUtil.isEmpty(rowsBean.getReceived_date())) {
+            mReceiveDate = TimeUtil.getTongTime(rowsBean.getReceived_date());
+            mTVArrivalTime.setVisibility(View.VISIBLE);
+            mTVArrivalTime.setText("签收时间 :  " + rowsBean.getReceived_date());
+        }else {
+            mTVArrivalTime.setVisibility(View.GONE);
+        }
+        mTvParentWkOrderType.setText(rowsBean.getParent_wk_order_type());
+        if (mOrder.getRows().get(0).getIs_activity() == 1){
+            mTvYesNoQuickness.setVisibility(View.VISIBLE);
+        }else {
+            mTvYesNoQuickness.setVisibility(View.GONE);
+        }
+        mTvParentWkOrderId.setText(rowsBean.getParent_wk_order_id());
+        //获取一级地址和详细地址
+        StrTag = handleTag(rowsBean.getTag());
+        StrAddress = rowsBean.getBuyer_address();
+        //获取修正地址
+        realStrAddress = rowsBean.getReal_address();
+
+        if (!StringUtil.isEmpty(realStrAddress)) {
+            //判断是否修改过地址 一样就是修改过反之
+            if (StrAddress.equals(realStrAddress)) {
+                realStrAddress = StrAddress;
+                realTag = StrTag;
+            } else {
+                String[] adressses = realStrAddress.split(" ");
+                if (adressses.length >= 3) {
+                    realStrAddress = adressses[adressses.length - 1];
+                    realTag = adressses[0] + adressses[1] + adressses[2];
+                } else {
+                    realTag = StrTag;
+                }
+            }
+        }
+        if (!StringUtil.isEmpty(StrTag)) {
+            mTvBuyerAddressTag.setText(handleTag(StrTag));
+        } else {
+            mTvBuyerAddressTag.setText("");
+        }
+        if (!StringUtil.isEmpty(realStrAddress)) {
+            realAddress_LL.setVisibility(View.VISIBLE);
+            llAdress.setEnabled(false);
+            mTvRouteGuide.setVisibility(View.GONE);
+            reakBuyerAddressTag_tv.setText(realTag);
+            serviceAddressTitle_tv.setTextColor(getResources().getColor(R.color.light_black));
+            mTvBuyerAddressTag.setTextColor(getResources().getColor(R.color.light_black));
+            mTvBuyerAddress.setTextColor(getResources().getColor(R.color.light_black));
+        } else {
+            llAdress.setEnabled(true);
+            realAddress_LL.setVisibility(View.GONE);
+            mTvRouteGuide.setVisibility(View.VISIBLE);
+            serviceAddressTitle_tv.setTextColor(getResources().getColor(R.color.black));
+            mTvBuyerAddressTag.setTextColor(getResources().getColor(R.color.gray_dark));
+            mTvBuyerAddress.setTextColor(getResources().getColor(R.color.gray_dark));
+        }
+        // 完工审核状态 == 结算中状态,  但是提示确实完工审核
+//        if (rowsBean.getWorker_status() == 57 && rowsBean.getFinished_flag().equals("Y")) {
+//            rowsBean.setWorker_status(68);
+//        }
+        // 结算中
+        if (rowsBean.getAccount_status() == 1) {
+            rowsBean.setWorker_status(68);
+        }
+        // 已结算
+        if (rowsBean.getAccount_status() == 2) {
+            rowsBean.setWorker_status(69);
+        }
+        if (WorkerStatus.getRealState(rowsBean.getWorker_status()) == WorkerStatus.STATU_J) {
+            //导航提示语不显示
+            mTvRealRouteGuide.setVisibility(View.GONE);
+            //接单
+            String name = rowsBean.getBuyer_name();
+            if (!StringUtil.isEmpty(name)) {
+                mTvBuyerName.setText(name.substring(0, 1) + "**");
+            } else {
+                mTvBuyerName.setText("暂无买家名字信息");
+            }
+            String phone = rowsBean.getBuyer_mobile();
+            String buyer_phone = "暂无买家手机号信息";
+            if (!StringUtil.isEmpty(phone)) {
+                buyer_phone = phone.replaceAll("(\\d{3})\\d{4}(\\d{4})", "$1****$2");
+            }
+//            String phone = rowsBean.getBuyer_mobile().replaceAll("(\\d{3})\\d{4}(\\d{4})", "$1****$2");
+            mTvBuyerMobile.setText(buyer_phone);
+            mTvBuyerAddress.setText("*********");
+            realBuyerAddress_tv.setText("*********");
+            mServiceGoodsListAdapter = new ServiceGoodsListAdapter(mContext, mOrder.getRows1(), 0);
+        } else {
+            String name = rowsBean.getBuyer_name();
+            if (!StringUtil.isEmpty(name)) {
+                mTvBuyerName.setText(rowsBean.getBuyer_name());
+            } else {
+                mTvBuyerName.setText("暂无买家名字信息");
+            }
+            String phone = rowsBean.getBuyer_mobile();
+            if (!StringUtil.isEmpty(phone)) {
+                mTvBuyerMobile.setText(phone);
+                mTvBuyerMobile.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        callPhoneDialog();
+                    }
+                });
+            } else {
+                mTvBuyerMobile.setText("暂无买家手机号信息");
+            }
+            final Intent NaviIntent = new Intent(mContext, CalculateRouteActivity.class);
+            NaviIntent.putExtra("tag", StrTag);
+            NaviIntent.putExtra("address", StrAddress);
+            if (!StringUtil.isEmpty(StrTag)) {
+                mTvBuyerAddress.setText(StrAddress.replace(StrTag, ""));
+                if (!StringUtil.isEmpty(realStrAddress)) {
+                    realBuyerAddress_tv.setText(realStrAddress);
+                }
+                llAdress.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        startActivity(NaviIntent);
+                    }
+                });
+
+            } else {
+                mTvBuyerAddress.setText(StrAddress);
+                llAdress.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        startActivity(NaviIntent);
+                    }
+                });
+            }
+            if (!StringUtil.isEmpty(realStrAddress)) {
+                realAddress_LL.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+//                        realBuyerAddress_tv.setText(realStrAddress);
+                        Intent realNaviIntent = new Intent(mContext, CalculateRouteActivity.class);
+                        realNaviIntent.putExtra("tag", realTag);
+                        realNaviIntent.putExtra("address", realStrAddress);
+                        startActivity(realNaviIntent);
+                    }
+                });
+            }
+
+            mServiceGoodsListAdapter = new ServiceGoodsListAdapter(mContext, mOrder.getRows1(), 1);
+            //给每个商品添加点击事件
+            mAutoListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                    Log.i("===========", "onItemClick: " + i + "-------" + l + "===" + mOrder.getRows1().get(i).getAuction_id());
+                    if (!StringUtil.isEmpty(mOrder.getRows1().get(i).getAuction_id())) {
+                        if (checkPackage("com.taobao.taobao")) {
+                            Intent intent = new Intent();
+                            intent.setAction("android.intent.action.VIEW");
+                            String url = "taobao://item.taobao.com/item.htm?id=" + mOrder.getRows1().get(i).getAuction_id();
+                            Uri uri = Uri.parse(url);
+                            intent.setData(uri);
+                            startActivity(intent);
+                        } else if (checkPackage("com.tmall.wireless")) {
+                            Intent intent = new Intent();
+                            intent.setAction("android.intent.action.VIEW");
+                            String url = "tmall://tmallclient/?{\"action\":”item:id=" + mOrder.getRows1().get(i).getAuction_id() + "”}";
+                            Uri uri = Uri.parse(url);
+                            intent.setData(uri);
+                            startActivity(intent);
+                        } else {
+                            Intent intentweb = new Intent(mContext, TMWebviewAct.class);
+                            intentweb.putExtra("weburl", "http://h5.m.taobao.com/awp/core/detail.htm?id=" + mOrder.getRows1().get(i).getAuction_id());
+                            startActivity(intentweb);
+                        }
+                    }
+                }
+            });
+        }
+
+        mAutoListView.setAdapter(mServiceGoodsListAdapter);
+        Double num = 0.00;
+        for (Order.Rows1Bean rows1Bean : mOrder.getRows1()) {
+            if (rows1Bean.getCancel_flag() == 0)
+                num = num + rows1Bean.getService_count();
+        }
+        for (Order.Rows4Bean rows4Bean : mOrder.getRows4()) {
+            num = num + rows4Bean.getService_num();
+        }
+        //15977345606  15821672736
+        mTvTotalServiceNum.setText("共" + num.intValue() + "项服务");
+        setStatus(rowsBean.getWorker_status(), rowsBean.getSystem_status(), rowsBean.getAccount_status());
+        //判断是否有附加服务
+        if (mOrder.getRows4() != null && mOrder.getRows4().size() > 0) {
+            Log.i("=========getRows", "setDetail: " + mOrder.getRows4().size());
+            additionalServiceLL.setVisibility(View.VISIBLE);
+            mAdditionalServiceListAdapter = new AdditionalServiceListAdapter(mContext, mOrder.getRows4(), mOrder.getRows1());
+            mAdditionalServicesListView.setAdapter(mAdditionalServiceListAdapter);
+        } else {
+            additionalServiceLL.setVisibility(View.GONE);
+        }
+        //判断是否有附加费用
+        if (mOrder.getRows4() != null && mOrder.getRows3().size() > 0) {
+            Log.i("=========getRows", "setDetail: " + mOrder.getRows3().size());
+            additionalExpensesLL.setVisibility(View.VISIBLE);
+            mAdditionalExpensesListAdapter = new AdditionalExpensesListAdapter(mContext, mOrder.getRows3(), ("Y").equals(mOrder.getRows1().get(0).getS_org_show_status()));
+            mAdditionalExpensesListView.setAdapter(mAdditionalExpensesListAdapter);
+        } else {
+            additionalExpensesLL.setVisibility(View.GONE);
+        }
+    }
+
+    /**
+     * 急速安装单的提示
+     */
+    private void showQuicknessInstallHint(){
+        String time = mOrder.getRows().get(0).getReceived_date();
+        final boolean[] isChecks = new boolean[1];
+        final MyAlertDialog myAlertDialog = new MyAlertDialog.Builder(mContext)
+                .setContentView(R.layout.pop_quickness_install_hint)
+                .setCancelable(false)
+                .setDefaultAnimation()
+                .setFullWith()
+                .setText(R.id.tv_time,time)
+                .show();
+        myAlertDialog.setCheckBoxItemCheckChangeClick(R.id.cb_hint, new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked){
+                    isChecks[0] = true;
+                }else {
+                    isChecks[0] = false;
+                }
+                Log.d(TAG, "onCheckedChanged: isChecks " + isChecks[0]);
+            }
+        });
+        myAlertDialog.setClick(R.id.btn_confirm, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean check = isChecks[0];
+                Log.d(TAG, "onClick: check == "  +check);
+                if (check) {
+                    upDateIsActivity();
+                }
+                myAlertDialog.dismiss();
+            }
+        });
+    }
+
+    /**
+     * 更新本地的是否提醒技师
+     */
+    private void upDateIsActivity(){
+        // 更新本地是否提醒急速安装通知为不提醒
+        SPUtils.put(mContext, SharePerenceCode.SP_USER_IS_ACTIVITY_STATUE, "N");
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_APP_MESSAGE_REMIND);
+        reqJson.setUser_id(LoginUtil.getUserId(mContext));
+        reqJson.setHas_rows("no");
+        mSubscription = ApiImp.get().action(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Base>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                        e.printStackTrace();
+                        showToast("数据异常");
+                    }
+
+                    @Override
+                    public void onNext(Base base) {
+                        if (base.getResult().getOut_Flag() == 0){
+
+                        }
+                    }
+                });
+    }
+
+    /**
+     * 工单按钮操作
+     */
+    private void gotoNextAct() {
+        String text = mBtnNext.getText().toString();
+        if (!StringUtil.isEmpty(text) && text.contains("之内签到") && text.length() > 2) {
+            isSignIn = true;
+            checkPermission(1);
+            return;
+        }
+        if (!StringUtil.isEmpty(text) && text.contains("签到") && text.length() > 2) {
+            showToast("未到签到时间");
+            return;
+        }
+        switch (text) {
+            //待接单
+            case "接单":
+                takingOrder();
+                break;
+            //待预约
+            case "预约":
+                if (checkTelMsg()) {
+                    return;
+                }
+                if (StringUtil.isEmpty(mSelectDay)) {
+                    showToast("请选择预约日期");
+                    return;
+                }
+                if (selectTime == -1) {
+                    showToast("请选择预约时间段");
+                    return;
+                }
+                // 选择预约的毫秒数(选择天数是否是第二天)
+                String seleteDay = mSelectDay + " 00:00:00";
+                long seleteTimeL = TimeUtil.getTongTime1(seleteDay);
+                // 判断选的时间是否错误
+                long currentTime = mReceiveDate > System.currentTimeMillis() ? mReceiveDate : System.currentTimeMillis();
+                // 当天24小时
+                long todayEnd = TimeUtil.getToday24Time();
+                Log.d("预约时间", "选择的天数" + TimeUtil.getTime(seleteTimeL));
+                Log.d("预约时间", "选择的毫秒数" + seleteTimeL);
+                Log.d("预约时间", "当天晚上的毫秒数" + todayEnd);
+                Log.d("预约时间", "当天晚上的毫秒数" + TimeUtil.getTime(todayEnd));
+                // 到货时间段 (如果是到货的两天内,并且选的是的当天)
+                if (isHour(mReceiveDate, todayEnd, 48) && (seleteTimeL < todayEnd)) {
+                    // 当前时间是晚上不做任何操作
+                    if (isHour(currentTime, todayEnd, 5)) {
+                        // 下午 ,选择的时间只能是晚上
+                    } else if (isHour(currentTime, todayEnd, 11) && selectTime != 2) {
+                        showToast("预约时间操作范围");
+                        return;
+                        // 上午,选择的时间不能是上午
+                    } else if (isHour(currentTime, todayEnd, 17) && selectTime == 0) {
+                        showToast("预约时间操作范围");
+                        return;
+                    }
+                }
+                final String time = TimeUtil.castTimeEdit(mSelectDay);
+                TLog.i("预约" + time);
+                mPopDialog = new PopDialog(this);
+                mPopDialog.setText(null, "确认预约时间为：", time + " " + mWeek + selectTimeStr + "  " + SELECT_TIMES_AREA[selectTime]);
+                mPopDialog.setOnDialogListener(new PopDialog.OnDialogListener() {
+                    @Override
+                    public void onIsConfirm(boolean is) {
+                        if (is)
+                            editOrder(time, selectTime);
+                        mPopDialog.dismiss();
+                    }
+                });
+                mPopDialog.show(mTitle);
+                break;
+            //待签到
+            case "签到":
+                isSignIn = true;
+                checkPermission(1);
+                break;
+            //同步喵师傅
+            case "同步喵师傅":
+                String outerId = getServiceOrderId();
+                String orderIds = mOrder.getRows().get(0).getParent_biz_order_id();
+                if (outerId != null && orderIds != null) {
+                    checkPermission(2);
+                }
+                break;
+            //待完工
+            case "完工":
+                List<String> list = mAddImgAdapter.getList();
+                String code = mServiceCodeET.getText().toString();
+                if (list == null || list.size() < 2) {
+                    showToast("请上传服务效果图");
+                    return;
+                }
+//                if (!mOrder.getRows().get(0).getB_org_otype_code().equals("TM")) {
+                if (!mOrder.getRows().get(0).getB_org_otype_code().equals("TM")) {
+                    if (StringUtil.isEmpty(code) && code.length() != 4) {
+                        showToast("请输入正确的服务确认码");
+                        return;
+                    }
+                }
+                uploadImg(list.get(0), 0);
+                break;
+        }
+    }
+
+    /**
+     * 接单
+     */
+    private void takingOrder() {
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_APP_ORDER_TAKING_EDIT);
+        reqJson.setOrder_title_id(String.valueOf(order_title_id));
+        reqJson.setHas_rows("no");
+        reqJson.setUser_id(LoginUtil.getUserId(mContext));
+        showProgressDialog("正在接单");
+        action(Constant.PROC_APP_ORDER_TAKING_EDIT, reqJson);
+    }
+
+    //取消接单
+    private void cancelOrder() {
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_APP_ORDER_TAKING_CANCEL);
+        reqJson.setOrder_title_id(String.valueOf(order_title_id));
+        reqJson.setHas_rows("no");
+        reqJson.setUser_id(LoginUtil.getUserId(mContext));
+        showProgressDialog("正在取消此工单");
+        action(Constant.PROC_APP_ORDER_TAKING_CANCEL, reqJson);
+
+    }
+
+    //完工
+    private void finishOrder() {
+        StringBuilder sb = new StringBuilder();
+        if (upLoadImgs != null && upLoadImgs.size() > 0) {
+            for (String img : upLoadImgs) {
+                sb.append(img).append(",");
+            }
+        }
+        if (sb.length() > 0) {
+            sb.deleteCharAt(sb.length() - 1);
+        }
+        ReqJson reqJson = new ReqJson();
+        if (mOrder.getRows().get(0).getB_org_otype_code().equals("TM")) {
+            reqJson.setProc(Constant.PROC_APP_ORDER_FINISHING_EDIT);
+        } else {
+            reqJson.setProc(Constant.PROC_APP_BDORDER_FINISHING_EDIT);
+            //设置服务确认码
+            reqJson.setIdentify_code(mServiceCodeET.getText().toString());
+        }
+        reqJson.setOrder_title_id(String.valueOf(order_title_id));
+        reqJson.setHas_rows("no");
+        reqJson.setFinished_images(sb.toString());
+        reqJson.setUser_id(LoginUtil.getUserId(mContext));
+        showProgressDialog("正在完工中");
+        action(Constant.PROC_APP_ORDER_FINISHING_EDIT, reqJson);
+    }
+
+    //天猫单改约
+    private void canceTMYuyue() {
+        Intent intent = new Intent(mContext, CancelYuYueAct.class);
+        intent.putExtra("id", order_title_id);
+        intent.putExtra("order", mOrder);
+        startActivity(intent);
+    }
+
+    //预约
+    private void editOrder(String day, int resv_time) {
+        showProgressDialog("正在预约");
+        Order.RowsBean rowsBean = mOrder.getRows().get(0);
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_APP_ORDER_RESERVING_EDIT);
+        reqJson.setUser_id(LoginUtil.getUserId(mContext));
+        reqJson.setOrder_title_id(String.valueOf(order_title_id));
+        reqJson.setParent_biz_order_id(rowsBean.getParent_biz_order_id());
+        reqJson.setService_order_id(getServiceOrderId());
+        reqJson.setResv_time(String.valueOf(resv_time));
+        reqJson.setResv_date(day);
+        reqJson.setWorker_name(LoginUtil.getUserName(mContext));
+        reqJson.setWorker_mobile(LoginUtil.getTel(mContext));
+        reqJson.setHas_rows("no");
+        action(Constant.PROC_APP_ORDER_RESERVING_EDIT, reqJson);
+    }
+
+    /**
+     * 获取服务单号id
+     *
+     * @return
+     */
+    private String getServiceOrderId() {
+        String serviceOrderId = mOrder.getRows().get(0).getService_order_id();
+//        List<Order.Rows1Bean> list = mOrder.getRows1();
+//        StringBuilder sb = new StringBuilder();
+//        for (Order.Rows1Bean bean : list) {
+//            sb.append(bean.getService_order_id()).append(",");
+//        }
+//        if (sb.length() > 0) {
+//            sb.deleteCharAt(sb.length() - 1);
+//        }
+        return serviceOrderId;
+    }
+
+    //操作按钮
+    List<String> list = new ArrayList<>();
+
+    /**
+     * @param status         判断工单状态的WorkStatus ( 0:待接单,1:待预约,2:待签到,3:待完工,4:待结算, 5:已结算)
+     * @param system_status  判断处理工单状态SystemStatus
+     * @param account_status 判断处理中的单子
+     */
+    private void setStatus(int status, int system_status, int account_status) {
+        if (account_status == 1) {
+            status = 68;
+        }
+        if (account_status == 2) {
+            status = 69;
+        }
+        if (list != null) list.clear();
+        mTitle.setText(WorkerStatus.getWorkerStatusTitle(status));
+        int color = ContextCompat.getColor(mContext, WorkerStatus.getWorkerStatusColorId(status));
+        mBtnNext.setBackgroundColor(color);
+
+        //判断是否冻结
+        if (mOrder.getRows().get(0).getIs_address_correct() == 1) {
+            mBtnNext.setBackgroundColor(getResources().getColor(R.color.light_black));
+            mBtnNext.setEnabled(false);
+        }
+        mTimeLineAdapter = new TimeLineAdapter(mContext, mOrder.getRows2(), color);
+        mListViewTimeLine.setAdapter(mTimeLineAdapter);
+        // 待审核状态
+        if (mOrder.getRows().get(0).getCancel() == 1) {
+            mBtnNext.setBackgroundColor(getResources().getColor(R.color.light_black));
+            mBtnNext.setEnabled(false);
+            // 预约取消的取消待审状态
+            if (mOrder.getRows().get(0).getWorker_status() == 55) {
+                mBtnNext.setText("取消待审");
+            }
+            // 预约取消的
+            if (mOrder.getRows().get(0).getWorker_status() == 57) {
+                mBtnNext.setText("调整待审");
+            }
+        } else {
+            mBtnNext.setText(WorkerStatus.getWorkerStatus(status));
+        }
+
+        setTotalPrice();
+        setRemark();
+
+        switch (WorkerStatus.getRealState(status)) {
+            //接单
+            case WorkerStatus.STATU_J:
+                list.add("拒接此单");
+                break;
+            //预约
+            case WorkerStatus.STATU_Y:
+                subscribeHint.setVisibility(View.VISIBLE);
+                setRemark();
+                // 没有预约取消待审状态,可以预约失败
+                if (mOrder.getRows().get(0).getCancel() != 1) {
+                    list.add("下次再约");
+                    list.add("无需安装");
+                    list.add("无法胜任");
+                } else {
+                    list.add(" ");
+                    list.add(" ");
+                    list.add(" ");
+                }
+                // 天猫单子可以显示剩余预约次数
+                if (mOrder.getRows().get(0).getB_org_otype_code().equals("TM")) {
+                    list.add(mOrder.getRows().get(0).getChange_order_sums() + "");
+                }
+                orderFail_tv.setVisibility(View.VISIBLE);
+                setServiceTime();
+                break;
+            //签到
+            case WorkerStatus.STATU_Q:
+                signHint.setVisibility(View.VISIBLE);
+                if (!StringUtil.isEmpty(realStrAddress)) {
+                    signHint.setText(R.string.address_change);
+                } else {
+                    signHint.setText(R.string.sign_hint);
+                }
+                list.add("遇到问题");
+//                list.add("取消安装");
+                long current = System.currentTimeMillis();
+                long current1 = TimeUtil.TimeToLong(mOrder.getRows().get(0).getNext_time());
+                long time = TimeUtil.TimeToLong(mOrder.getRows().get(0).getNext_time()) - current;
+                //天猫单
+                if (time < SyUtil.MINUTE_15 && time > 0) {
+                    setSignIn(time);
+                } else {
+                    String btnText = SyUtil.getStrQ(mOrder.getRows().get(0));
+                    mBtnNext.setText(btnText);
+                    // 是否改约了5次
+                    // 非天猫单当天改约
+                    if (mOrder.getRows().get(0).getChange_order_sums() > 0) {
+                        // 天猫单包含天
+                        if (mOrder.getRows().get(0).getB_org_otype_code().equals("TM") && btnText.contains("天")) {
+                            list.add("改约");
+                            // 非天猫单,可当天
+                        } else if (!mOrder.getRows().get(0).getB_org_otype_code().equals("TM")) {
+                            list.add("改约");
+                        }
+                    } else {
+                        list.add("   ");
+                    }
+                }
+                if (mOrder.getRows().get(0).getB_org_otype_code().equals("TM")) {
+                    list.add(mOrder.getRows().get(0).getChange_order_sums() + "");
+                }
+                setRemark();
+                break;
+            //完工
+            case WorkerStatus.STATU_W:
+                list.add("遇到问题");
+                if (mOrder.getRows().get(0).getB_org_otype_code().equals("TM")) {
+                    if (mOrder.getRows().get(0).getWorker_verification_status() == 0)
+                        setMSFBtn();
+                    mServiceCodeLL.setVisibility(View.GONE);
+                    if (!StringUtil.isEmpty(realStrAddress)) {
+                        signHint.setVisibility(View.VISIBLE);
+                        signHint.setText(R.string.address_change);
+                    } else {
+                        signHint.setVisibility(View.GONE);
+                        signHint.setText(R.string.sign_hint);
+                    }
+                } else {
+                    signHint.setVisibility(View.GONE);
+                    mServiceCodeLL.setVisibility(View.VISIBLE);
+                }
+                mServicePhoneNumTV.setText(mOrder.getRows().get(0).getBuyer_mobile());
+                String nameFormat = getResources().getString(R.string.servicepeople);
+                mServiceName.setText(String.format(nameFormat, mOrder.getRows().get(0).getBuyer_name()));
+                reissueTV.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        ressiueCode();
+                    }
+                });
+                setRemark();
+                setAddImgs();
+                setTZ();
+                break;
+            //结算中
+            case WorkerStatus.STATU_j_N0:
+                setJNo();
+                setRemark();
+                setFinishImgs();
+                break;
+            //已结算
+            case WorkerStatus.STATU_j_YES:
+                setJYES();
+                setFinishImgs();
+                setRemark();
+                break;
+        }
+        setActions();
+    }
+
+    private void setMSFBtn() {
+        mBtnNext.setText("同步喵师傅");
+        mBtnNext.setBackgroundResource(R.drawable.bg_pick_finsih);
+        mBtnNext.setTextColor(ContextCompat.getColor(mContext, R.color.red_dark));
+    }
+
+    private void setFinsihBtn() {
+        mBtnNext.setText("完工");
+        mBtnNext.setBackgroundColor(ContextCompat.getColor(mContext, R.color.red_dark));
+        mBtnNext.setTextColor(ContextCompat.getColor(mContext, R.color.white));
+    }
+
+    //设置结算中
+    private void setJNo() {
+        // 完工审核的单子 (状态68,是人为改动的)
+//        Log.d("按钮", "工单审核" + mOrder.getRows().get(0).getFinished_flag());
+//        Log.d("按钮", "工单状态" + mOrder.getRows().get(0).getWorker_status() + "");
+//        if (mOrder.getRows().get(0).getFinished_flag().equals("Y") && mOrder.getRows().get(0).getWorker_status() == 68) {
+//            mBtnNext.setText("完工审核中");
+//        } else {
+        mBtnNext.setText("已完结");
+//        }
+        mBtnNext.setBackgroundColor(ContextCompat.getColor(mContext, R.color.gray_light));
+    }
+
+    //设置已完结
+    private void setJYES() {
+        mBtnNext.setText("已完结");
+        mBtnNext.setBackgroundColor(ContextCompat.getColor(mContext, R.color.gray_light));
+    }
+
+    /**
+     * 获取签到数据
+     */
+    public AMapLocationClientOption mLocationOption = null;
+    AMapLocationClient mlocationClient;
+
+    private void getLocation() {
+        showProgressDialog("定位中");
+        mlocationClient = new AMapLocationClient(this);
+//初始化定位参数
+        mLocationOption = new AMapLocationClientOption();
+//设置定位监听
+        mlocationClient.setLocationListener(new AMapLocationListener() {
+            @Override
+            public void onLocationChanged(AMapLocation amapLocation) {
+                if (amapLocation != null) {
+                    if (amapLocation.getErrorCode() == 0) {
+                        //定位成功回调信息，设置相关消息
+                        amapLocation.getLocationType();//获取当前定位结果来源，如网络定位结果，详见定位类型表
+                        amapLocation.getLatitude();//获取纬度
+                        amapLocation.getLongitude();//获取经度
+                        amapLocation.getAccuracy();//获取精度信息
+                        amapLocation.getAddress();
+                        dissmisProgressDialog();
+                        if (isSignIn) {
+                            isSignIn = false;
+                            startSingInAfterLoc(amapLocation.getLatitude(), amapLocation.getLongitude(), amapLocation.getAddress());
+                        }
+                    } else {
+                        //显示错误信息ErrCode是错误码，errInfo是错误信息，详见错误码表。
+                        Log.e("AmapError", "location Error, ErrCode:"
+                                + amapLocation.getErrorCode() + ", errInfo:"
+                                + amapLocation.getErrorInfo());
+                    }
+                }
+            }
+        });
+//设置定位模式为高精度模式，Battery_Saving为低功耗模式，Device_Sensors是仅设备模式
+        mLocationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
+//设置定位间隔,单位毫秒,默认为2000ms
+        mLocationOption.setInterval(2000);
+//设置定位参数
+        mlocationClient.setLocationOption(mLocationOption);
+        mLocationOption.setNeedAddress(true);
+// 此方法为每隔固定时间会发起一次定位请求，为了减少电量消耗或网络流量消耗，
+// 注意设置合适的定位时间的间隔（最小间隔支持为2000ms），并且在合适时间调用stopLocation()方法来取消定位请求
+// 在定位结束后，在合适的生命周期调用onDestroy()方法
+// 在单次定位情况下，定位无论成功与否，都无需调用stopLocation()方法移除请求，定位sdk内部会移除
+//启动定位
+        mlocationClient.startLocation();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (isFromPush) {
+            Intent intent = new Intent(mContext, WorkOrderAct.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+        }
+        if (mlocationClient != null) {
+            mlocationClient.stopLocation();
+            mlocationClient.onDestroy();
+        }
+        Log.d(TAG, "onDestroy: 执行关闭onDestory操作");
+//        unbindService(coon);
+//        mLBM.unregisterReceiver(mTelReciver);
+    }
+
+    /**
+     * Android 6.0 以后 定位
+     * state  1：获取定位权限  2：获取存储和相机权限
+     */
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    private void checkPermission(int state) {
+        switch (state) {
+            case 1:
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                        && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions((Activity) mContext, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSON_LOC);
+                } else {
+                    //询问是否允许
+                    getLocation();
+                }
+                break;
+            case 2:
+                if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                        || ContextCompat.checkSelfPermission(mContext, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
+                        || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                        || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    //应用还未获取读取本地文件 的权限，询问是否允许
+                    ActivityCompat.requestPermissions((Activity) mContext, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSON_STORGE);
+                } else {
+                    showMSF();
+                }
+                break;
+        }
+    }
+
+    private void startSingInAfterLoc(double logged_x, double logged_y, String address) {
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_APP_ORDER_LOGGING_EDIT);
+        reqJson.setOrder_title_id(String.valueOf(order_title_id));
+        reqJson.setHas_rows("no");
+        reqJson.setLogged_x(String.valueOf(logged_x));
+        reqJson.setLogged_y(String.valueOf(logged_y));
+        reqJson.setLogged_address(address);
+        showProgressDialog("正在签到");
+        action(Constant.PROC_APP_ORDER_LOGGING_EDIT, reqJson);
+    }
+
+    /**
+     * 备注
+     */
+    private void setRemark() {
+        // 用于判断后续的备注是否需要编辑(68,69 状态的完结清单,不可以编辑)
+        Order.RowsBean rowsBean = mOrder.getRows().get(0);
+        int status = 0;
+        status = rowsBean.getWorker_status();
+        int accountStatus = rowsBean.getAccount_status();
+
+        // 结算中的状态
+        if (accountStatus == 1) {
+            status = 68;
+        }
+        // 已结算的状态
+        if (accountStatus == 2) {
+            status = 69;
+        }
+        mRemarkButtom.setText(R.string.remark_buttom);
+        final int finalStatus = status;
+        mRemarkButtom.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(mContext, RemarksAct.class);
+                intent.putExtra("remark", mOrder.getRows().get(0).getReserv_memo());
+                intent.putExtra("updatetime", mOrder.getRows().get(0).getMemo_updatetime());
+                intent.putExtra("id", order_title_id);
+                intent.putExtra("order_status", finalStatus);
+                startActivity(intent);
+            }
+        });
+    }
+
+    private static final String TAG = "TelInfoUntil";
+
+    /**
+     * 设置不同的按钮操作
+     */
+    private void setActions() {
+        view_question.setVisibility(View.VISIBLE);
+        mActionsAdapter = new ActionsAdapter(mContext, list);
+        mActionsAdapter.setOnActionClickListener(this);
+        mGridViewActions.setAdapter(mActionsAdapter);
+    }
+
+    private PopDialog mPopDialog;
+    private PopStatementServiceTime mPopStatementServiceTime;
+    private TimeSelector mTimeSelector;
+    private String mSelectDay;
+    private String mWeek;
+    //上午  ：2017-09-08      下午：2017-09-08    晚上 2017-09-08
+    private final String[] SELECT_TIMES = {"09:00:00", "15:00:00", "21:00:00"};
+    //07：10─────12：59 \n下午   13：00─────18：59\n晚上   19：00─────23：59
+    private final String[] SELECT_TIMES_AREA = {"07：10─12：59", "13：00─18：59", "19：00─23：59"};
+    private int selectTime = -1;
+    private String selectTimeStr;
+
+    /**
+     * 预约时间段
+     */
+    private void setServiceTime() {
+        mServiceTime.setVisibility(View.VISIBLE);
+        tv_service_today_time.setText("今天是" + TimeUtil.getDayAndWeek());
+        SelectTimeAdapter selectTimeAdapter = new SelectTimeAdapter(mContext);
+        selectTimeAdapter.setOnSelectTimeListener(new SelectTimeAdapter.OnSelectTimeListener() {
+            @Override
+            public void onSelectTime(int p, String text) {
+                selectTime = p;
+                selectTimeStr = text;
+            }
+        });
+        mGridSelectServiceTime.setAdapter(selectTimeAdapter);
+        mTvStatementTimes.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG); //下划线
+        mTvStatementTimes.getPaint().setAntiAlias(true);//抗锯齿
+        mTvStatementTimes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mPopStatementServiceTime == null) {
+                    mPopStatementServiceTime = new PopStatementServiceTime(ActionPickAct.this);
+                }
+                mPopStatementServiceTime.show(mTvStatementTimes);
+            }
+        });
+        // 时间选择器起始时间
+        String startTime;
+        // 设置开始时间，设置解围时间 ；天猫单到货(例如：1.1到货 ,1.1和 1.2 都可以当天预约, 开始时间 是当天还是当年)
+        // 今天24点
+        long todayEnd = TimeUtil.getToday24Time();
+        // 如果是今天到货(当天24小时-到货时间小于24小时)
+        if (mReceiveDate != 0 && isHour(mReceiveDate, todayEnd, 24)) {
+            Log.d(TAG, "setServiceTime: 当天剩余 " + (todayEnd - System.currentTimeMillis() + "毫秒"));
+            // 现在是晚上
+            if (isHour(System.currentTimeMillis(), todayEnd, 5)) {
+                Log.d(TAG, "setServiceTime: 当天晚上剩余 " + (todayEnd - System.currentTimeMillis() + "毫秒"));
+                startTime = TimeUtil.getAfterDay();
+                // 不是晚上
+            } else {
+                // 开始时间就是当天
+                startTime = TimeUtil.getDayCN();
+            }
+            // 如果昨天到货(当天24小时-到货时间小于48小时)
+        } else if (mReceiveDate != 0 && isHour(mReceiveDate, todayEnd, 48)) {
+            Log.d(TAG, "setServiceTime: 当天剩余 " + (todayEnd - System.currentTimeMillis() + "毫秒"));
+            // 现在是晚上
+            if (isHour(System.currentTimeMillis(), todayEnd, 5)) {
+                Log.d(TAG, "setServiceTime: 当天晚上剩余 " + (todayEnd - System.currentTimeMillis() + "毫秒"));
+                startTime = TimeUtil.getAfterDay();
+                // 不是晚上
+            } else {
+                // 开始时间就是当天
+                startTime = TimeUtil.getDayCN();
+            }
+            // 没到货，或者到货时间过了2天
+        } else {
+//            if (mOrder.getRows().get(0).getB_org_otype_code().equals("TM")) {
+            startTime = TimeUtil.getAfterDay();
+//            } else {
+//                startTime = TimeUtil.getDayCN();
+//            }
+        }
+        // 不可变的时间点
+        final String finalStartTime = startTime;
+        mTvSelectTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mTimeSelector == null) {
+                    mTimeSelector = new TimeSelector(ActionPickAct.this, new TimeSelector.ResultHandler() {
+                        @Override
+                        public void handle(String time, String week) {
+                            mSelectDay = time;
+                            mWeek = week;
+                            setSelectBtn();
+                        }
+                    }, finalStartTime, TimeUtil.getDayCNNextYear());
+                }
+                mTimeSelector.show(mTvSelectTime);
+            }
+        });
+    }
+
+    /**
+     * 判断是否是多少小时小时
+     *
+     * @param startTime
+     * @param endTime
+     * @param hour
+     * @return
+     */
+    private boolean isHour(long startTime, long endTime, int hour) {
+        return endTime - startTime < 1000 * 60 * 60 * hour ? true : false;
+    }
+
+    private void setSelectBtn() {
+        if (!StringUtil.isEmpty(mSelectDay)) {
+            mTvSelectTime.setBackgroundResource(R.drawable.bg_login_btn_shape);
+            mTvSelectTime.setTextColor(Color.WHITE);
+            mTvSelectTime.setText(mSelectDay + " " + mWeek);
+        } else {
+            mTvSelectTime.setBackgroundResource(R.drawable.bg_login_edit_shape);
+            mTvSelectTime.setTextColor(ContextCompat.getColor(mContext, R.color.black));
+            mTvSelectTime.setText(R.string.pls_select_time);
+        }
+    }
+
+    //拒接此单
+    private PopDialog mDialogCancel;
+    //拒接此单
+    private PopDialog mDialogCallPhone;
+
+    private void callPhoneDialog() {
+        if (mDialogCallPhone == null) {
+            mDialogCallPhone = new PopDialog(this);
+            mDialogCallPhone.setTextContentGravity(Gravity.CENTER);
+            mDialogCallPhone.setText(null, "确认向" + mTvBuyerMobile.getText().toString() + "拨打电话", null);
+            mDialogCallPhone.setOnDialogListener(new PopDialog.OnDialogListener() {
+                @Override
+                public void onIsConfirm(boolean is) {
+                    if (is) {
+                        checkPermissionPhone();
+                    }
+                }
+            });
+        }
+        mDialogCallPhone.show(mTvBuyerMobile);
+    }
+
+    /**
+     * 预约操作列表的相关操作(预约失败,改约)
+     *
+     * @param action
+     */
+    @Override
+    public void onActions(String action) {
+        switch (action) {
+            case "遇到问题":
+                startQ();
+                break;
+            case "拒接此单":
+                if (mDialogCancel == null) {
+                    mDialogCancel = new PopDialog(this);
+                    mDialogCancel.setTextContentGravity(Gravity.CENTER);
+                    mDialogCancel.setText(null, "确认拒接此工单", null);
+                    mDialogCancel.setOnDialogListener(new PopDialog.OnDialogListener() {
+                        @Override
+                        public void onIsConfirm(boolean is) {
+                            if (is) {
+                                cancelOrder();
+                            }
+                        }
+                    });
+                }
+                mDialogCancel.show(mTitle);
+                break;
+            case "下次再约":
+                if (checkTelMsg()) {
+                    break;
+                }
+                Log.d(TAG, "onActions: 下次再约");
+                Intent intent = new Intent(mContext, OrderFailAct.class);
+                intent.putExtra("id", order_title_id);
+                intent.putExtra("order", mOrder);
+                mContext.startActivity(intent);
+                break;
+            case "无需安装":
+                if (checkTelMsg()) {
+                    break;
+                }
+                noInstall();
+                break;
+            case "无法胜任":
+                noWork();
+                break;
+            case "改约":
+                if (checkTelMsg()) {
+                    break;
+                }
+                canceTMYuyue();
+                break;
+            case "取消安装":
+                Intent canCelIntent = new Intent(mContext, QuestionCancelAct.class);
+                canCelIntent.putExtra("order", mOrder);
+                startActivity(canCelIntent);
+                break;
+        }
+    }
+
+    private boolean checkTelMsg() {
+        Log.d(TAG, "checkTelMsg: ");
+        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions((Activity) mContext, new String[]{Manifest.permission.READ_CALL_LOG}, PERMISSON_CALL_LOG);
+            Log.d(TAG, "checkTelMsg: checkSelfPermission");
+            return true;
+        } else {
+            // 更新出最新的通话记录的时间
+            mCallInfoBean = TelInfoUntil.getCallInfo(mContext, mCallInfoBean);
+            Log.d(TAG, "checkTelMsg: mCallInfoBean的内容: " + mCallInfoBean.toString());
+            if (mCallInfoBean.isCanReser()) {
+                mStartCallTime = mCallInfoBean.getCallStartTimeChar();
+                mCallTime = TimeUtil.getTimeHMS(mCallInfoBean.getDuration() * 1000);
+                if (mCallInfoBean.isNeedPushService()) {
+                    setTelMsg();
+                }
+                Log.d(TAG, "checkTelMsg: mCallInfoBean的内容: " + mCallInfoBean.toString());
+                return false;
+            } else {
+                Log.d(TAG, "checkTelMsg: callPhoneDialog");
+                callPhoneDialog();
+                return true;
+            }
+        }
+    }
+
+    // 预约失败的原因
+    private String reasonTitle = "";
+    // 无法胜任的备注
+    private String reasonSpinner = "";
+    private String titleReasonSpinnerArray[] = {"", "停止合作", "技能不足", "无法覆盖", "地址错误", "其他"};
+    private String titleReasonSpinner;
+    private int flagReasonSpinner = 0;
+
+
+    /**
+     * 无法胜任
+     */
+    private void noWork() {
+//        mPopDialog = new PopDialog(ActionPickAct.this);
+//        mPopDialog.setText("地址异常", "确认地址异常无法胜任此工单，请求总部改派？", null);
+//        reasonTitle = "地址异常";
+//        showPopDialog();
+        final MyAlertDialog myAlertDialog = new MyAlertDialog.Builder(mContext)
+                .setContentView(R.layout.pop_spinner_select)
+                .setCancelable(true)
+                .setDefaultAnimation()
+                .setVisibility(R.id.et_other_reason, View.INVISIBLE)
+                .setFullWith()
+                .show();
+        // 取消
+        myAlertDialog.setClick(R.id.btn_cancel, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                myAlertDialog.dismiss();
+            }
+        });
+        // 确定
+        myAlertDialog.setClick(R.id.btn_confirm, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (flagReasonSpinner == 0) {
+                    showToast("请先选择原因");
+                    return;
+                }
+                titleReasonSpinner = titleReasonSpinnerArray[flagReasonSpinner];
+                if (flagReasonSpinner != 5) {
+                    reasonSpinner = "";
+                } else {
+                    reasonSpinner = myAlertDialog.getText(R.id.et_other_reason);
+                    if (StringUtil.isEmpty(reasonSpinner)) {
+                        showToast("请填写原因备注");
+                        return;
+                    }
+                }
+                inCompetence(titleReasonSpinner, reasonSpinner);
+                myAlertDialog.dismiss();
+            }
+        });
+        // 安装
+        myAlertDialog.setSpinnerItemSelectClick(R.id.spinner_reason, new Spinner.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                flagReasonSpinner = position;
+                if (position == 5) {
+                    myAlertDialog.setVisibility(R.id.et_other_reason, View.VISIBLE);
+                } else {
+                    myAlertDialog.setVisibility(R.id.et_other_reason, View.INVISIBLE);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                showToast("一个都没有选");
+            }
+        });
+    }
+
+    /**
+     * 无法胜任的网络请求
+     *
+     * @param titleReasonSpinner
+     * @param reasonSpinner
+     */
+    private void inCompetence(String titleReasonSpinner, String reasonSpinner) {
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_APP_ORDER_ADDRESS_CORRECTION);
+        reqJson.setUser_id(LoginUtil.getUserId(mContext));
+        reqJson.setOrder_title_id(String.valueOf(order_title_id));
+        reqJson.setHas_rows("no");
+        reqJson.setCorrection_cause(titleReasonSpinner);
+        reqJson.setOther_remarks(reasonSpinner);
+        showProgressDialog("正在预约");
+        mSubscription = ApiImp.get().action(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Base>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        dissmisProgressDialog();
+                        showToast("网络不给力");
+                    }
+
+                    @Override
+                    public void onNext(Base model) {
+                        dissmisProgressDialog();
+                        int flag = model.getResult().getOut_Flag();
+                        if (flag == 0) {
+                            Intent intent = new Intent(mContext, ActionResultAct.class);
+                            intent.putExtra("action", Constant.PROC_APP_ORDER_RESERVING_FAIL);
+                            intent.putExtra("id", order_title_id);
+                            intent.putExtra("status", mOrder.getRows().get(0).getWorker_status());
+                            intent.putExtra("nextTime", "");
+                            intent.putExtra("questIndex", "无法胜任");
+                            startActivity(intent);
+                            finish();
+                        } else {
+                            showToast(model.getResult().getOut_nszRtn());
+                        }
+                    }
+                });
+    }
+
+    /**
+     * 无需安装
+     */
+    private void noInstall() {
+        mPopDialog = new PopDialog(ActionPickAct.this);
+        mPopDialog.setText("客户无需安装", "客户无需安装（回应总部复核）", null);
+        reasonTitle = "客户无需安装";
+        showPopDialog();
+    }
+
+    /*遇到问题操作方法*/
+    private void startQ() {
+        Intent intent = new Intent(mContext, OrderQuestionAct.class);
+        intent.putExtra("bean", mOrder.getRows().get(0));
+        startActivity(intent);
+    }
+
+    /**
+     * 显示
+     */
+    private void showPopDialog() {
+        mPopDialog.setOnDialogListener(new PopDialog.OnDialogListener() {
+            @Override
+            public void onIsConfirm(boolean is) {
+                switch (reasonTitle) {
+                    // 无需安装
+                    case "客户无需安装":
+                        if (is) doAction("", "1", "", "", 4);
+                        break;
+                    // 地址异常
+                    case "地址异常":
+                        if (is) doAction("", "1", "", "", 5);
+                        break;
+                }
+            }
+        });
+        mPopDialog.show(mTitle);
+    }
+
+    /**
+     * 预约失败操作
+     *
+     * @param day             更新的日期
+     * @param time            上午,下午,晚上
+     * @param reserved_result 不用的参数
+     * @param nextTime        下次时间
+     * @param questIndex      问题的类型 4 无需安装 5 地址异常
+     */
+    private void doAction(String day, String time, String reserved_result, final String nextTime, final int questIndex) {
+        Order.RowsBean rowsBean = mOrder.getRows().get(0);
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_APP_ORDER_RESERVING_FAIL);
+        reqJson.setUser_id(LoginUtil.getUserId(mContext));
+        reqJson.setOrder_title_id(String.valueOf(order_title_id));
+        reqJson.setParent_biz_order_id(rowsBean.getParent_biz_order_id());
+        reqJson.setService_order_id(getServiceOrderId());
+        reqJson.setFail_code(String.valueOf(questIndex));
+        reqJson.setReserved_result(reserved_result);
+        reqJson.setNext_resv_time(time);
+        reqJson.setNext_resv_date(day);
+        reqJson.setWorker_name(LoginUtil.getUserName(mContext));
+        reqJson.setWorker_mobile(LoginUtil.getTel(mContext));
+        reqJson.setHas_rows("no");
+        showProgressDialog("正在预约");
+        reqJson.setCancel_launch(4);
+        mSubscription = ApiImp.get().action(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Base>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        dissmisProgressDialog();
+                        showToast("网络不给力");
+                    }
+
+                    @Override
+                    public void onNext(Base model) {
+                        dissmisProgressDialog();
+                        int flag = model.getResult().getOut_Flag();
+                        if (flag == 0) {
+                            Intent intent = new Intent(mContext, ActionResultAct.class);
+                            intent.putExtra("action", Constant.PROC_APP_ORDER_RESERVING_FAIL);
+                            intent.putExtra("id", order_title_id);
+                            intent.putExtra("status", mOrder.getRows().get(0).getWorker_status());
+                            intent.putExtra("nextTime", nextTime);
+                            intent.putExtra("questIndex", questIndex);
+                            startActivity(intent);
+                            finish();
+                        } else {
+                            showToast(model.getResult().getOut_nszRtn());
+                        }
+                    }
+                });
+    }
+
+    private void setAddImgs() {
+        mAddImgs.setVisibility(View.VISIBLE);
+        mAddImgAdapter = new AddImgAdapter(mContext, null);
+        mAutoGridViewAdd.setAdapter(mAddImgAdapter);
+    }
+
+    private FinishImgAdapter mFinishImgAdapter;
+
+    private void setFinishImgs() {
+        String imgs = mOrder.getRows().get(0).getFinished_images();
+        if (!StringUtil.isEmpty(imgs)) {
+            mAddImgs.setVisibility(View.VISIBLE);
+            mFinishImgAdapter = new FinishImgAdapter(mContext, imgs);
+            mAutoGridViewAdd.setAdapter(mFinishImgAdapter);
+        }
+    }
+
+    private void setTZ() {
+        if (mOrder.getRows1() != null) {
+            final List<Order.Rows1Bean> list = new ArrayList<>();
+            for (Order.Rows1Bean bean : mOrder.getRows1()) {
+                if (bean.getCancel_flag() == 0) {
+                    list.add(bean);
+                }
+            }
+            if (list.size() > 0) {
+                service_tz.setVisibility(View.VISIBLE);
+                service_tz.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG); //下划线
+                service_tz.getPaint().setAntiAlias(true);//抗锯齿
+                service_tz.setTextColor(getResources().getColor(R.color.black));
+                service_tz.setEnabled(true);
+                // 完工中的服务调整审核待确认中
+                if (mOrder.getRows().get(0).getCancel() == 1) {
+                    service_tz.setTextColor(getResources().getColor(R.color.light_black));
+                    service_tz.setEnabled(false);
+                }
+                service_tz.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(mContext, ChangeServiceGoodsAct.class);
+                        intent.putExtra("id", order_title_id);
+                        intent.putExtra("bean", (Serializable) list);
+                        intent.putExtra("servicebean", (Serializable) mOrder.getRows4());
+                        startActivity(intent);
+                    }
+                });
+            }
+        }
+    }
+
+    private void setTotalPrice() {
+        if (mOrder.getRows1() != null) {
+            final List<Order.Rows1Bean> list = new ArrayList<>();
+            double price = 0;
+            for (Order.Rows1Bean bean : mOrder.getRows1()) {
+                //&& "Y".equals(bean.getS_org_show_status())
+                if (bean.getCancel_flag() == 0 && !StringUtil.isEmpty(bean.getService_money())) {
+                    double money = Double.valueOf(bean.getService_money());
+                    price = money + price;
+                }
+            }
+            if (price > 0) {
+                tv_total_price.setText(String.valueOf(price));
+            } else {
+                tv_total_price.setText("");
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == AddImgAdapter.PERMISSON_STORGE) {
+            if (grantResults != null && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                mAddImgAdapter.selectPhoto();
+            } else {
+                showToast("权限被禁止，无法选取图片");
+            }
+        } else if (requestCode == CALL_PHONE_CODE) {
+            if (grantResults != null && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                callPhone();
+            } else {
+                showToast("未获取到权限，无法拨打电话");
+            }
+        } else if (requestCode == PERMISSON_LOC) {
+            if (grantResults != null && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                getLocation();
+            } else {
+                showToast("权限被禁止，无法获取位置信息");
+            }
+        } else if (requestCode == PERMISSON_STORGE) {
+            if (grantResults != null && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                showMSF();
+            } else {
+                showToast("请授予权限");
+            }
+        } else if (requestCode == PERMISSON_CALL_LOG) {
+            if (grantResults != null && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // 更新出最新的通话记录的时间
+//                mCallInfoBean = TelInfoUntil.getCallInfo(mContext, mCallInfoBean);
+                showToast("权限授予成功，请继续进行操作");
+            } else {
+                showToast("请授予权限");
+            }
+        }
+    }
+
+    private CountDownTimer mCountDownTimerSingIn;
+
+    private void setSignIn(final long time) {
+        mCountDownTimerSingIn = new CountDownTimer(time, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                mBtnNext.setText("距离签到时间还有" + CountDownUtil.getCountDownSTR(millisUntilFinished));
+            }
+
+            @Override
+            public void onFinish() {
+                mBtnNext.setText("签到");
+            }
+        };
+        mCountDownTimerSingIn.start();
+    }
+
+    private void checkPermissionPhone() {
+        if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.CALL_PHONE) !=
+                PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CALL_PHONE},
+                    CALL_PHONE_CODE);
+        } else {
+            callPhone();
+        }
+    }
+
+    private final int CALL_PHONE_CODE = 0X334;
+
+    private void callPhone() {
+        Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + mTvBuyerMobile.getText().toString()));
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        startActivity(intent);
+    }
+
+    private void action(final String action, ReqJson reqJson) {
+        mSubscription = ApiImp.get().action(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Base>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        dissmisProgressDialog();
+                        showToast("网络不给力");
+                    }
+
+                    @Override
+                    public void onNext(Base model) {
+                        dissmisProgressDialog();
+                        if (action.equals(Constant.PROC_APP_ORDER_TAKING_EDIT)) {
+                            HashMap<String, String> map = new HashMap<String, String>();
+                            map.put("type", "接单");
+                            MobclickAgent.onEventValue(mContext, "2", map, 1);
+                        }
+                        if (action.equals(Constant.PROC_APP_ORDER_TAKING_CANCEL)) {
+                            HashMap<String, String> map = new HashMap<String, String>();
+                            map.put("type", "拒接单");
+                            MobclickAgent.onEventValue(mContext, "3", map, 1);
+                        }
+                        if (action.equals(Constant.PROC_APP_ORDER_FINISHING_EDIT)) {
+                            HashMap<String, String> map = new HashMap<String, String>();
+                            map.put("type", "完工");
+                            MobclickAgent.onEventValue(mContext, "6", map, 1);
+                        }
+                        if (action.equals(Constant.PROC_APP_ORDER_LOGGING_EDIT)) {
+                            HashMap<String, String> map = new HashMap<String, String>();
+                            map.put("type", "签到");
+                            MobclickAgent.onEventValue(mContext, "4", map, 1);
+                        }
+                        int flag = model.getResult().getOut_Flag();
+                        if (flag == 0) {
+                            notifyOrderStatusChange();
+                            // 通知服务端工单天猫已核销PROC_APP_WORKER_VERIFICATION_EDIT
+                            if (action.equals(Constant.PROC_APP_WORKER_VERIFICATION_EDIT)) {
+                                return;
+                            }
+                            if (!action.equals(Constant.PROC_APP_ORDER_LOGGING_EDIT)) {
+                                Intent intent = new Intent(mContext, ActionResultAct.class);
+                                intent.putExtra("action", action);
+                                intent.putExtra("id", order_title_id);
+                                intent.putExtra("status", mOrder.getRows().get(0).getWorker_status());
+                                //当为预约成功操作时，把预约时间传到下一个页面显示
+                                if (action.equals(Constant.PROC_APP_ORDER_RESERVING_EDIT)) {
+                                    intent.putExtra("timeStr", mSelectDay + " " + mWeek + selectTimeStr + "  " + SELECT_TIMES_AREA[selectTime]);
+                                }
+                                startActivity(intent);
+                                finish();
+                            } else {
+                                if (mOrder.getRows().get(0).getB_org_otype_code().equals("TM")) {
+                                    Intent intent = new Intent(mContext, ActionResultAct.class);
+                                    intent.putExtra("action", action);
+                                    intent.putExtra("id", order_title_id);
+                                    intent.putExtra("isTM", true);
+                                    intent.putExtra("status", mOrder.getRows().get(0).getWorker_status());
+                                    startActivity(intent);
+                                } else {
+                                    Intent intent = new Intent(mContext, ActionResultAct.class);
+                                    intent.putExtra("action", action);
+                                    intent.putExtra("id", order_title_id);
+                                    intent.putExtra("status", mOrder.getRows().get(0).getWorker_status());
+                                    startActivity(intent);
+                                    finish();
+                                }
+                            }
+                        } else {
+                            showToast(model.getResult().getOut_nszRtn());
+                        }
+                    }
+                });
+    }
+
+    /**
+     * 通知外部列表 数量变化
+     */
+    private void notifyOrderStatusChange() {
+        EventMessage message = new EventMessage(EventCode.EVENT_ORDER_STATUS_CHANGE, "");
+        EventBus.getDefault().post(message);
+    }
+
+    //下拉刷新重新获取数据
+    private void OrderRefresh() {
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.ORDER_DETAIL_PROC);
+        reqJson.setOrder_title_id(String.valueOf(order_title_id));
+        reqJson.setHas_rows("yes");
+        reqJson.setUser_id(LoginUtil.getUserId(mContext));
+        mSubscription = ApiImp.get().getDetail(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Order>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                        showToast("数据异常");
+                        finish();
+                    }
+
+                    @Override
+                    public void onNext(Order model) {
+                        showLoading(false, "加载中，请稍等");
+                        if (model.getResult().getOut_Flag() == 0 && model.getRows() != null) {
+                            mOrder = model;
+                            // 根棍本地通话时间
+                            mCallInfoBean = TelInfoUntil.initCallInfo(mOrder.getRows().get(0).getBuyer_mobile(), mOrder.getRows5().get(0));
+                            setDetail();
+                            String inRemind = (String) SPUtils.get(mContext, SharePerenceCode.SP_USER_IS_ACTIVITY_STATUE,"N");
+                            if (inRemind.equals("Y")&&(model.getRows().get(0).getIs_activity()==1)){
+                                showQuicknessInstallHint();
+                            }
+                            mPullDownScrollView.finishRefresh("刷新成功");
+                        } else {
+                            showToast(model.getResult().getOut_nszRtn());
+                            finish();
+                        }
+                    }
+                });
+    }
+
+    private void getOrderDetail() {
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.ORDER_DETAIL_PROC);
+        reqJson.setOrder_title_id(String.valueOf(order_title_id));
+        reqJson.setHas_rows("yes");
+        reqJson.setUser_id(LoginUtil.getUserId(mContext));
+        mSubscription = ApiImp.get().getDetail(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Order>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                        Log.i("=====throwable", "onError: " + e.getMessage());
+                        showToast("数据异常");
+                        finish();
+                    }
+
+                    @Override
+                    public void onNext(Order model) {
+                        showLoading(false, "加载中，请稍等");
+                        if (model.getResult().getOut_Flag() == 0 && model.getRows() != null) {
+                            mOrder = model;
+                            // 根棍本地通话时间
+                            mCallInfoBean = TelInfoUntil.initCallInfo(mOrder.getRows().get(0).getBuyer_mobile(), mOrder.getRows5().get(0));
+                            setDetail();
+                            String inRemind = (String) SPUtils.get(mContext, SharePerenceCode.SP_USER_IS_ACTIVITY_STATUE,"N");
+                            if (inRemind.equals("Y")&&(model.getRows().get(0).getIs_activity()==1)){
+                                showQuicknessInstallHint();
+                            }
+                        } else {
+                            showToast(model.getResult().getOut_nszRtn());
+                            finish();
+                        }
+                    }
+                });
+    }
+
+    private void getOrderWL() {
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.ORDER_DETAIL_PROC);
+        reqJson.setOrder_title_id(String.valueOf(order_title_id));
+        reqJson.setHas_rows("yes");
+        reqJson.setUser_id(LoginUtil.getUserId(mContext));
+        mSubscription = ApiImp.get().getDetail(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Order>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                        showToast("数据异常");
+                        finish();
+                    }
+
+                    @Override
+                    public void onNext(Order model) {
+                        showLoading(false, "加载中，请稍等");
+                        if (model.getResult().getOut_Flag() == 0 && model.getRows() != null) {
+                            mOrder = model;
+                            // 根棍本地通话时间
+                            mCallInfoBean = TelInfoUntil.initCallInfo(mOrder.getRows().get(0).getBuyer_mobile(), mOrder.getRows5().get(0));
+                            setDetail();
+                            String inRemind = (String) SPUtils.get(mContext, SharePerenceCode.SP_USER_IS_ACTIVITY_STATUE,"N");
+                            if (inRemind.equals("Y")&&(model.getRows().get(0).getIs_activity()==1)){
+                                showQuicknessInstallHint();
+                            }
+                        } else {
+                            showToast(model.getResult().getOut_nszRtn());
+                            finish();
+                        }
+                    }
+                });
+    }
+
+    @Override
+    public void onEventMainThread(EventMessage event) {
+        super.onEventMainThread(event);
+        if (EventCode.EVENT_ORDER_CHANGE == event.action) {
+            mAddImgs.setVisibility(View.GONE);
+            view_question.setVisibility(View.GONE);
+            view_handle_question.setVisibility(View.GONE);
+            service_tz.setVisibility(View.INVISIBLE);
+            getOrderDetail();
+        } else if (EventCode.EVENT_START_MSF == event.action) {
+            getOrderDetail();
+            String outerId = getServiceOrderId();
+            String orderIds = mOrder.getRows().get(0).getParent_biz_order_id();
+            if (outerId != null && orderIds != null) {
+                checkPermission(2);
+//                showMSF(outerId, orderIds);
+            }
+        } else if (EventCode.EVENT_ORDER_SET_FAIL == event.action) {
+            finish();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK && requestCode == PickConfig.PICK_REQUEST_CODE) {
+            //在data中返回 选择的图片列表
+            ArrayList<String> paths = data.getStringArrayListExtra("data");
+            mAddImgAdapter.addAllUpdate(paths);
+        } else if (resultCode == RESULT_OK) {
+            if (requestCode == REQUEST_CODE_MSF) {//这里的9999对应调用sign方法中传入的requestCode
+                String msg = data.getStringExtra("ResultToPartner");
+                if (StringUtil.isEmpty(msg)) {
+                    showToast("同步失败");
+                } else {
+                    mMSFModel = new Gson().fromJson(msg, MSFModel.class);
+                    setMsfSuccess();
+                }
+                TLog.i(msg);
+            }
+        }
+    }
+
+    MSFModel mMSFModel;
+
+    /**
+     * 喵师傅同步成功
+     */
+    private void setMsfSuccess() {
+        if (mMSFModel != null) {
+            if (mMSFModel.isVerifysuccess()) {
+                //核销成功
+                setFinsihBtn();
+                onVerifySuccess();
+            }
+        }
+    }
+
+    /**
+     * order_title_id	BIGINT	工单id
+     * worker_verification_status	TINYINT	技师核销状态
+     * worker_verification_time	DATETIME	技师核销时间
+     * verification_code	VARCHAR(20)	核销码
+     */
+    private void onVerifySuccess() {
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_APP_WORKER_VERIFICATION_EDIT);
+        reqJson.setOrder_title_id(String.valueOf(order_title_id));
+        reqJson.setHas_rows("no");
+        reqJson.setVerification_code("android");
+        reqJson.setWorker_verification_status(1);
+        reqJson.setUser_id(LoginUtil.getUserId(mContext));
+        reqJson.setWorker_verification_time(TimeUtil.getCurrentTime());
+        action(Constant.PROC_APP_WORKER_VERIFICATION_EDIT, reqJson);
+        HashMap<String, String> map = new HashMap<String, String>();
+        map.put("type", "核销");
+        MobclickAgent.onEventValue(mContext, "5", map, 1);
+    }
+
+    //    /**
+//     * 该接口会以 startActivityForResult(intent, requestCode) 方式启动喵师傅
+//     * 在喵师傅结束后会以前setResult(RESULT_OK, intent)形式返回 可以用于接收订单核销状态
+//     *
+//     * @param   内部订单号
+//     * @param  天猫父订单号，校验必须存在
+//     * @throws IllegalArgumentException 参数非法异常
+//     */
+// @param requestCode 是否需要已setResult(RESULT_OK, intent)返回
+//  @param serviceType 服务类型，0：家装的送货上门并安装，1：单向安装，2：建材的送货上门，3：建材的安装，4：建材的送货上门和安装
+    private void showMSF() {
+        if (mOrder != null) {
+            String outerId = getServiceOrderId();
+            String orderIds = mOrder.getRows().get(0).getParent_biz_order_id();
+            if (outerId != null && orderIds != null) {
+                MsfSdk.sign(Constant.TPID, outerId, orderIds, Constant.SERVICE_TYPE, this, REQUEST_CODE_MSF);
+//                final MsfService myService = AlibabaSDK.getService(MsfService.class);
+//                myService.sign(this, outerId, orderIds, Constant.TPID, Constant.SERVICE_TYPE, REQUEST_CODE_MSF);
+            }
+        }
+    }
+
+    private List<String> upLoadImgs = new ArrayList<>();
+
+    //完工操作,wu'xuan'zhaun
+    private void uploadImg(final String img, final int inex) {
+        showProgressDialog("上传图片");
+        String url = BitmapUtils.INSTANCE.compress(img);
+        // 用来规则上传的文件的名称;
+        StringBuilder sb = new StringBuilder();
+        String fileName = "";
+        fileName = String.valueOf(sb.append(mOrder.getRows().get(0).getParent_wk_order_id()).append("-p-").append(inex + 1 + ""));
+        Log.i("主工单号", fileName);
+        File file = new File(url);
+        RequestBody photoRequestBody = RequestBody.create(MediaType.parse("image/png"), file);
+        MultipartBody.Part photo = MultipartBody.Part.createFormData("workimg", fileName + ".png", photoRequestBody);
+        mSubscription = ApiImp.get().uploadWorkImg(photo)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<UpLoadModel>() {
+                    @Override
+                    public void onCompleted() {
+                        if (!isFinishing()) {
+                            if (!((inex + 1) < mAddImgAdapter.getList().size() - 1)) {
+                                dissmisProgressDialog();
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        if (!isFinishing()) {
+                            dissmisProgressDialog();
+                        }
+                        showToast("网络不给力");
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onNext(UpLoadModel model) {
+                        TLog.i(String.valueOf(model));
+                        upLoadImgs.add(model.getFilename());
+                        if ((inex + 1) < mAddImgAdapter.getList().size() - 1) {
+                            //没有上传完
+                            uploadImg(mAddImgAdapter.getList().get(inex + 1), inex + 1);
+                        } else {
+                            finishOrder();
+                        }
+                    }
+                });
+    }
+
+    /**
+     * 检测该包名所对应的应用是否存在
+     *
+     * @param packageName
+     * @return
+     */
+
+    public boolean checkPackage(String packageName) {
+        if (packageName == null || "".equals(packageName))
+            return false;
+        try {
+            getPackageManager().getApplicationInfo(packageName, PackageManager.GET_UNINSTALLED_PACKAGES);
+            return true;
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
+        }
+
+    }
+
+    /**
+     * 下拉刷新
+     *
+     * @param view
+     */
+    @Override
+    public void onRefresh(PullDownScrollView view) {
+        OrderRefresh();
+    }
+
+    //补发服务码
+    private void ressiueCode() {
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_APP_IDENTIFYCODE_AGAIN);
+        reqJson.setBuyer_mobile(mOrder.getRows().get(0).getBuyer_mobile());
+        reqJson.setOrder_title_id(mOrder.getRows().get(0).getOrder_title_id() + "");
+        reqJson.setHas_rows("no");
+        reqJson.setUser_id(LoginUtil.getUserId(mContext));
+        mSubscription = ApiImp.get().getDetail(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Order>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                        showToast("数据异常");
+                        finish();
+                    }
+
+                    @Override
+                    public void onNext(Order model) {
+                        mCountDownTimersendcode.start();
+                        showToast(model.getResult().getOut_nszRtn());
+                    }
+                });
+    }
+
+    CountDownTimer mCountDownTimersendcode = new CountDownTimer(60000, 1000) {
+        @Override
+        public void onTick(long millisUntilFinished) {
+            reissueTV.setEnabled(false);
+            reissueTV.setBackgroundResource(R.drawable.btn_gray);
+            reissueTV.setText("重新发送" + millisUntilFinished / 1000 + "S");
+        }
+
+        @Override
+        public void onFinish() {
+            reissueTV.setEnabled(true);
+            reissueTV.setBackgroundResource(R.color.red_dark);
+            reissueTV.setText("重新发送");
+        }
+    };
+
+    /**
+     * 将通话记录传递给服务器
+     */
+    private void setTelMsg() {
+        Log.d(TAG, "onReceive: 通话开始时间mStartCallTime的内容 : " + mStartCallTime);
+        Log.d(TAG, "onReceive: 通话时间mCallTime的内容 : " + mCallTime);
+        Log.d(TAG, "onReceive: 进行网络请求的内容");
+        Log.d(TAG, "onReceive: 呼叫电话的内容: " + mCallNumber);
+        Log.d(TAG, "onReceive: 客户电话的内容: " + mTvBuyerMobile.getText().toString());
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_APP_ORDER_CALL_RECORD_SAVE);
+        reqJson.setParent_wk_order_id(mOrder.getRows().get(0).getParent_wk_order_id());
+        reqJson.setS_worker_id(LoginUtil.getUserId(mContext));
+        reqJson.setCall_begin_time(mStartCallTime);
+        reqJson.setCall_time(mCallTime);
+        reqJson.setBuyer_mobile(mOrder.getRows().get(0).getBuyer_mobile());
+        reqJson.setCall_num(mOrder.getRows5().get(0).getAppoint_times() + 1);
+        reqJson.setHas_rows("no");
+        mSubscription = ApiImp.get().setTelMsg(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<StreetInfoModel>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.i(TAG, e.toString());
+                    }
+
+                    @Override
+                    public void onNext(StreetInfoModel streetInfoModel) {
+                        mCallInfoBean.setNeedPushService(false);
+                    }
+                });
+    }
+
+//    class MyTelBroadCastReciver extends BroadcastReceiver {
+//
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            mStartCallTime = intent.getStringExtra("firstCallTime");
+//            mCallTime = intent.getStringExtra("callTime");
+//            mCallNumber = intent.getStringExtra("incomingNumber");
+//            if (!mCallNumber.equals(mTvBuyerMobile.getText().toString())) {
+//                Log.d(TAG, "onReceive: 电话未拨打成功");
+//                Log.d(TAG, "onReceive: 呼叫电话: " + mCallNumber);
+//                Log.d(TAG, "onReceive: 客户电话: " + mTvBuyerMobile.getText().toString());
+//                return;
+//            }
+//            Log.d(TAG, "onReceive: 通话开始时间mStartCallTime : " + mStartCallTime);
+//            Log.d(TAG, "onReceive: 通话时间mCallTime : " + mCallTime);
+//            Log.d(TAG, "onReceive: 进行网络请求");
+//            Log.d(TAG, "onReceive: 呼叫电话: " + mCallNumber);
+//            Log.d(TAG, "onReceive: 客户电话: " + mTvBuyerMobile.getText().toString());
+//            ReqJson reqJson = new ReqJson();
+//            reqJson.setProc(Constant.PROC_APP_ORDER_CALL_RECORD_SAVE);
+//            reqJson.setParent_wk_order_id(mOrder.getRows().get(0).getParent_wk_order_id());
+//            reqJson.setCall_begin_time(mStartCallTime);
+//            reqJson.setCall_time(mCallTime);
+//            reqJson.setBuyer_mobile(mOrder.getRows().get(0).getBuyer_mobile());
+//            reqJson.setCall_num(mOrder.getRows5().get(0).getAppoint_times() + 1);
+//            reqJson.setHas_rows("no");
+//            mSubscription = ApiImp.get().setTelMsg(Params.getNetWorkParams(reqJson))
+//                    .subscribeOn(Schedulers.io())
+//                    .observeOn(AndroidSchedulers.mainThread())
+//                    .subscribe(new Observer<StreetInfoModel>() {
+//                        @Override
+//                        public void onCompleted() {
+//                        }
+//
+//                        @Override
+//                        public void onError(Throwable e) {
+//                            Log.i(TAG, e.toString());
+//                        }
+//
+//                        @Override
+//                        public void onNext(StreetInfoModel streetInfoModel) {
+//                            mIsCanReser = true;
+//                        }
+//                    });
+//        }
+//    }
+}

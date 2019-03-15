@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginTop="4dp"
+              android:background="@android:color/white"
+              android:orientation="horizontal">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:orientation="vertical"
+        android:paddingBottom="8dp"
+        android:paddingTop="8dp">
+
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:text="台一体成型式台盆 X 1"
+            android:textColor="@color/gray_dark"
+            android:textSize="@dimen/text_medium"/>
+
+
+        <TextView
+            android:id="@+id/desc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="产品型号:  ************"
+            android:textColor="@color/gray_dark"
+            android:textSize="@dimen/text_medium"/>
+
+    </LinearLayout>
+
+
+    <CheckBox
+        android:id="@+id/cb_goods"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_margin="@dimen/item_margin"
+        android:layout_marginTop="8dp"/>
+
+</LinearLayout>
+

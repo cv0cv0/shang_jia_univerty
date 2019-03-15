@@ -1,0 +1,474 @@
+package com.rubu.ui.act.mine;
+
+import android.content.Intent;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.rubu.R;
+import com.rubu.base.BaseActivity;
+import com.rubu.constant.Constant;
+import com.rubu.model.Base;
+import com.rubu.net.ApiImp;
+import com.rubu.net.Params;
+import com.rubu.net.ReqJson;
+import com.rubu.ui.act.ActionPickAct;
+import com.rubu.ui.act.MsgDetialWebViewActivity;
+import com.rubu.ui.act.mine.model.MsgModel;
+import com.rubu.ui.act.mine.model.MsgOrderAddressAmend;
+import com.rubu.ui.act.mine.model.MsgOrderCancelModel;
+import com.rubu.ui.act.mine.model.MsgOrderReassignMentModel;
+import com.rubu.ui.act.mine.model.MsgOrderReminderListModel;
+import com.rubu.ui.act.mine.model.MsgOrderReminderModel;
+import com.rubu.ui.act.mine.view.MsgAddressAmendItemView;
+import com.rubu.ui.act.mine.view.MsgListItemView;
+import com.rubu.ui.act.mine.view.MsgOrderCancelItemView;
+import com.rubu.ui.act.mine.view.MsgOrderReassignItemView;
+import com.rubu.util.LoginUtil;
+import com.scwang.smartrefresh.layout.SmartRefreshLayout;
+import com.scwang.smartrefresh.layout.api.RefreshLayout;
+import com.scwang.smartrefresh.layout.listener.OnLoadmoreListener;
+import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
+
+import java.util.List;
+
+import butterknife.BindView;
+import butterknife.OnClick;
+import me.drakeet.multitype.Items;
+import me.drakeet.multitype.MultiTypeAdapter;
+import rx.Observer;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
+/**
+ * Created by liuhaizhu on 2017/3/6.
+ */
+
+public class MsgAct extends BaseActivity {
+    @BindView(R.id.title_left)
+    TextView mTitleLeft;
+    @BindView(R.id.title)
+    TextView mTitle;
+    @BindView(R.id.smare_fa_sha)
+    SmartRefreshLayout mRefreshLayout;
+    @BindView(R.id.recycle_view)
+    RecyclerView mRecycleView;
+    @BindView(R.id.tv_msg_news_notice)
+    TextView mTVMsgNewNotice;
+    @BindView(R.id.tv_msg_order_reminder)
+    TextView mTVMsgOrderReminder;
+    // 自适应的列表内容
+    private MultiTypeAdapter multiTypeAdapter;
+    // 列表内容
+    private Items items = new Items();
+    // 分页加载
+    private int page = 1;
+    // 最大页数
+    private int maxPage;
+    // 消息类型刷新第几个页面
+    private int msgType;
+
+    @Override
+    protected int getViewId() {
+        return R.layout.act_webview_msg;
+    }
+
+    @OnClick({R.id.tv_msg_news_notice, R.id.tv_msg_order_reminder})
+    public void OnClick(View view) {
+        switch (view.getId()) {
+            case R.id.tv_msg_news_notice:
+                msgType = 1;
+                selectTitle(msgType);
+                loadNewsNoticeData(MineAction.REFRESH);
+                break;
+            case R.id.tv_msg_order_reminder:
+                msgType = 2;
+                selectTitle(msgType);
+                loadOrderReminderData(MineAction.REFRESH);
+                break;
+        }
+    }
+
+    /**
+     * 选择的位置的不同操作
+     *
+     * @param position
+     */
+    private void selectTitle(int position) {
+        switch (position) {
+            case 1:
+                mTVMsgNewNotice.setBackground(mContext.getResources().getDrawable(R.drawable.bg_msg_title_selected_left));
+                mTVMsgNewNotice.setTextColor(mContext.getResources().getColor(R.color.white));
+                mTVMsgOrderReminder.setBackground(mContext.getResources().getDrawable(R.drawable.bg_msg_title_normal_right));
+                mTVMsgOrderReminder.setTextColor(mContext.getResources().getColor(R.color.colorPrimary));
+                break;
+            case 2:
+                mTVMsgNewNotice.setBackground(mContext.getResources().getDrawable(R.drawable.bg_msg_title_normal_left));
+                mTVMsgNewNotice.setTextColor(mContext.getResources().getColor(R.color.colorPrimary));
+                mTVMsgOrderReminder.setBackground(mContext.getResources().getDrawable(R.drawable.bg_msg_title_selected_right));
+                mTVMsgOrderReminder.setTextColor(mContext.getResources().getColor(R.color.white));
+                break;
+        }
+    }
+
+    @Override
+    protected void initEvent() {
+        mTitleLeft.setText(R.string.back);
+        mTitleLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+        mTitle.setText("消息");
+        initMsgType();
+        selectTitle(msgType);
+        // 初始化列表
+        initRecycleView();
+        mRefreshLayout.setOnRefreshListener(new OnRefreshListener() {
+            @Override
+            public void onRefresh(RefreshLayout refreshlayout) {
+                if (msgType == 1) {
+                    loadNewsNoticeData(MineAction.REFRESH);
+
+                } else {
+                    loadOrderReminderData(MineAction.REFRESH);
+                }
+            }
+        });
+        mRefreshLayout.setOnLoadmoreListener(new OnLoadmoreListener() {
+            @Override
+            public void onLoadmore(RefreshLayout refreshlayout) {
+                if (msgType == 1) {
+                    loadNewsNoticeData(MineAction.LOAD_MORE);
+                } else {
+                    loadOrderReminderData(MineAction.LOAD_MORE);
+                }
+            }
+        });
+        mRefreshLayout.autoRefresh();
+    }
+
+    /**
+     * 根据设置的消息类型来设置不同的消息
+     */
+    private void initMsgType() {
+        int msgType = getIntent().getIntExtra("MsgType", 1);
+        this.msgType = msgType;
+    }
+
+    // 初始化recycleView
+    private void initRecycleView() {
+        mRecycleView.setLayoutManager(new LinearLayoutManager(mContext));
+        multiTypeAdapter = new MultiTypeAdapter(items);
+        // 新闻公告
+        MsgListItemView msgListItemView = new MsgListItemView();
+        multiTypeAdapter.register(MsgModel.RowsBean.class, msgListItemView);
+        msgListItemView.setOnItemClickListenner(new MsgListItemView.OnItemClickListenner() {
+            @Override
+            public void onItemClick(MsgModel.RowsBean bean) {
+                // 原生详情页面
+//                Intent intent1 = new Intent(mContext, MsgDetailAct.class);
+                // 网络详情页面
+                Intent intent1 = new Intent(mContext, MsgDetialWebViewActivity.class);
+//                测试机消息地址
+//                String url = "http://10.86.10.15:1520/oms/operater/see1.html?msg_id=" + bean.getMsg_id();
+                // 正式机消息地址
+                String url = "http://www.uphome.cn:8080/scs/admin/see1.html?msg_id=" + bean.getMsg_id();
+                intent1.putExtra("url", url);
+                int msgId = bean.getMsg_id();
+                intent1.putExtra("msgId", msgId);
+                startActivity(intent1);
+            }
+        });
+        // 服务调整和工单取消内容
+        MsgOrderCancelItemView msgOrderCancelItemView = new MsgOrderCancelItemView();
+        multiTypeAdapter.register(MsgOrderCancelModel.class, msgOrderCancelItemView);
+        msgOrderCancelItemView.setOnMsgOrderCancelItemViewListenner(new MsgOrderCancelItemView.OnMsgOrderCancelItemViewListenner() {
+            @Override
+            public void onClick(MsgOrderCancelModel item) {
+                int position = items.indexOf(item);
+                MsgOrderCancelModel bean = (MsgOrderCancelModel) items.get(position);
+                bean.setApp_is_read(1);
+                multiTypeAdapter.notifyDataSetChanged();
+                setRedDot(item);
+            }
+        });
+        // 地址修正
+        MsgAddressAmendItemView msgAddressAmendItemView = new MsgAddressAmendItemView();
+        multiTypeAdapter.register(MsgOrderAddressAmend.class, msgAddressAmendItemView);
+        msgAddressAmendItemView.setOnMsgAddressAmendItemViewListenner(new MsgAddressAmendItemView.OnMsgAddressAmendItemViewListenner() {
+            @Override
+            public void onClick(MsgOrderAddressAmend item) {
+                int position = items.indexOf(item);
+                MsgOrderAddressAmend bean = (MsgOrderAddressAmend) items.get(position);
+                bean.setApp_is_read(1);
+                multiTypeAdapter.notifyDataSetChanged();
+                setRedDot(item);
+            }
+        });
+        // 工单改派
+        MsgOrderReassignItemView msgOrderReassignItemView = new MsgOrderReassignItemView();
+        multiTypeAdapter.register(MsgOrderReassignMentModel.class, msgOrderReassignItemView);
+        msgOrderReassignItemView.setOnMsgAddressAmendItemViewListenner(new MsgOrderReassignItemView.OnMsgOrderReassignItemViewListenner() {
+            @Override
+            public void onClick(MsgOrderReassignMentModel item) {
+                int position = items.indexOf(item);
+                MsgOrderReassignMentModel bean = (MsgOrderReassignMentModel) items.get(position);
+                bean.setApp_is_read(1);
+                multiTypeAdapter.notifyDataSetChanged();
+                setRedDot(item);
+            }
+        });
+        mRecycleView.setAdapter(multiTypeAdapter);
+    }
+
+    private void loadNewsNoticeData(final int action) {
+        if (action == MineAction.REFRESH) {
+            page = 1;
+            items.clear();
+            mRefreshLayout.setLoadmoreFinished(false);
+        }
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_GET_MSG_NEWS_NOTICE_LIST);
+        reqJson.setCurrent(page);
+        reqJson.setPageSize(10);
+        reqJson.setHas_rows("yes");
+        mSubscription = ApiImp.get().getMsg(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<MsgModel>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        showToast("网络不给力");
+                    }
+
+                    @Override
+                    public void onNext(MsgModel model) {
+                        if (model.getResult().getOut_Flag() == 0) {
+                            page++;
+                            int remainder = model.getResult().getOut_zhongtNum() % 10;
+                            maxPage = model.getResult().getOut_zhongtNum() / 10;
+                            if (remainder != 0) {
+                                maxPage++;
+                            }
+                            if (model.getRows() != null) {
+                                items.addAll(model.getRows());
+                                multiTypeAdapter.notifyDataSetChanged();
+                            }
+                            if (page > maxPage) {
+                                mRefreshLayout.setLoadmoreFinished(true);
+                            }
+                            if (action == MineAction.REFRESH) {
+                                mRefreshLayout.finishRefresh();
+                            } else {
+                                mRefreshLayout.finishLoadmore();
+                            }
+                        } else {
+                            Toast.makeText(mContext, model.getResult().getOut_nszRtn(), Toast.LENGTH_SHORT).show();
+                            if (action == MineAction.REFRESH) {
+                                mRefreshLayout.finishRefresh(false);
+                            } else {
+                                mRefreshLayout.finishLoadmore(false);
+                            }
+                        }
+                    }
+                });
+    }
+
+    /**
+     * 加载消息提醒列表
+     * reqJson的参数说明见Rejson对象
+     *
+     * @param action
+     */
+    private void loadOrderReminderData(final int action) {
+        if (action == MineAction.REFRESH) {
+            page = 1;
+            items.clear();
+            mRefreshLayout.setLoadmoreFinished(false);
+        }
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_GET_MSG_ORDER_REMINDER_LIST);
+        reqJson.setB_group_id(0);
+        reqJson.setS_worker_id(LoginUtil.getUserId(mContext));
+        reqJson.setMessage_type("(2,3,4,5,6)");
+        reqJson.setLauch_source("");
+        reqJson.setIs_read(-1);
+        reqJson.setApp_is_read(-1);
+        reqJson.setOrder_by("");
+        reqJson.setFetch_latest(0);
+        reqJson.setCurrentPage(page);
+        reqJson.setPageSize(Integer.MAX_VALUE);
+        reqJson.setHas_rows("yes");
+        mSubscription = ApiImp.get().getMsgOrderReminder(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<MsgOrderReminderModel>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        showToast("网络不给力");
+                    }
+
+                    @Override
+                    public void onNext(MsgOrderReminderModel model) {
+                        if (model.getResult().getOut_Flag() == 0) {
+                            page++;
+                            int remainder = model.getRows().get(0).getOut_zhongtNum() % 10;
+                            maxPage = model.getResult().getOut_zhongtNum() / 10;
+                            if (remainder != 0) {
+                                maxPage++;
+                            }
+                            if (model.getRows() != null) {
+                                List<MsgOrderReminderModel.Rows1Bean> list = model.getRows1();
+                                for (int i = 0; i < list.size(); i++) {
+                                    MsgOrderReminderModel.Rows1Bean bean = list.get(i);
+                                    switch (bean.getMessage_type()) {
+                                        case 2: //2.主单审核通过3.子单取消审核通过4.商户地址修正发起5.客服地址修正发起6.修改列表改派
+                                            items.add(transformOrderAdjust(bean));
+                                            break;
+                                        case 3:
+                                            items.add(transformOrderAdjust(bean));
+                                            break;
+                                        case 4:
+                                            items.add(transformAddressAmend(bean));
+                                            break;
+                                        case 5:
+                                            items.add(transformAddressAmend(bean));
+                                            break;
+                                        case 6:
+                                            items.add(transformOrderReassignMent(bean));
+                                            break;
+                                    }
+                                }
+                                multiTypeAdapter.notifyDataSetChanged();
+                            }
+                            if (page > maxPage) {
+                                mRefreshLayout.setLoadmoreFinished(true);
+                            }
+                            if (action == MineAction.REFRESH) {
+                                mRefreshLayout.finishRefresh();
+                            } else {
+                                mRefreshLayout.finishLoadmore();
+                            }
+                        } else {
+                            Toast.makeText(mContext, model.getResult().getOut_nszRtn(), Toast.LENGTH_SHORT).show();
+                            if (action == MineAction.REFRESH) {
+                                mRefreshLayout.finishRefresh(false);
+                            } else {
+                                mRefreshLayout.finishLoadmore(false);
+                            }
+                        }
+                    }
+                });
+    }
+
+    /**
+     * 设置小红点
+     */
+    private void setRedDot(final MsgOrderReminderListModel bean) {
+        showProgressDialog("请稍等...");
+        ReqJson reqJson = new ReqJson();
+        reqJson.setProc(Constant.PROC_SET_RED_DOT_ORDER_REMINDER);
+        reqJson.setReminder_message_id(bean.getReminder_message_id());
+        reqJson.setLaunch(1);
+        reqJson.setHas_rows("no");
+        mSubscription = ApiImp.get().setRedDot(Params.getNetWorkParams(reqJson))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Base>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        dissmisProgressDialog();
+                        showToast("网络不给力");
+                        Log.i("处罚提醒列表", e.toString());
+                    }
+
+                    @Override
+                    public void onNext(Base model) {
+                        if (model.getResult().getOut_Flag() == 0) {
+                            dissmisProgressDialog();
+                            Intent intent = new Intent(mContext, ActionPickAct.class);
+                            Log.i("工单号", bean.getOrder_title_id() + "");
+                            intent.putExtra("id", Long.valueOf(bean.getOrder_title_id()));
+                            startActivity(intent);
+                        } else {
+                            dissmisProgressDialog();
+                            showToast(model.getResult().getOut_nszRtn());
+                        }
+                    }
+                });
+    }
+
+    /**
+     * 工单调整和服务调整
+     *
+     * @param bean
+     */
+    private MsgOrderCancelModel transformOrderAdjust(MsgOrderReminderModel.Rows1Bean bean) {
+        MsgOrderCancelModel msgOrderCancelModel = new MsgOrderCancelModel();
+        msgOrderCancelModel.setContent_app(bean.getContent_app());
+        msgOrderCancelModel.setCreate_time(bean.getCreate_time());
+        msgOrderCancelModel.setLauch_source(bean.getLauch_source());
+        msgOrderCancelModel.setMessage_type(bean.getMessage_type());
+        msgOrderCancelModel.setOper_desc_app(bean.getOper_desc_app());
+        msgOrderCancelModel.setOper_name(bean.getOper_name());
+        msgOrderCancelModel.setOrder_title_id(bean.getOrder_title_id());
+        msgOrderCancelModel.setReminder_message_id(bean.getReminder_message_id());
+        msgOrderCancelModel.setTitle_app(bean.getTitle_app());
+        msgOrderCancelModel.setApp_is_read(bean.getApp_is_read());
+        return msgOrderCancelModel;
+    }
+
+    /**
+     * 工单调整和服务调整
+     *
+     * @param bean
+     */
+    private MsgOrderAddressAmend transformAddressAmend(MsgOrderReminderModel.Rows1Bean bean) {
+        MsgOrderAddressAmend msgOrderAddressAmend = new MsgOrderAddressAmend();
+        msgOrderAddressAmend.setContent_app(bean.getContent_app());
+        msgOrderAddressAmend.setCreate_time(bean.getCreate_time());
+        msgOrderAddressAmend.setMessage_type(bean.getMessage_type());
+        msgOrderAddressAmend.setOper_desc_app(bean.getOper_desc_app());
+        msgOrderAddressAmend.setOper_name(bean.getOper_name());
+        msgOrderAddressAmend.setOrder_title_id(bean.getOrder_title_id());
+        msgOrderAddressAmend.setReminder_message_id(bean.getReminder_message_id());
+        msgOrderAddressAmend.setTitle_app(bean.getTitle_app());
+        msgOrderAddressAmend.setApp_is_read(bean.getApp_is_read());
+        return msgOrderAddressAmend;
+    }
+
+    /**
+     * 工单改派
+     *
+     * @param bean
+     */
+    private MsgOrderReassignMentModel transformOrderReassignMent(MsgOrderReminderModel.Rows1Bean bean) {
+        MsgOrderReassignMentModel msgOrderReassignMentModel = new MsgOrderReassignMentModel();
+        msgOrderReassignMentModel.setContent_app(bean.getContent_app());
+        msgOrderReassignMentModel.setCreate_time(bean.getCreate_time());
+        msgOrderReassignMentModel.setMessage_type(bean.getMessage_type());
+        msgOrderReassignMentModel.setOrder_title_id(bean.getOrder_title_id());
+        msgOrderReassignMentModel.setReminder_message_id(bean.getReminder_message_id());
+        msgOrderReassignMentModel.setTitle_app(bean.getTitle_app());
+        msgOrderReassignMentModel.setApp_is_read(bean.getApp_is_read());
+        return msgOrderReassignMentModel;
+    }
+}

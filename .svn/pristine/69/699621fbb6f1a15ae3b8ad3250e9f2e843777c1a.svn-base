@@ -1,0 +1,109 @@
+package com.rubu.ui.act.register.adapter;
+
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.TextView;
+
+import com.rubu.R;
+import com.rubu.base.BaseListAdapter;
+import com.rubu.model.ServiceModel;
+import com.rubu.util.StringUtil;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Email 727320580@qq.com
+ * Created by xika on 2017/9/25
+ * Vwesion 1.0
+ * Dsscription:  （天猫）服务能力的加载
+ */
+
+public class RegisterServiceTypeAdapter extends BaseListAdapter<ServiceModel> {
+
+    private OnCheckBoxClickListernner mListernner;
+
+    public RegisterServiceTypeAdapter(Context context, List<ServiceModel> list) {
+        super(context, list);
+    }
+
+    @Override
+    public View initView(final ServiceModel serviceModel, View convertView, ViewGroup parent) {
+        final ViewHolder viewHolder;
+        if (convertView == null) {
+            convertView = LayoutInflater.from(context).inflate(R.layout.item_register_service_type, null);
+            viewHolder = new ViewHolder();
+            viewHolder.mCheckBox = (CheckBox) convertView.findViewById(R.id.check_box);
+            viewHolder.mServiceName = (TextView) convertView.findViewById(R.id.tv_service_name);
+            convertView.setTag(viewHolder);
+        } else {
+            viewHolder = (ViewHolder) convertView.getTag();
+        }
+
+        // 是否可以选择
+        if (serviceModel.isSelect()) {
+            viewHolder.mServiceName.setTextColor(convertView.getResources().getColor(R.color.black));
+            viewHolder.mCheckBox.setVisibility(View.VISIBLE);
+        } else {
+            viewHolder.mServiceName.setTextColor(convertView.getResources().getColor(R.color.gray));
+            viewHolder.mCheckBox.setVisibility(View.INVISIBLE);
+        }
+
+        // 名字
+        if (!StringUtil.isEmpty(serviceModel.getService_ability_parent_name())) {
+            viewHolder.mServiceName.setText(serviceModel.getService_ability_parent_name());
+        }
+
+        // 选择
+        final View finalConvertView = convertView;
+        // 是否已经选择
+        if (serviceModel.isCheck()){
+            viewHolder.mServiceName.setTextColor(finalConvertView.getResources().getColor(R.color.colorPrimary));
+            viewHolder.mCheckBox.setChecked(true);
+        }else {
+            viewHolder.mServiceName.setTextColor(finalConvertView.getResources().getColor(R.color.black));
+            viewHolder.mCheckBox.setChecked(false);
+        }
+        viewHolder.mCheckBox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (viewHolder.mCheckBox.isChecked()) {
+                    viewHolder.mServiceName.setTextColor(finalConvertView.getResources().getColor(R.color.colorPrimary));
+                    if (mListernner != null) {
+                        mListernner.onClick(serviceModel,true);
+                    }
+                } else {
+                    viewHolder.mServiceName.setTextColor(finalConvertView.getResources().getColor(R.color.black));
+                    if (mListernner != null) {
+                        mListernner.onClick(serviceModel,false);
+                    }
+                }
+            }
+        });
+        return convertView;
+    }
+
+    /**
+     * checkbox的点击事件
+     */
+    public interface OnCheckBoxClickListernner {
+        void onClick(ServiceModel data,boolean isCheck);
+    }
+
+    /**
+     * 点击事件
+     */
+    public void setOnCheckBoxClick(OnCheckBoxClickListernner listenner) {
+        this.mListernner = listenner;
+    }
+
+
+    // 适配
+    private class ViewHolder {
+        CheckBox mCheckBox;
+        TextView mServiceName;
+    }
+}
